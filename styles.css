@@ -1,6 +1,6 @@
 /* switch light/dark mode */
 .theme-light {
-  --bg-box: #fafafb;
+  --bg-box: #ffffff;
   --bg-box-top: #e2e2e2;
   --title-box: #363c49;
   --text-box: #b7b7b7;
@@ -34,7 +34,6 @@
   margin-top: 20px;
   max-width: var(--max-width);
   margin: 0 0 0 calc(50% - var(--max-width) / 2) !important;
-  /* padding-left: var(--folding-offset); */
 }
 
 /* common */
@@ -52,6 +51,7 @@
   background-color: var(--bg-box);
   border-radius: 2px;
   overflow: hidden;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
 }
 
 .twohop-links-box:hover {
