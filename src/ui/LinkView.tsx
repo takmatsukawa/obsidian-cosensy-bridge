@@ -52,7 +52,7 @@ export default class LinkView extends React.Component<
           {removeBlockReference(this.props.fileEntity.linkText)}
         </div>
         <div className={"twohop-links-box-preview"}>
-          {this.state.preview && this.state.preview.match(/^app:\/\//) ? (
+          {this.state.preview && this.state.preview.match(/^(app|https?):\/\//) ? (
             <img
               src={this.state.preview}
               onLoad={this.resizeImage.bind(this)}

@@ -312,9 +312,9 @@ export default class TwohopLinksPlugin extends Plugin {
       .map((path) => {
         return twoHopLinks[path]
           ? new TwohopLink(
-              new FileEntity(activeFile.path, path),
-              twoHopLinks[path]
-            )
+            new FileEntity(activeFile.path, path),
+            twoHopLinks[path]
+          )
           : null;
       })
       .filter((it) => it)
@@ -461,19 +461,26 @@ export default class TwohopLinksPlugin extends Plugin {
     const content = await this.app.vault.read(file);
 
     if (this.settings.showImage) {
-      const m = content.match(/!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/);
+      const m = content.match(/!\[(?:[^\]]*?)\]\((https?:\/\/[^\)]+.(?:png|bmp|jpg))\)/);
       if (m) {
         const img = m[1];
         console.debug(`Found image: ${img}`);
-        const file = this.app.metadataCache.getFirstLinkpathDest(
-          img,
-          fileEntity.sourcePath
-        );
-        console.debug(`Found image: ${img} = file=${file}`);
-        if (file) {
-          const resourcePath = this.app.vault.getResourcePath(file);
-          console.debug(`Found image: ${img} resourcePath=${resourcePath}`);
-          return resourcePath;
+
+        // Check if the image is a local file or an external URL
+        if (img.match(/^https?:\/\//)) {
+          // External URL, return it directly
+          return img;
+        } else {
+          const file = this.app.metadataCache.getFirstLinkpathDest(
+            img,
+            fileEntity.sourcePath
+          );
+          console.debug(`Found image: ${img} = file=${file}`);
+          if (file) {
+            const resourcePath = this.app.vault.getResourcePath(file);
+            console.debug(`Found image: ${img} resourcePath=${resourcePath}`);
+            return resourcePath;
+          }
         }
       }
     }
@@ -488,7 +495,8 @@ export default class TwohopLinksPlugin extends Plugin {
           !it.match(/^https?:\/\//) // Skip URL only line.
         );
       })
-      .first();
+      .slice(0, 4)
+      .join('\n');
   }
 
   onunload(): void {
