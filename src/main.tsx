@@ -496,7 +496,7 @@ export default class TwohopLinksPlugin extends Plugin {
           !it.match(/^https?:\/\//) // Skip URL only line.
         );
       })
-      .slice(0, 4)
+      .slice(0, 6)
       .join('\n');
   }
 
