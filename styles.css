@@ -31,23 +31,19 @@
 
 /* the container */
 .twohop-links-container {
-  margin-top: 20px;
-  max-width: var(--max-width);
-  margin: 0 0 0 calc(50% - var(--max-width) / 2) !important;
+}
+.twohop-links-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-gap: 16px;
+  margin: 20px;
 }
 
 /* common */
-.twohop-links-section:after {
-  content: "";
-  display: block;
-  clear: both;
-}
-
 .twohop-links-box {
   box-sizing: border-box;
-  float: left;
+  max-height: 170px;
   padding: 10px;
-  margin: 8px;
   background-color: var(--bg-box);
   border-radius: 2px;
   overflow: hidden;
@@ -60,11 +56,14 @@
 
 .twohop-links-box-title {
   color: var(--title-box);
-  font-style: bold;
+  font-size: 90%;
+  font-weight: 500;
   margin-bottom: 15px;
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
+  white-space: unset;
+  -webkit-line-clamp: 3;
 }
 
 .twohop-links-box img {
@@ -79,6 +78,7 @@
 .twohop-links-box-preview {
   color: var(--text-box);
   font-size: 70%;
+  white-space: pre-line;
 }
 
 /* connected links */
