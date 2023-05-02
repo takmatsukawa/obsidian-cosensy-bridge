@@ -501,6 +501,12 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   onunload(): void {
+    this.disable(false);
+    const container = this.app.workspace.containerEl.querySelector('.twohop-links-container');
+    if (container) {
+      ReactDOM.unmountComponentAtNode(container);
+      container.remove();
+    }
     console.log("unloading plugin");
   }
 
