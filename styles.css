@@ -31,6 +31,7 @@
 
 /* the container */
 .twohop-links-container {
+  margin-bottom: 40px
 }
 .twohop-links-section {
   display: grid;
