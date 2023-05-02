@@ -461,7 +461,8 @@ export default class TwohopLinksPlugin extends Plugin {
     const content = await this.app.vault.read(file);
 
     if (this.settings.showImage) {
-      const m = content.match(/!\[(?:[^\]]*?)\]\((https?:\/\/[^\)]+.(?:png|bmp|jpg))\)/);
+      // Match both local and external image links
+      const m = content.match(/!\[(?:[^\]]*?)\]\(((?:https?:\/\/[^\)]+)|(?:[^\)]+.(?:png|bmp|jpg)))\)/) || content.match(/!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/);
       if (m) {
         const img = m[1];
         console.debug(`Found image: ${img}`);
