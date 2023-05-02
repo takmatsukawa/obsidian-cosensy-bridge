@@ -5,7 +5,7 @@ import { removeBlockReference } from "../utils";
 interface LinkViewProps {
   fileEntity: FileEntity;
   onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getPreview: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
   boxWidth: string;
   boxHeight: string;
 }
@@ -18,14 +18,23 @@ export default class LinkView extends React.Component<
   LinkViewProps,
   LinkViewState
 > {
+  private abortController: AbortController;
+
   constructor(props: LinkViewProps) {
     super(props);
     this.state = { preview: null };
   }
 
   async componentDidMount(): Promise<void> {
-    const preview = await this.props.getPreview(this.props.fileEntity);
-    this.setState({ preview });
+    this.abortController = new AbortController();
+    const preview = await this.props.getPreview(this.props.fileEntity, this.abortController.signal);
+    if (!this.abortController.signal.aborted) {
+      this.setState({ preview });
+    }
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
   }
 
   resizeImage(e: Event): void {
