@@ -115,3 +115,7 @@
 div.cm-content {
   padding-bottom: 30px !important;
 }
+
+.markdown-embed-content .twohop-links-container {
+  display: none;
+}
