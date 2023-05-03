@@ -312,9 +312,9 @@ export default class TwohopLinksPlugin extends Plugin {
       .map((path) => {
         return twoHopLinks[path]
           ? new TwohopLink(
-            new FileEntity(activeFile.path, path),
-            twoHopLinks[path]
-          )
+              new FileEntity(activeFile.path, path),
+              twoHopLinks[path]
+            )
           : null;
       })
       .filter((it) => it)
@@ -462,7 +462,10 @@ export default class TwohopLinksPlugin extends Plugin {
 
     if (this.settings.showImage) {
       // Match both local and external image links
-      const m = content.match(/!\[(?:[^\]]*?)\]\(((?:https?:\/\/[^\)]+)|(?:[^\)]+.(?:png|bmp|jpg)))\)/) || content.match(/!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/);
+      const m =
+        content.match(
+          /!\[(?:[^\]]*?)\]\(((?:https?:\/\/[^\)]+)|(?:[^\)]+.(?:png|bmp|jpg)))\)/
+        ) || content.match(/!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/);
       if (m) {
         const img = m[1];
         console.debug(`Found image: ${img}`);
@@ -497,12 +500,14 @@ export default class TwohopLinksPlugin extends Plugin {
         );
       })
       .slice(0, 6)
-      .join('\n');
+      .join("\n");
   }
 
   onunload(): void {
     this.disable(false);
-    const container = this.app.workspace.containerEl.querySelector('.twohop-links-container');
+    const container = this.app.workspace.containerEl.querySelector(
+      ".twohop-links-container"
+    );
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
       container.remove();

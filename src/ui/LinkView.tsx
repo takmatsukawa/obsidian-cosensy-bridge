@@ -27,7 +27,10 @@ export default class LinkView extends React.Component<
 
   async componentDidMount(): Promise<void> {
     this.abortController = new AbortController();
-    const preview = await this.props.getPreview(this.props.fileEntity, this.abortController.signal);
+    const preview = await this.props.getPreview(
+      this.props.fileEntity,
+      this.abortController.signal
+    );
     if (!this.abortController.signal.aborted) {
       this.setState({ preview });
     }
@@ -61,7 +64,8 @@ export default class LinkView extends React.Component<
           {removeBlockReference(this.props.fileEntity.linkText)}
         </div>
         <div className={"twohop-links-box-preview"}>
-          {this.state.preview && this.state.preview.match(/^(app|https?):\/\//) ? (
+          {this.state.preview &&
+          this.state.preview.match(/^(app|https?):\/\//) ? (
             <img
               src={this.state.preview}
               onLoad={this.resizeImage.bind(this)}
