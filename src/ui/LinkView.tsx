@@ -44,7 +44,6 @@ export default class LinkView extends React.Component<
     const img = e.target as HTMLImageElement;
     const boxPreview = img.parentElement;
     const box = boxPreview.parentElement;
-    const title = box.querySelector(".twohop-links-box-title");
   }
 
   render(): JSX.Element {
