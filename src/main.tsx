@@ -490,7 +490,8 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     // Remove YFM
-    const lines = content.replace(/.*^---$/gms, "").split(/\n/);
+    const updatedContent = content.replace(/^(.*\n)?---[\s\S]*?---\n?/m, "");
+    const lines = updatedContent.split(/\n/);
     return lines
       .filter((it) => {
         return (
