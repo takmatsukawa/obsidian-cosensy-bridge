@@ -11,8 +11,8 @@ export interface TwohopPluginSettings {
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   putOnTop: false,
-  boxWidth: "162px",
-  boxHeight: "178px",
+  boxWidth: "",
+  boxHeight: "",
   showImage: true,
   excludePaths: [],
 };
