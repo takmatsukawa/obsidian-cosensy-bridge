@@ -280,6 +280,17 @@ export default class TwohopLinksPlugin extends Plugin {
     );
   }
 
+  private shouldExcludePath(path: string): boolean {
+    const excludePaths = this.settings.excludePaths;
+    return excludePaths.some((excludePath: string) => {
+      if (excludePath.endsWith("/")) {
+        return path.startsWith(excludePath);
+      } else {
+        return path === excludePath;
+      }
+    });
+  }
+
   private getTwohopLinks(
     activeFile: TFile,
     links: Record<string, Record<string, number>>,
@@ -297,6 +308,7 @@ export default class TwohopLinksPlugin extends Plugin {
     for (const k of Object.keys(twohopLinkList)) {
       if (twohopLinkList[k].length > 0) {
         twoHopLinks[k] = twohopLinkList[k]
+          .filter((it) => !this.shouldExcludePath(it))
           .map((it) => {
             const linkText = path2linkText(it);
             if (forwardLinkSet.has(removeBlockReference(linkText))) {
@@ -309,12 +321,13 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     return Object.keys(links[activeFile.path])
+      .filter((path) => !this.shouldExcludePath(path))
       .map((path) => {
         return twoHopLinks[path]
           ? new TwohopLink(
-              new FileEntity(activeFile.path, path),
-              twoHopLinks[path]
-            )
+            new FileEntity(activeFile.path, path),
+            twoHopLinks[path]
+          )
           : null;
       })
       .filter((it) => it)
@@ -390,6 +403,10 @@ export default class TwohopLinksPlugin extends Plugin {
       if (activeFileCache.links != null) {
         const seen = new Set<string>();
         return activeFileCache.links
+          .filter((it) => {
+            const targetFile = this.app.metadataCache.getFirstLinkpathDest(removeBlockReference(it.link), activeFile.path);
+            return targetFile ? !this.shouldExcludePath(targetFile.path) : true;
+          })
           .map((it) => {
             const key = removeBlockReference(it.link);
             if (!seen.has(key)) {
@@ -414,6 +431,9 @@ export default class TwohopLinksPlugin extends Plugin {
       .metadataCache.resolvedLinks;
     const result: FileEntity[] = [];
     for (const src of Object.keys(resolvedLinks)) {
+      if (this.shouldExcludePath(src)) {
+        continue;
+      }
       for (const dest of Object.keys(resolvedLinks[src])) {
         if (dest == name) {
           const linkText = path2linkText(src);

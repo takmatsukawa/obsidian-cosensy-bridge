@@ -6,6 +6,7 @@ export interface TwohopPluginSettings {
   boxWidth: string;
   boxHeight: string;
   showImage: boolean;
+  excludePaths: string[];
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   boxWidth: "162px",
   boxHeight: "178px",
   showImage: true,
+  excludePaths: [],
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -75,6 +77,21 @@ export class TwohopSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.showImage)
           .onChange(async (value) => {
             this.plugin.settings.showImage = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Exclude paths")
+      .setDesc("List of file or folder paths to exclude, one per line")
+      .addTextArea((textArea) => {
+        textArea
+          .setPlaceholder("path/to/file.md\npath/to/folder/")
+          .setValue(this.plugin.settings.excludePaths.join("\n"))
+          .onChange(async (value) => {
+            this.plugin.settings.excludePaths = value
+              .split("\n")
+              .map((path) => path.trim());
             await this.plugin.saveSettings();
           });
       });
