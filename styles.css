@@ -120,3 +120,7 @@ div.cm-content {
 .markdown-embed-content .twohop-links-container {
   display: none;
 }
+
+body:not(.zoom-off) .view-content div:not(.canvas-node-content) .twohop-links-box img {
+    cursor: pointer !important;
+}
