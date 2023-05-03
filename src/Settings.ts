@@ -94,6 +94,7 @@ export class TwohopSettingTab extends PluginSettingTab {
               .map((path) => path.trim());
             await this.plugin.saveSettings();
           });
+          textArea.inputEl.style.height = "150px";
       });
   }
 }
