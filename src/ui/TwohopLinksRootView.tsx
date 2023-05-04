@@ -17,8 +17,6 @@ interface TwohopLinksRootViewProps {
   tagLinksList: TagLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
-  boxWidth: string;
-  boxHeight: string;
 }
 
 export default class TwohopLinksRootView extends React.Component<TwohopLinksRootViewProps> {
@@ -33,8 +31,6 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           fileEntities={this.props.forwardConnectedLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
           title={"Links"}
           className={"twohop-links-forward-links"}
         />
@@ -42,8 +38,6 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           fileEntities={this.props.backwardConnectedLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
           title={"Back Links"}
           className={"twohop-links-back-links"}
         />
@@ -52,30 +46,22 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           resolved={false}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
         />
         <TwohopLinksView
           twoHopLinks={this.props.resolvedTwoHopLinks}
           resolved={true}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
         />
         <NewLinksView
           fileEntities={this.props.newLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
         />
         <TagLinksListView
           tagLinksList={this.props.tagLinksList}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          boxWidth={this.props.boxWidth}
-          boxHeight={this.props.boxHeight}
         />
       </div>
     );

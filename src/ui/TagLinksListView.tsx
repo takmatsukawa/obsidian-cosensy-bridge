@@ -7,8 +7,6 @@ interface TagLinksListViewProps {
   tagLinksList: TagLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
-  boxWidth: string;
-  boxHeight: string;
 }
 
 export default class TagLinksListView extends React.Component<TagLinksListViewProps> {
@@ -32,8 +30,6 @@ export default class TagLinksListView extends React.Component<TagLinksListViewPr
                 key={link.tag + it.key()}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
-                boxWidth={this.props.boxWidth}
-                boxHeight={this.props.boxHeight}
               />
             ))}
           </div>

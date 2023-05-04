@@ -6,8 +6,6 @@ interface NewLinksViewProps {
   fileEntities: FileEntity[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
-  boxWidth: string;
-  boxHeight: string;
 }
 
 export default class NewLinksView extends React.Component<NewLinksViewProps> {
@@ -31,8 +29,6 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
                 key={it.key()}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
-                boxWidth={this.props.boxWidth}
-                boxHeight={this.props.boxHeight}
               />
             );
           })}

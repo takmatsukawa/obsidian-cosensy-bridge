@@ -6,8 +6,6 @@ interface LinkViewProps {
   fileEntity: FileEntity;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
-  boxWidth: string;
-  boxHeight: string;
 }
 
 interface LinkViewState {
