@@ -49,7 +49,6 @@ export default class LinkView extends React.Component<
         onMouseDown={async (event) =>
           event.button == 0 && this.props.onClick(this.props.fileEntity)
         }
-        style={{ width: this.props.boxWidth, height: this.props.boxHeight }}
       >
         <div className="twohop-links-box-title">
           {removeBlockReference(this.props.fileEntity.linkText)}

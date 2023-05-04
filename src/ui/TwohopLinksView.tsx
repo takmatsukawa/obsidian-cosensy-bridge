@@ -37,10 +37,6 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
               onMouseDown={async (event) =>
                 event.button == 0 && this.props.onClick(link.link)
               }
-              style={{
-                width: this.props.boxWidth,
-                height: this.props.boxHeight,
-              }}
             >
               {link.link.linkText.replace(/\.md$/, "")}
             </div>

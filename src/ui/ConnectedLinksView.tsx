@@ -23,10 +23,6 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
         <div className={"twohop-links-section " + this.props.className}>
           <div
             className={"twohop-links-box twohop-links-connected-links-header"}
-            style={{
-              width: this.props.boxWidth,
-              height: this.props.boxHeight,
-            }}
           >
             {this.props.title}
           </div>

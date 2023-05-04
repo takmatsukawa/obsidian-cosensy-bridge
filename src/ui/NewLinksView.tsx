@@ -21,10 +21,6 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
         <div className="twohop-links-section">
           <div
             className={"twohop-links-box twohop-links-new-links-header"}
-            style={{
-              width: this.props.boxWidth,
-              height: this.props.boxHeight,
-            }}
           >
             New links
           </div>

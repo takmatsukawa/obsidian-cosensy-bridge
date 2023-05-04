@@ -23,10 +23,6 @@ export default class TagLinksListView extends React.Component<TagLinksListViewPr
           <div className="twohop-links-section" key={link.tag}>
             <div
               className={"twohop-links-tag-header twohop-links-box"}
-              style={{
-                width: this.props.boxWidth,
-                height: this.props.boxHeight,
-              }}
             >
               {link.tag}
             </div>
