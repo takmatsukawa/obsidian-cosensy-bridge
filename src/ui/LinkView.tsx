@@ -54,10 +54,7 @@ export default class LinkView extends React.Component<
         <div className={"twohop-links-box-preview"}>
           {this.state.preview &&
           this.state.preview.match(/^(app|https?):\/\//) ? (
-            <img
-              src={this.state.preview}
-              alt={"preview image"}
-            />
+            <img src={this.state.preview} alt={"preview image"} />
           ) : (
             <div>{this.state.preview}</div>
           )}

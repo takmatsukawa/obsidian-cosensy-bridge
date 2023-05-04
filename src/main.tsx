@@ -323,9 +323,9 @@ export default class TwohopLinksPlugin extends Plugin {
       .map((path) => {
         return twoHopLinks[path]
           ? new TwohopLink(
-            new FileEntity(activeFile.path, path),
-            twoHopLinks[path]
-          )
+              new FileEntity(activeFile.path, path),
+              twoHopLinks[path]
+            )
           : null;
       })
       .filter((it) => it)
@@ -402,7 +402,10 @@ export default class TwohopLinksPlugin extends Plugin {
         const seen = new Set<string>();
         return activeFileCache.links
           .filter((it) => {
-            const targetFile = this.app.metadataCache.getFirstLinkpathDest(removeBlockReference(it.link), activeFile.path);
+            const targetFile = this.app.metadataCache.getFirstLinkpathDest(
+              removeBlockReference(it.link),
+              activeFile.path
+            );
             return targetFile ? !this.shouldExcludePath(targetFile.path) : true;
           })
           .map((it) => {

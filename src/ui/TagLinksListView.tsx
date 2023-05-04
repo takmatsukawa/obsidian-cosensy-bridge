@@ -19,9 +19,7 @@ export default class TagLinksListView extends React.Component<TagLinksListViewPr
       <div>
         {this.props.tagLinksList.map((link) => (
           <div className="twohop-links-section" key={link.tag}>
-            <div
-              className={"twohop-links-tag-header twohop-links-box"}
-            >
+            <div className={"twohop-links-tag-header twohop-links-box"}>
               {link.tag}
             </div>
             {link.fileEntities.map((it) => (
