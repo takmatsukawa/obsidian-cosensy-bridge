@@ -1,6 +1,7 @@
 import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
+import { App } from "obsidian";
 
 interface ConnectedLinksViewProps {
   fileEntities: FileEntity[];
@@ -8,6 +9,7 @@ interface ConnectedLinksViewProps {
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   title: string;
   className: string;
+  app: App;
 }
 
 export default class ConnectedLinksView extends React.Component<ConnectedLinksViewProps> {
@@ -31,6 +33,7 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
                 key={it.key()}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
+                app={this.props.app}
               />
             );
           })}

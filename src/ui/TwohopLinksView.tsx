@@ -3,12 +3,14 @@ import { TwohopLink } from "../model/TwohopLink";
 import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
+import { App } from "obsidian";
 
 interface TwohopLinksViewProps {
   twoHopLinks: TwohopLink[];
   resolved: boolean;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  app: App;
 }
 
 export default class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
@@ -44,6 +46,7 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
                 key={link.link.linkText + it.key()}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
+                app={this.props.app}
               />
             ))}
           </div>

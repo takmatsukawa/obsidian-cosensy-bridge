@@ -1,11 +1,13 @@
 import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
+import { App } from "obsidian";
 
 interface NewLinksViewProps {
   fileEntities: FileEntity[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  app: App;
 }
 
 export default class NewLinksView extends React.Component<NewLinksViewProps> {
@@ -27,6 +29,7 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
                 key={it.key()}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
+                app={this.props.app}
               />
             );
           })}

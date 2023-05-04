@@ -251,6 +251,7 @@ export default class TwohopLinksPlugin extends Plugin {
         tagLinksList={tagLinksList}
         onClick={this.openFile.bind(this)}
         getPreview={this.readPreview.bind(this)}
+        app={this.app}
       />,
       container
     );
