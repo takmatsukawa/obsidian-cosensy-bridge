@@ -480,6 +480,15 @@ export default class TwohopLinksPlugin extends Plugin {
     }
     const content = await this.app.vault.read(file);
 
+    const iframeMatch = content.match(/<iframe[^>]*src="([^"]+)"[^>]*>/i);
+    if (iframeMatch) {
+      const iframeUrl = iframeMatch[1];
+      const thumbnailUrl = this.getThumbnailUrlFromIframeUrl(iframeUrl);
+      if (thumbnailUrl) {
+        return thumbnailUrl;
+      }
+    }
+
     if (this.settings.showImage) {
       // Match both local and external image links
       const m =
@@ -522,6 +531,18 @@ export default class TwohopLinksPlugin extends Plugin {
       })
       .slice(0, 6)
       .join("\n");
+  }
+
+  private getThumbnailUrlFromIframeUrl(iframeUrl: string): string | null {
+    const youtubeIdMatch = iframeUrl.match(
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?&]+)(?:\?[^?]+)?$/
+    );
+    if (youtubeIdMatch) {
+      const youtubeId = youtubeIdMatch[1];
+      return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
+    }
+
+    return null;
   }
 
   onunload(): void {
