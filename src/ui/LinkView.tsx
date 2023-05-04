@@ -40,12 +40,6 @@ export default class LinkView extends React.Component<
     this.abortController.abort();
   }
 
-  resizeImage(e: Event): void {
-    const img = e.target as HTMLImageElement;
-    const boxPreview = img.parentElement;
-    const box = boxPreview.parentElement;
-  }
-
   render(): JSX.Element {
     return (
       <div
@@ -65,7 +59,6 @@ export default class LinkView extends React.Component<
           this.state.preview.match(/^(app|https?):\/\//) ? (
             <img
               src={this.state.preview}
-              onLoad={this.resizeImage.bind(this)}
               alt={"preview image"}
             />
           ) : (
