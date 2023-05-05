@@ -31,7 +31,9 @@
 
 /* the container */
 .twohop-links-container {
-  margin-bottom: 40px
+  margin-bottom: 40px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .twohop-links-section {
   display: grid;
