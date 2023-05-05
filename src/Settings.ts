@@ -2,12 +2,16 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import TwohopLinksPlugin from "./main";
 
 export interface TwohopPluginSettings {
+  showForwardConnectedLinks: boolean;
+  showBackwardConnectedLinks: boolean;
   putOnTop: boolean;
   showImage: boolean;
   excludePaths: string[];
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
+  showForwardConnectedLinks: true,
+  showBackwardConnectedLinks: true,
   putOnTop: false,
   showImage: true,
   excludePaths: [],
@@ -25,6 +29,28 @@ export class TwohopSettingTab extends PluginSettingTab {
     const containerEl = this.containerEl;
 
     containerEl.empty();
+
+    new Setting(containerEl)
+      .setName("Show links")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.showForwardConnectedLinks)
+          .onChange(async (value) => {
+            this.plugin.settings.showForwardConnectedLinks = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Show back links")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.showBackwardConnectedLinks)
+          .onChange(async (value) => {
+            this.plugin.settings.showBackwardConnectedLinks = value;
+            await this.plugin.saveSettings();
+          })
+      );
 
     new Setting(containerEl)
       .setName("Put 2hop links to top of the pane(Experimental).")

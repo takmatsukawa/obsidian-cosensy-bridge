@@ -241,6 +241,8 @@ export default class TwohopLinksPlugin extends Plugin {
     tagLinksList: TagLinks[],
     container: Element
   ) {
+    const showForwardConnectedLinks = this.settings.showForwardConnectedLinks;
+    const showBackwardConnectedLinks = this.settings.showBackwardConnectedLinks;
     ReactDOM.render(
       <TwohopLinksRootView
         forwardConnectedLinks={forwardConnectedLinks}
@@ -252,6 +254,8 @@ export default class TwohopLinksPlugin extends Plugin {
         onClick={this.openFile.bind(this)}
         getPreview={this.readPreview.bind(this)}
         app={this.app}
+        showForwardConnectedLinks={showForwardConnectedLinks}
+        showBackwardConnectedLinks={showBackwardConnectedLinks}
       />,
       container
     );

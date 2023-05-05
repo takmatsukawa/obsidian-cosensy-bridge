@@ -19,6 +19,8 @@ interface TwohopLinksRootViewProps {
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
+  showForwardConnectedLinks: boolean;
+  showBackwardConnectedLinks: boolean;
 }
 
 export default class TwohopLinksRootView extends React.Component<TwohopLinksRootViewProps> {
@@ -27,24 +29,29 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
   }
 
   render(): JSX.Element {
+    const { showForwardConnectedLinks, showBackwardConnectedLinks } = this.props;
     return (
       <div>
-        <ConnectedLinksView
-          fileEntities={this.props.forwardConnectedLinks}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          title={"Links"}
-          className={"twohop-links-forward-links"}
-          app={this.props.app}
-        />
-        <ConnectedLinksView
-          fileEntities={this.props.backwardConnectedLinks}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          title={"Back Links"}
-          className={"twohop-links-back-links"}
-          app={this.props.app}
-        />
+        {showForwardConnectedLinks && (
+          <ConnectedLinksView
+            fileEntities={this.props.forwardConnectedLinks}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            title={"Links"}
+            className={"twohop-links-forward-links"}
+            app={this.props.app}
+          />
+        )}
+        {showBackwardConnectedLinks && (
+          <ConnectedLinksView
+            fileEntities={this.props.backwardConnectedLinks}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            title={"Back Links"}
+            className={"twohop-links-back-links"}
+            app={this.props.app}
+          />
+        )}
         <TwohopLinksView
           twoHopLinks={this.props.unresolvedTwoHopLinks}
           resolved={false}
