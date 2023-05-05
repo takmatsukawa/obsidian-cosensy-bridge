@@ -2,6 +2,7 @@ import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import { removeBlockReference } from "../utils";
 import { App, Menu, HoverParent, HoverPopover } from "obsidian";
+import { HOVER_LINK_ID } from "../main";
 
 interface LinkViewProps {
   fileEntity: FileEntity;
@@ -96,7 +97,7 @@ export default class LinkView
 
     this.props.app.workspace.trigger("hover-link", {
       event: e.nativeEvent,
-      source: this.props.fileEntity.sourcePath,
+      source: HOVER_LINK_ID,
       hoverParent: this,
       targetEl,
       linktext: this.props.fileEntity.linkText,

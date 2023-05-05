@@ -13,6 +13,7 @@ import {
 } from "./Settings";
 
 const CONTAINER_CLASS = "twohop-links-container";
+export const HOVER_LINK_ID = "2hop-links";
 
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
@@ -52,6 +53,10 @@ export default class TwohopLinksPlugin extends Plugin {
     });
 
     this.addSettingTab(new TwohopSettingTab(this.app, this));
+    (app.workspace as any).registerHoverLinkSource(HOVER_LINK_ID, {
+      display: "2hop Links",
+      defaultMod: true,
+    });
   }
 
   enable(check: boolean): boolean {
@@ -560,6 +565,7 @@ export default class TwohopLinksPlugin extends Plugin {
       ReactDOM.unmountComponentAtNode(container);
       container.remove();
     }
+    (app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
     console.log("unloading plugin");
   }
 
