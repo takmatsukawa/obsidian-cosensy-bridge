@@ -1,7 +1,7 @@
 import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import { removeBlockReference } from "../utils";
-import { App, Menu } from "obsidian";
+import { App, Menu, HoverParent, HoverPopover } from "obsidian";
 
 interface LinkViewProps {
   fileEntity: FileEntity;
@@ -14,11 +14,12 @@ interface LinkViewState {
   preview: string;
 }
 
-export default class LinkView extends React.Component<
-  LinkViewProps,
-  LinkViewState
-> {
+export default class LinkView
+  extends React.Component<LinkViewProps, LinkViewState>
+  implements HoverParent
+{
   private abortController: AbortController;
+  hoverPopover: HoverPopover | null;
 
   constructor(props: LinkViewProps) {
     super(props);
@@ -88,6 +89,21 @@ export default class LinkView extends React.Component<
     menu.showAtMouseEvent(event.nativeEvent);
   };
 
+  onMouseOver = (e: React.MouseEvent) => {
+    const targetEl = e.currentTarget as HTMLElement;
+
+    if (targetEl.tagName !== "DIV") return;
+
+    this.props.app.workspace.trigger("hover-link", {
+      event: e.nativeEvent,
+      source: this.props.fileEntity.sourcePath,
+      hoverParent: this,
+      targetEl,
+      linktext: this.props.fileEntity.linkText,
+      sourcePath: this.props.fileEntity.sourcePath,
+    });
+  };
+
   render(): JSX.Element {
     return (
       <div
@@ -98,6 +114,7 @@ export default class LinkView extends React.Component<
           event.button == 0 && this.props.onClick(this.props.fileEntity)
         }
         onContextMenu={this.handleContextMenu}
+        onMouseOver={this.onMouseOver}
       >
         <div className="twohop-links-box-title">
           {removeBlockReference(this.props.fileEntity.linkText)}

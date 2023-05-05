@@ -29,7 +29,8 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
   }
 
   render(): JSX.Element {
-    const { showForwardConnectedLinks, showBackwardConnectedLinks } = this.props;
+    const { showForwardConnectedLinks, showBackwardConnectedLinks } =
+      this.props;
     return (
       <div>
         {showForwardConnectedLinks && (

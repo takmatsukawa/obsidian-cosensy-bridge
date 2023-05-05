@@ -30,27 +30,23 @@ export class TwohopSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    new Setting(containerEl)
-      .setName("Show links")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.showForwardConnectedLinks)
-          .onChange(async (value) => {
-            this.plugin.settings.showForwardConnectedLinks = value;
-            await this.plugin.saveSettings();
-          })
-      );
+    new Setting(containerEl).setName("Show links").addToggle((toggle) =>
+      toggle
+        .setValue(this.plugin.settings.showForwardConnectedLinks)
+        .onChange(async (value) => {
+          this.plugin.settings.showForwardConnectedLinks = value;
+          await this.plugin.saveSettings();
+        })
+    );
 
-    new Setting(containerEl)
-      .setName("Show back links")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.showBackwardConnectedLinks)
-          .onChange(async (value) => {
-            this.plugin.settings.showBackwardConnectedLinks = value;
-            await this.plugin.saveSettings();
-          })
-      );
+    new Setting(containerEl).setName("Show back links").addToggle((toggle) =>
+      toggle
+        .setValue(this.plugin.settings.showBackwardConnectedLinks)
+        .onChange(async (value) => {
+          this.plugin.settings.showBackwardConnectedLinks = value;
+          await this.plugin.saveSettings();
+        })
+    );
 
     new Setting(containerEl)
       .setName("Put 2hop links to top of the pane(Experimental).")
