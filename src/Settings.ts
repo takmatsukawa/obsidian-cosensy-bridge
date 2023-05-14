@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import TwohopLinksPlugin from "./main";
 
 export interface TwohopPluginSettings {
+  autoLoadTwoHopLinks: boolean;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
   putOnTop: boolean;
@@ -10,6 +11,7 @@ export interface TwohopPluginSettings {
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
+  autoLoadTwoHopLinks: true,
   showForwardConnectedLinks: true,
   showBackwardConnectedLinks: true,
   putOnTop: false,
@@ -29,6 +31,18 @@ export class TwohopSettingTab extends PluginSettingTab {
     const containerEl = this.containerEl;
 
     containerEl.empty();
+
+    new Setting(containerEl)
+      .setName("Auto load 2hop links")
+      .setDesc("Automatically load 2hop links when opening a note")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.autoLoadTwoHopLinks)
+          .onChange(async (value) => {
+            this.plugin.settings.autoLoadTwoHopLinks = value;
+            await this.plugin.saveSettings();
+          });
+      });
 
     new Setting(containerEl).setName("Show links").addToggle((toggle) =>
       toggle

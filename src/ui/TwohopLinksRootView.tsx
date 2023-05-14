@@ -21,6 +21,7 @@ interface TwohopLinksRootViewProps {
   app: App;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
+  autoLoadTwoHopLinks: boolean;
 }
 
 type Category = "forwardConnectedLinks" | "backwardConnectedLinks" | "unresolvedTwoHopLinks" | "resolvedTwoHopLinks" | "newLinks" | "tagLinksList";
@@ -28,6 +29,7 @@ type Category = "forwardConnectedLinks" | "backwardConnectedLinks" | "unresolved
 interface TwohopLinksRootViewState {
   displayedBoxCount: Record<Category, number>;
   prevProps: TwohopLinksRootViewProps | null;
+  isLoaded: boolean;
 }
 
 const initialBoxCount = 5;
@@ -44,7 +46,8 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
         unresolvedTwoHopLinks: initialBoxCount,
         tagLinksList: initialBoxCount,
       },
-      prevProps: null
+      prevProps: null,
+      isLoaded: props.autoLoadTwoHopLinks,
     };
   }
 
@@ -69,13 +72,21 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           newLinks: initialBoxCount,
           tagLinksList: initialBoxCount,
         },
-        prevProps: this.props
+        prevProps: this.props,
+        isLoaded: this.props.autoLoadTwoHopLinks,
       });
     }
   }
 
   render(): JSX.Element {
-    const { showForwardConnectedLinks, showBackwardConnectedLinks } = this.props;
+    const { showForwardConnectedLinks, showBackwardConnectedLinks, autoLoadTwoHopLinks } = this.props;
+    const { isLoaded } = this.state;
+
+    if (!autoLoadTwoHopLinks && !isLoaded) {
+      return (
+        <button className="load-more-button" onClick={() => this.setState({ isLoaded: true })}>Show 2hop links</button>
+      );
+    }
 
     return (
       <div>

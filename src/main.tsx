@@ -269,6 +269,7 @@ export default class TwohopLinksPlugin extends Plugin {
         app={this.app}
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}
+        autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
       />,
       container
     );
