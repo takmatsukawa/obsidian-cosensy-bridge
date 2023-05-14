@@ -78,6 +78,14 @@ export default class TwohopLinksPlugin extends Plugin {
 
     this.enabled = false;
     this.removeTwohopLinks();
+    const container = this.app.workspace.containerEl.querySelector(
+      ".twohop-links-container"
+    );
+    if (container) {
+      ReactDOM.unmountComponentAtNode(container);
+      container.remove();
+    }
+    (app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
     return true;
   }
 
@@ -558,14 +566,6 @@ export default class TwohopLinksPlugin extends Plugin {
 
   onunload(): void {
     this.disable(false);
-    const container = this.app.workspace.containerEl.querySelector(
-      ".twohop-links-container"
-    );
-    if (container) {
-      ReactDOM.unmountComponentAtNode(container);
-      container.remove();
-    }
-    (app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
     console.log("unloading plugin");
   }
 
