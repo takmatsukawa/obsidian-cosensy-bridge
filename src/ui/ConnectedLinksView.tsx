@@ -5,8 +5,10 @@ import { App } from "obsidian";
 
 interface ConnectedLinksViewProps {
   fileEntities: FileEntity[];
+  displayedEntitiesCount: number;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  onLoadMore: () => void;
   title: string;
   className: string;
   app: App;
@@ -26,7 +28,7 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
           >
             {this.props.title}
           </div>
-          {this.props.fileEntities.map((it) => {
+          {this.props.fileEntities.slice(0, this.props.displayedEntitiesCount).map((it) => {
             return (
               <LinkView
                 fileEntity={it}
@@ -37,6 +39,11 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
               />
             );
           })}
+          {this.props.fileEntities.length > this.props.displayedEntitiesCount && (
+            <div onClick={this.props.onLoadMore} className="load-more-button twohop-links-box">
+              Load more
+            </div>
+          )}
         </div>
       );
     } else {

@@ -81,30 +81,28 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
       <div>
         {showForwardConnectedLinks && (
           <ConnectedLinksView
-            fileEntities={this.props.forwardConnectedLinks.slice(0, this.state.displayedBoxCount.forwardConnectedLinks)}
+            fileEntities={this.props.forwardConnectedLinks}
+            displayedEntitiesCount={this.state.displayedBoxCount.forwardConnectedLinks}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            onLoadMore={() => this.loadMore('forwardConnectedLinks')}
             title={"Links"}
             className={"twohop-links-forward-links"}
             app={this.props.app}
           />
         )}
-        {this.state.displayedBoxCount.forwardConnectedLinks < this.props.forwardConnectedLinks.length &&
-          <button onClick={() => this.loadMore('forwardConnectedLinks')}>Load more</button>
-        }
         {showBackwardConnectedLinks && (
           <ConnectedLinksView
-            fileEntities={this.props.backwardConnectedLinks.slice(0, this.state.displayedBoxCount.backwardConnectedLinks)}
+            fileEntities={this.props.backwardConnectedLinks}
+            displayedEntitiesCount={this.state.displayedBoxCount.backwardConnectedLinks}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            onLoadMore={() => this.loadMore('backwardConnectedLinks')}
             title={"Back Links"}
             className={"twohop-links-back-links"}
             app={this.props.app}
           />
         )}
-        {this.state.displayedBoxCount.backwardConnectedLinks < this.props.backwardConnectedLinks.length &&
-          <button onClick={() => this.loadMore('backwardConnectedLinks')}>Load more</button>
-        }
         <TwohopLinksView
           twoHopLinks={this.props.unresolvedTwoHopLinks.slice(0, this.state.displayedBoxCount.unresolvedTwoHopLinks)}
           resolved={false}
@@ -126,14 +124,13 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           <button onClick={() => this.loadMore('resolvedTwoHopLinks')}>Load more</button>
         }
         <NewLinksView
-          fileEntities={this.props.newLinks.slice(0, this.state.displayedBoxCount.newLinks)}
+          fileEntities={this.props.newLinks}
+          displayedEntitiesCount={this.state.displayedBoxCount.newLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
+          onLoadMore={() => this.loadMore('newLinks')}
           app={this.props.app}
         />
-        {this.state.displayedBoxCount.newLinks < this.props.newLinks.length &&
-          <button onClick={() => this.loadMore('newLinks')}>Load more</button>
-        }
         <TagLinksListView
           tagLinksList={this.props.tagLinksList.slice(0, this.state.displayedBoxCount.tagLinksList)}
           onClick={this.props.onClick}
