@@ -104,24 +104,30 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           />
         )}
         <TwohopLinksView
-          twoHopLinks={this.props.unresolvedTwoHopLinks.slice(0, this.state.displayedBoxCount.unresolvedTwoHopLinks)}
+          twoHopLinks={this.props.unresolvedTwoHopLinks}
           resolved={false}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
           app={this.props.app}
+          displayedBoxCount={this.state.displayedBoxCount.unresolvedTwoHopLinks}
+          initialDisplayedEntitiesCount={5}
+          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedBoxCount.unresolvedTwoHopLinks < this.props.unresolvedTwoHopLinks.length &&
-          <button onClick={() => this.loadMore('unresolvedTwoHopLinks')}>Load more</button>
+          <button className="load-more-button" onClick={() => this.loadMore('unresolvedTwoHopLinks')}>Load more</button>
         }
         <TwohopLinksView
-          twoHopLinks={this.props.resolvedTwoHopLinks.slice(0, this.state.displayedBoxCount.resolvedTwoHopLinks)}
+          twoHopLinks={this.props.resolvedTwoHopLinks}
           resolved={true}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
           app={this.props.app}
+          displayedBoxCount={this.state.displayedBoxCount.resolvedTwoHopLinks}
+          initialDisplayedEntitiesCount={5}
+          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedBoxCount.resolvedTwoHopLinks < this.props.resolvedTwoHopLinks.length &&
-          <button onClick={() => this.loadMore('resolvedTwoHopLinks')}>Load more</button>
+          <button className="load-more-button" onClick={() => this.loadMore('resolvedTwoHopLinks')}>Load more</button>
         }
         <NewLinksView
           fileEntities={this.props.newLinks}
@@ -132,13 +138,16 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           app={this.props.app}
         />
         <TagLinksListView
-          tagLinksList={this.props.tagLinksList.slice(0, this.state.displayedBoxCount.tagLinksList)}
+          tagLinksList={this.props.tagLinksList}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
           app={this.props.app}
+          displayedBoxCount={this.state.displayedBoxCount.tagLinksList}
+          initialDisplayedEntitiesCount={5}
+          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedBoxCount.tagLinksList < this.props.tagLinksList.length &&
-          <button onClick={() => this.loadMore('tagLinksList')}>Load more</button>
+          <button className="load-more-button" onClick={() => this.loadMore('tagLinksList')}>Load more</button>
         }
       </div>
     );

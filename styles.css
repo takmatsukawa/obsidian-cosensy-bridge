@@ -127,3 +127,7 @@ div.cm-content {
 body:not(.zoom-off) .view-content div:not(.canvas-node-content) .twohop-links-box img {
     cursor: pointer !important;
 }
+
+.load-more-button {
+  width: -webkit-fill-available;
+}

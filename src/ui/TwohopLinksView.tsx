@@ -11,6 +11,9 @@ interface TwohopLinksViewProps {
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
+  displayedBoxCount: number;
+  initialDisplayedEntitiesCount: number;
+  resetDisplayedEntitiesCount: boolean;
 }
 
 interface LinkComponentProps {
@@ -19,25 +22,31 @@ interface LinkComponentProps {
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
+  initialDisplayedEntitiesCount: number;
+  resetDisplayedEntitiesCount: boolean;
 }
 
 interface LinkComponentState {
   displayedEntitiesCount: number;
 }
 
-const initialBoxCount = 5;
-
 class LinkComponent extends React.Component<LinkComponentProps, LinkComponentState> {
   constructor(props: LinkComponentProps) {
     super(props);
     this.state = {
-      displayedEntitiesCount: initialBoxCount,
+      displayedEntitiesCount: props.initialDisplayedEntitiesCount,
     };
+  }
+  
+  componentDidUpdate(prevProps: LinkComponentProps) {
+    if (this.props.resetDisplayedEntitiesCount && this.props.resetDisplayedEntitiesCount !== prevProps.resetDisplayedEntitiesCount) {
+      this.setState({ displayedEntitiesCount: this.props.initialDisplayedEntitiesCount });
+    }
   }
 
   loadMoreEntities = () => {
     this.setState((prevState) => ({
-      displayedEntitiesCount: prevState.displayedEntitiesCount + initialBoxCount,
+      displayedEntitiesCount: prevState.displayedEntitiesCount + this.props.initialDisplayedEntitiesCount,
     }));
   };
 
@@ -84,7 +93,7 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
   render(): JSX.Element {
     return (
       <div>
-        {this.props.twoHopLinks.map((link, index) => (
+        {this.props.twoHopLinks.slice(0, this.props.displayedBoxCount).map((link, index) => (
           <LinkComponent
             key={index}
             link={link}
@@ -92,6 +101,8 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
             app={this.props.app}
+            initialDisplayedEntitiesCount={this.props.initialDisplayedEntitiesCount}
+            resetDisplayedEntitiesCount={this.props.resetDisplayedEntitiesCount}
           />
         ))}
       </div>
