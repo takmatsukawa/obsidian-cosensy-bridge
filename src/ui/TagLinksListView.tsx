@@ -9,7 +9,7 @@ interface TagLinksListViewProps {
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
-  displayedBoxCount: number;
+  displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
   resetDisplayedEntitiesCount: boolean;
 }
@@ -76,7 +76,7 @@ export default class TagLinksListView extends React.Component<TagLinksListViewPr
   render(): JSX.Element {
     return (
       <div>
-        {this.props.tagLinksList.slice(0, this.props.displayedBoxCount).map((tagLink, index) => (
+        {this.props.tagLinksList.slice(0, this.props.displayedSectionCount).map((tagLink, index) => (
           <LinkComponent
             key={index}
             tagLink={tagLink}

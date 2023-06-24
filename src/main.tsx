@@ -270,6 +270,8 @@ export default class TwohopLinksPlugin extends Plugin {
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}
         autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
+        initialBoxCount={this.settings.initialBoxCount}
+        initialSectionCount={this.settings.initialSectionCount}
       />,
       container
     );

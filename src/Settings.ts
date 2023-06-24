@@ -8,6 +8,8 @@ export interface TwohopPluginSettings {
   putOnTop: boolean;
   showImage: boolean;
   excludePaths: string[];
+  initialBoxCount: number;
+  initialSectionCount: number;
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -17,6 +19,8 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   putOnTop: false,
   showImage: true,
   excludePaths: [],
+  initialBoxCount: 10,
+  initialSectionCount: 20,
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -102,5 +106,30 @@ export class TwohopSettingTab extends PluginSettingTab {
           });
         textArea.inputEl.style.height = "150px";
       });
+
+    new Setting(containerEl)
+      .setName("Initial Box Count")
+      .setDesc("Set the initial number of boxes to be displayed")
+      .addText((text) =>
+        text
+          .setValue(this.plugin.settings.initialBoxCount.toString())
+          .onChange(async (value) => {
+            this.plugin.settings.initialBoxCount = Number(value);
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Initial Section Count")
+      .setDesc("Set the initial number of sections to be displayed")
+      .addText((text) =>
+        text
+          .setValue(this.plugin.settings.initialSectionCount.toString())
+          .onChange(async (value) => {
+            this.plugin.settings.initialSectionCount = Number(value);
+            await this.plugin.saveSettings();
+          })
+      );
+
   }
 }

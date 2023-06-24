@@ -11,7 +11,7 @@ interface TwohopLinksViewProps {
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
-  displayedBoxCount: number;
+  displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
   resetDisplayedEntitiesCount: boolean;
 }
@@ -93,7 +93,7 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
   render(): JSX.Element {
     return (
       <div>
-        {this.props.twoHopLinks.slice(0, this.props.displayedBoxCount).map((link, index) => (
+        {this.props.twoHopLinks.slice(0, this.props.displayedSectionCount).map((link, index) => (
           <LinkComponent
             key={index}
             link={link}
