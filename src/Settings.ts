@@ -47,6 +47,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.autoLoadTwoHopLinks = value;
             await this.plugin.saveSettings();
+            await this.plugin.renderTwohopLinks();
           });
       });
 
@@ -56,6 +57,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.showForwardConnectedLinks = value;
           await this.plugin.saveSettings();
+          await this.plugin.renderTwohopLinks();
         })
     );
 
@@ -65,6 +67,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.showBackwardConnectedLinks = value;
           await this.plugin.saveSettings();
+          await this.plugin.renderTwohopLinks();
         })
     );
 
@@ -79,6 +82,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.putOnTop = value;
             await this.plugin.saveSettings();
+            await this.plugin.renderTwohopLinks();
           });
       });
 
@@ -90,6 +94,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.showImage = value;
             await this.plugin.saveSettings();
+            await this.plugin.renderTwohopLinks();
           });
       });
 
@@ -99,41 +104,42 @@ export class TwohopSettingTab extends PluginSettingTab {
       .addTextArea((textArea) => {
         textArea
           .setPlaceholder("path/to/file.md\npath/to/folder/")
-          .setValue(this.plugin.settings.excludePaths.join("\n"))
-          .onChange(async (value) => {
-            this.plugin.settings.excludePaths = value
-              .split("\n")
-              .map((path) => path.trim());
-            await this.plugin.saveSettings();
-          });
+          .setValue(this.plugin.settings.excludePaths.join("\n"));
         textArea.inputEl.style.height = "150px";
+        textArea.inputEl.addEventListener('blur', async (event) => {
+          this.plugin.settings.excludePaths = (event.target as HTMLInputElement).value
+            .split("\n")
+            .map((path) => path.trim());
+          await this.plugin.saveSettings();
+          await this.plugin.renderTwohopLinks();
+        });
       });
 
     new Setting(containerEl)
       .setName("Initial Box Count")
       .setDesc("Set the initial number of boxes to be displayed")
-      .addText((text) =>
-        text
-          .setValue(this.plugin.settings.initialBoxCount.toString())
-          .onChange(async (value) => {
-            this.plugin.settings.initialBoxCount = Number(value);
-            await this.plugin.saveSettings();
-          })
-      );
+      .addText((text) => {
+        text.setValue(this.plugin.settings.initialBoxCount.toString());
+        text.inputEl.addEventListener('blur', async (event) => {
+          this.plugin.settings.initialBoxCount = Number((event.target as HTMLInputElement).value);
+          await this.plugin.saveSettings();
+          await this.plugin.renderTwohopLinks();
+        });
+      });
 
     new Setting(containerEl)
       .setName("Initial Section Count")
       .setDesc("Set the initial number of sections to be displayed")
-      .addText((text) =>
-        text
-          .setValue(this.plugin.settings.initialSectionCount.toString())
-          .onChange(async (value) => {
-            this.plugin.settings.initialSectionCount = Number(value);
-            await this.plugin.saveSettings();
-          })
-      );
+      .addText((text) => {
+        text.setValue(this.plugin.settings.initialSectionCount.toString());
+        text.inputEl.addEventListener('blur', async (event) => {
+          this.plugin.settings.initialSectionCount = Number((event.target as HTMLInputElement).value);
+          await this.plugin.saveSettings();
+          await this.plugin.renderTwohopLinks();
+        });
+      });
 
-      new Setting(containerEl)
+    new Setting(containerEl)
       .setName("Enable Duplicate Removal")
       .setDesc("Enable the removal of duplicate links")
       .addToggle((toggle) => {
@@ -142,6 +148,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.enableDuplicateRemoval = value;
             await this.plugin.saveSettings();
+            await this.plugin.renderTwohopLinks();
           });
       });
   }
