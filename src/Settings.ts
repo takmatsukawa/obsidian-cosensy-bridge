@@ -11,6 +11,7 @@ export interface TwohopPluginSettings {
   initialBoxCount: number;
   initialSectionCount: number;
   enableDuplicateRemoval: boolean;
+  sortOrder: string;
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   initialBoxCount: 10,
   initialSectionCount: 20,
   enableDuplicateRemoval: true,
+  sortOrder: 'filenameAsc',
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -37,6 +39,25 @@ export class TwohopSettingTab extends PluginSettingTab {
     const containerEl = this.containerEl;
 
     containerEl.empty();
+
+    new Setting(containerEl)
+      .setName("Sort Order")
+      .setDesc("Choose the sort order for the files")
+      .addDropdown((dropdown) => {
+        dropdown.addOption('filenameAsc', 'File name (A to Z)');
+        dropdown.addOption('filenameDesc', 'File name (Z to A)');
+        dropdown.addOption('modifiedAsc', 'Modified time (new to old)');
+        dropdown.addOption('modifiedDesc', 'Modified time (old to new)');
+        dropdown.addOption('createdAsc', 'Created time (new to old)');
+        dropdown.addOption('createdDesc', 'Created time (old to new)');
+        dropdown
+          .setValue(this.plugin.settings.sortOrder)
+          .onChange(async (value) => {
+            this.plugin.settings.sortOrder = value;
+            await this.plugin.saveSettings();
+            await this.plugin.renderTwohopLinks();
+          });
+      });
 
     new Setting(containerEl)
       .setName("Auto load 2hop links")
