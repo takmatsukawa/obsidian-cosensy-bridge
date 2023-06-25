@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   initialBoxCount: 10,
   initialSectionCount: 20,
   enableDuplicateRemoval: true,
-  sortOrder: 'filenameAsc',
+  sortOrder: 'modifiedAsc',
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -46,10 +46,10 @@ export class TwohopSettingTab extends PluginSettingTab {
       .addDropdown((dropdown) => {
         dropdown.addOption('filenameAsc', 'File name (A to Z)');
         dropdown.addOption('filenameDesc', 'File name (Z to A)');
-        dropdown.addOption('modifiedAsc', 'Modified time (new to old)');
-        dropdown.addOption('modifiedDesc', 'Modified time (old to new)');
-        dropdown.addOption('createdAsc', 'Created time (new to old)');
-        dropdown.addOption('createdDesc', 'Created time (old to new)');
+        dropdown.addOption('modifiedDesc', 'Modified time (new to old)');
+        dropdown.addOption('modifiedAsc', 'Modified time (old to new)');
+        dropdown.addOption('createdDesc', 'Created time (new to old)');
+        dropdown.addOption('createdAsc', 'Created time (old to new)');
         dropdown
           .setValue(this.plugin.settings.sortOrder)
           .onChange(async (value) => {
