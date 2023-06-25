@@ -117,6 +117,13 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
 
     return (
       <div>
+        <button className="settings-button" onClick={() => {
+          this.props.app.setting.open();
+          this.props.app.setting.openTabById('obsidian-2hop-links-plugin'); // Temporary solution
+          this.props.app.setting.openTabById('obsidian-2hop-links-plugin-plus');
+        }}>
+          Open Settings
+        </button>
         {showForwardConnectedLinks && (
           <ConnectedLinksView
             fileEntities={this.props.forwardConnectedLinks}
