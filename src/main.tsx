@@ -324,15 +324,19 @@ export default class TwohopLinksPlugin extends Plugin {
     if (twohopLinkList == null) {
       return [];
     }
+
+    let seenLinks = new Set<string>();
+
     for (const k of Object.keys(twohopLinkList)) {
       if (twohopLinkList[k].length > 0) {
         twoHopLinks[k] = twohopLinkList[k]
           .filter((it) => !this.shouldExcludePath(it))
           .map((it) => {
             const linkText = path2linkText(it);
-            if (forwardLinkSet.has(removeBlockReference(linkText))) {
+            if (this.settings.enableDuplicateRemoval && (forwardLinkSet.has(removeBlockReference(linkText)) || seenLinks.has(linkText))) {
               return null;
             }
+            seenLinks.add(linkText);
             return new FileEntity(activeFile.path, linkText);
           })
           .filter((it) => it);
@@ -344,9 +348,9 @@ export default class TwohopLinksPlugin extends Plugin {
       .map((path) => {
         return twoHopLinks[path]
           ? new TwohopLink(
-              new FileEntity(activeFile.path, path),
-              twoHopLinks[path]
-            )
+            new FileEntity(activeFile.path, path),
+            twoHopLinks[path]
+          )
           : null;
       })
       .filter((it) => it)

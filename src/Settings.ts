@@ -10,6 +10,7 @@ export interface TwohopPluginSettings {
   excludePaths: string[];
   initialBoxCount: number;
   initialSectionCount: number;
+  enableDuplicateRemoval: boolean;
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   excludePaths: [],
   initialBoxCount: 10,
   initialSectionCount: 20,
+  enableDuplicateRemoval: true,
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -131,5 +133,16 @@ export class TwohopSettingTab extends PluginSettingTab {
           })
       );
 
+      new Setting(containerEl)
+      .setName("Enable Duplicate Removal")
+      .setDesc("Enable the removal of duplicate links")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.enableDuplicateRemoval)
+          .onChange(async (value) => {
+            this.plugin.settings.enableDuplicateRemoval = value;
+            await this.plugin.saveSettings();
+          });
+      });
   }
 }
