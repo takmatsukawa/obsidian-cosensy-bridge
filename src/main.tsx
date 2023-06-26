@@ -182,7 +182,6 @@ export default class TwohopLinksPlugin extends Plugin {
     };
   }
 
-
   async renderTwohopLinks(): Promise<void> {
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
@@ -214,39 +213,6 @@ export default class TwohopLinksPlugin extends Plugin {
         container
       );
     }
-  }
-
-  async renderTwohopLinksForView(activeFile: TFile): Promise<JSX.Element> {
-    if (!this.settings.showTwoHopLinksInSeparatePane) {
-      return;
-    }
-    const {
-      forwardLinks,
-      newLinks,
-      backwardLinks,
-      unresolvedTwoHopLinks,
-      resolvedTwoHopLinks,
-      tagLinksList
-    } = await this.gatherTwoHopLinks(activeFile);
-
-    return (
-      <TwohopLinksRootView
-        forwardConnectedLinks={forwardLinks}
-        newLinks={newLinks}
-        backwardConnectedLinks={backwardLinks}
-        unresolvedTwoHopLinks={unresolvedTwoHopLinks}
-        resolvedTwoHopLinks={resolvedTwoHopLinks}
-        tagLinksList={tagLinksList}
-        onClick={this.openFile.bind(this)}
-        getPreview={this.readPreview.bind(this)}
-        app={this.app}
-        showForwardConnectedLinks={this.settings.showForwardConnectedLinks}
-        showBackwardConnectedLinks={this.settings.showBackwardConnectedLinks}
-        autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
-        initialBoxCount={this.settings.initialBoxCount}
-        initialSectionCount={this.settings.initialSectionCount}
-      />
-    );
   }
 
   private getTopContainerElements(markdownView: MarkdownView): Element[] {
@@ -337,7 +303,7 @@ export default class TwohopLinksPlugin extends Plugin {
     }
   }
 
-  private async injectTwohopLinks(
+  async injectTwohopLinks(
     forwardConnectedLinks: FileEntity[],
     newLinks: FileEntity[],
     backwardConnectedLinks: FileEntity[],
@@ -752,37 +718,76 @@ class TwoHopLinksView extends ItemView {
     try {
       this.lastActiveLeaf = this.app.workspace.getLeaf();
       await this.update();
+
       this.registerActiveFileUpdateEvent();
+
+      this.registerEvent(this.app.vault.on('modify', async (file: TFile) => {
+        if (file === this.app.workspace.getActiveFile()) {
+          setTimeout(async () => {
+            await this.update();
+          }, 500);
+        }
+      }));
     } catch (error) {
       console.error('Error updating TwoHopLinksView', error);
     }
   }
 
   registerActiveFileUpdateEvent() {
+    let lastActiveFilePath: string | null = null;
+
     this.registerEvent(this.app.workspace.on('active-leaf-change', async (leaf: WorkspaceLeaf) => {
       if (leaf.view === this) {
         return;
       }
-      this.lastActiveLeaf = leaf;
-      await this.update();
+
+      const newActiveFile = (leaf.view as any).file as TFile;
+      if (!newActiveFile) {
+        return;
+      }
+
+      const newActiveFilePath = newActiveFile.path;
+
+      if (lastActiveFilePath !== newActiveFilePath) {
+        this.lastActiveLeaf = leaf;
+        lastActiveFilePath = newActiveFilePath;
+        await this.update();
+      }
     }));
   }
 
   async update(): Promise<void> {
-    ReactDOM.render(<div>Loading...</div>, this.containerEl);
     try {
       const activeFile = this.app.workspace.getActiveFile();
       if (activeFile == null) {
+        ReactDOM.unmountComponentAtNode(this.containerEl);
         ReactDOM.render(<div>No active file</div>, this.containerEl);
         return;
       }
-      const twoHopLinksComponent = await this.plugin.renderTwohopLinksForView(activeFile);
+      const {
+        forwardLinks,
+        newLinks,
+        backwardLinks,
+        unresolvedTwoHopLinks,
+        resolvedTwoHopLinks,
+        tagLinksList
+      } = await this.plugin.gatherTwoHopLinks(activeFile);
 
-      ReactDOM.render(twoHopLinksComponent, this.containerEl);
+      ReactDOM.unmountComponentAtNode(this.containerEl);
+      await this.plugin.injectTwohopLinks(
+        forwardLinks,
+        newLinks,
+        backwardLinks,
+        unresolvedTwoHopLinks,
+        resolvedTwoHopLinks,
+        tagLinksList,
+        this.containerEl
+      );
 
       this.addLinkEventListeners();
     } catch (error) {
       console.error('Error rendering two hop links', error);
+      ReactDOM.unmountComponentAtNode(this.containerEl);
       ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
     }
   }
