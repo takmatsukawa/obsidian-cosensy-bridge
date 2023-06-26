@@ -49,18 +49,6 @@ export default class TwohopLinksPlugin extends Plugin {
       }
     });
 
-    this.addCommand({
-      id: "enable-2hop-links",
-      name: "Enable 2hop links",
-      checkCallback: this.enable.bind(this),
-    });
-
-    this.addCommand({
-      id: "disable-2hop-links",
-      name: "Disable 2hop links",
-      checkCallback: this.disable.bind(this),
-    });
-
     this.addSettingTab(new TwohopSettingTab(this.app, this));
 
     this.registerView("TwoHopLinksView", (leaf: WorkspaceLeaf) => new TwoHopLinksView(leaf, this));
@@ -83,20 +71,6 @@ export default class TwohopLinksPlugin extends Plugin {
       await this.renderTwohopLinks();
       this.enable(false);
     }
-  }
-
-  hasTwoHopLinksContainer(): boolean {
-    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (markdownView === null) {
-      return false;
-    }
-    for (const element of this.getContainerElements(markdownView)) {
-      const container = element.querySelector("." + CONTAINER_CLASS);
-      if (container) {
-        return true;
-      }
-    }
-    return false;
   }
 
   async initTwoHopLinksView() {
@@ -191,11 +165,9 @@ export default class TwohopLinksPlugin extends Plugin {
 
     const activeFileCache: CachedMetadata = this.app.metadataCache.getFileCache(activeFile);
 
-    // Aggregate forward links
     const { resolved: forwardLinks, new: newLinks } = await this.getForwardLinks(activeFile, activeFileCache);
     const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
 
-    // Aggregate links
     const unresolvedTwoHopLinks = await this.getTwohopLinks(
       activeFile,
       this.app.metadataCache.unresolvedLinks,
@@ -208,7 +180,6 @@ export default class TwohopLinksPlugin extends Plugin {
     );
 
     const backwardLinks = await this.getBackLinks(activeFile, forwardLinkSet);
-
     const tagLinksList = await this.getTagLinksList(activeFile, activeFileCache);
 
     return {
@@ -241,7 +212,6 @@ export default class TwohopLinksPlugin extends Plugin {
       tagLinksList
     } = await this.gatherTwoHopLinks(activeFile);
 
-    // insert links to the footer
     for (const container of this.getContainerElements(markdownView)) {
       await this.injectTwohopLinks(
         forwardLinks,
@@ -680,7 +650,6 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   private async readPreview(fileEntity: FileEntity) {
-    // Do not read non-text files. Especially PDF file.
     if (
       fileEntity.linkText.match(/\.[a-z0-9_-]+$/i) &&
       !fileEntity.linkText.match(/\.(?:md|markdown|txt|text)$/i)
@@ -721,7 +690,6 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     if (this.settings.showImage) {
-      // Match both local and external image links
       const m =
         content.match(
           /!\[(?:[^\]]*?)\]\(((?:https?:\/\/[^\)]+)|(?:[^\)]+.(?:png|bmp|jpg)))\)/
@@ -730,9 +698,7 @@ export default class TwohopLinksPlugin extends Plugin {
         const img = m[1];
         console.debug(`Found image: ${img}`);
 
-        // Check if the image is a local file or an external URL
         if (img.match(/^https?:\/\//)) {
-          // External URL, return it directly
           return img;
         } else {
           const file = this.app.metadataCache.getFirstLinkpathDest(
@@ -749,15 +715,14 @@ export default class TwohopLinksPlugin extends Plugin {
       }
     }
 
-    // Remove YFM
     const updatedContent = content.replace(/^(.*\n)?---[\s\S]*?---\n?/m, "");
     const lines = updatedContent.split(/\n/);
     return lines
       .filter((it) => {
         return (
           it.match(/\S/) &&
-          !it.match(/^#/) && // Skip header line & tag only line.
-          !it.match(/^https?:\/\//) // Skip URL only line.
+          !it.match(/^#/) &&
+          !it.match(/^https?:\/\//)
         );
       })
       .slice(0, 6)
