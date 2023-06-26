@@ -12,6 +12,7 @@ export interface TwohopPluginSettings {
   initialSectionCount: number;
   enableDuplicateRemoval: boolean;
   sortOrder: string;
+  showTwoHopLinksInSeparatePane: boolean;
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   initialSectionCount: 20,
   enableDuplicateRemoval: true,
   sortOrder: 'modifiedAsc',
+  showTwoHopLinksInSeparatePane: false,
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -41,6 +43,19 @@ export class TwohopSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
+      .setName("Show 2hop links in separate pane")
+      .setDesc("If true, the 2hop links is displayed in a separate pane.")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.showTwoHopLinksInSeparatePane)
+          .onChange(async (value) => {
+            this.plugin.settings.showTwoHopLinksInSeparatePane = value;
+            await this.plugin.saveSettings();
+            await this.plugin.updateTwoHopLinksView();
+          });
+      });
+
+    new Setting(containerEl)
       .setName("Sort Order")
       .setDesc("Choose the sort order for the files")
       .addDropdown((dropdown) => {
@@ -55,7 +70,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.sortOrder = value;
             await this.plugin.saveSettings();
-            await this.plugin.renderTwohopLinks();
+            await this.plugin.updateTwoHopLinksView();
           });
       });
 
@@ -68,7 +83,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.autoLoadTwoHopLinks = value;
             await this.plugin.saveSettings();
-            await this.plugin.renderTwohopLinks();
+            await this.plugin.updateTwoHopLinksView();
           });
       });
 
@@ -78,7 +93,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.showForwardConnectedLinks = value;
           await this.plugin.saveSettings();
-          await this.plugin.renderTwohopLinks();
+          await this.plugin.updateTwoHopLinksView();
         })
     );
 
@@ -88,7 +103,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.showBackwardConnectedLinks = value;
           await this.plugin.saveSettings();
-          await this.plugin.renderTwohopLinks();
+          await this.plugin.updateTwoHopLinksView();
         })
     );
 
@@ -103,7 +118,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.putOnTop = value;
             await this.plugin.saveSettings();
-            await this.plugin.renderTwohopLinks();
+            await this.plugin.updateTwoHopLinksView();
           });
       });
 
@@ -115,7 +130,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.showImage = value;
             await this.plugin.saveSettings();
-            await this.plugin.renderTwohopLinks();
+            await this.plugin.updateTwoHopLinksView();
           });
       });
 
@@ -132,7 +147,7 @@ export class TwohopSettingTab extends PluginSettingTab {
             .split("\n")
             .map((path) => path.trim());
           await this.plugin.saveSettings();
-          await this.plugin.renderTwohopLinks();
+          await this.plugin.updateTwoHopLinksView();
         });
       });
 
@@ -144,7 +159,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         text.inputEl.addEventListener('blur', async (event) => {
           this.plugin.settings.initialBoxCount = Number((event.target as HTMLInputElement).value);
           await this.plugin.saveSettings();
-          await this.plugin.renderTwohopLinks();
+          await this.plugin.updateTwoHopLinksView();
         });
       });
 
@@ -156,7 +171,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         text.inputEl.addEventListener('blur', async (event) => {
           this.plugin.settings.initialSectionCount = Number((event.target as HTMLInputElement).value);
           await this.plugin.saveSettings();
-          await this.plugin.renderTwohopLinks();
+          await this.plugin.updateTwoHopLinksView();
         });
       });
 
@@ -169,7 +184,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.enableDuplicateRemoval = value;
             await this.plugin.saveSettings();
-            await this.plugin.renderTwohopLinks();
+            await this.plugin.updateTwoHopLinksView();
           });
       });
   }

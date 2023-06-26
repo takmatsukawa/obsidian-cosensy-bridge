@@ -1,4 +1,4 @@
-import { CachedMetadata, MarkdownView, Plugin, TFile } from "obsidian";
+import { CachedMetadata, MarkdownView, Plugin, TFile, WorkspaceLeaf, ItemView } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import { FileEntity } from "./model/FileEntity";
@@ -14,6 +14,12 @@ import {
 
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";
+
+declare module "obsidian" {
+  interface Workspace {
+    on(eventName: "layout-ready", callback: () => any, ctx?: any): EventRef;
+  }
+}
 
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
@@ -31,6 +37,7 @@ export default class TwohopLinksPlugin extends Plugin {
         await this.renderTwohopLinks();
       }
     });
+
     this.app.metadataCache.on("resolve", async (file) => {
       if (this.enabled) {
         const activeFile: TFile = this.app.workspace.getActiveFile();
@@ -41,11 +48,13 @@ export default class TwohopLinksPlugin extends Plugin {
         }
       }
     });
+
     this.addCommand({
       id: "enable-2hop-links",
       name: "Enable 2hop links",
       checkCallback: this.enable.bind(this),
     });
+
     this.addCommand({
       id: "disable-2hop-links",
       name: "Disable 2hop links",
@@ -53,10 +62,72 @@ export default class TwohopLinksPlugin extends Plugin {
     });
 
     this.addSettingTab(new TwohopSettingTab(this.app, this));
-    (app.workspace as any).registerHoverLinkSource(HOVER_LINK_ID, {
-      display: "2hop Links",
-      defaultMod: true,
-    });
+
+    this.registerView("TwoHopLinksView", (leaf: WorkspaceLeaf) => new TwoHopLinksView(leaf, this));
+
+    this.updateTwoHopLinksView();
+  }
+
+  async updateTwoHopLinksView() {
+    if (this.settings.showTwoHopLinksInSeparatePane) {
+      if (!this.isTwoHopLinksViewOpen()) {
+        this.openTwoHopLinksView();
+      } else {
+        this.updateOpenTwoHopLinksView();
+      }
+      this.disable(false);
+    } else {
+      if (this.isTwoHopLinksViewOpen()) {
+        this.closeTwoHopLinksView();
+      }
+      await this.renderTwohopLinks();
+      this.enable(false);
+    }
+  }
+
+  hasTwoHopLinksContainer(): boolean {
+    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (markdownView === null) {
+      return false;
+    }
+    for (const element of this.getContainerElements(markdownView)) {
+      const container = element.querySelector("." + CONTAINER_CLASS);
+      if (container) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async initTwoHopLinksView() {
+    if (!this.isTwoHopLinksViewOpen()) {
+      this.openTwoHopLinksView();
+    } else {
+      this.updateOpenTwoHopLinksView();
+    }
+  }
+
+  async updateOpenTwoHopLinksView() {
+    for (let leaf of this.app.workspace.getLeavesOfType("TwoHopLinksView")) {
+      let view = leaf.view;
+      if (view instanceof TwoHopLinksView) {
+        await view.onOpen();
+      }
+    }
+  }
+
+  isTwoHopLinksViewOpen(): boolean {
+    return this.app.workspace.getLeavesOfType("TwoHopLinksView").length > 0;
+  }
+
+  async openTwoHopLinksView() {
+    const leaf = this.app.workspace.getLeftLeaf(false);
+    leaf.setViewState({ type: "TwoHopLinksView" });
+    this.app.workspace.revealLeaf(leaf);
+  }
+
+  closeTwoHopLinksView() {
+    this.app.workspace.detachLeavesOfType("TwoHopLinksView");
   }
 
   enable(check: boolean): boolean {
@@ -90,30 +161,33 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   removeTwohopLinks(): void {
-    const markdownView: MarkdownView =
-      this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (markdownView === null) {
-      return;
-    }
-    for (const element of this.getContainerElements(markdownView)) {
-      const container = element.querySelector("." + CONTAINER_CLASS);
-      if (container) {
-        container.remove();
+    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+    if (markdownView !== null) {
+      for (const element of this.getContainerElements(markdownView)) {
+        const container = element.querySelector("." + CONTAINER_CLASS);
+        if (container) {
+          container.remove();
+        }
+      }
+
+      if (markdownView.previewMode !== null) {
+        const previewElements = Array.from(markdownView.previewMode.containerEl.querySelectorAll("." + CONTAINER_CLASS));
+        for (const element of previewElements) {
+          element.remove();
+        }
       }
     }
   }
 
-  async renderTwohopLinks(): Promise<void> {
-    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (markdownView == null) {
-      return;
-    }
-
-    // Open the editing file
-    const activeFile = markdownView.file;
-    if (activeFile == null) {
-      return; // Currently focusing window is not related to a file.
-    }
+  async gatherTwoHopLinks(activeFile: TFile): Promise<{
+    forwardLinks: FileEntity[];
+    newLinks: FileEntity[];
+    backwardLinks: FileEntity[];
+    unresolvedTwoHopLinks: TwohopLink[];
+    resolvedTwoHopLinks: TwohopLink[];
+    tagLinksList: TagLinks[];
+  }> {
 
     const activeFileCache: CachedMetadata = this.app.metadataCache.getFileCache(activeFile);
 
@@ -133,15 +207,39 @@ export default class TwohopLinksPlugin extends Plugin {
       forwardLinkSet
     );
 
-    const twoHopLinkSets = new Set<string>(
-      unresolvedTwoHopLinks
-        .concat(resolvedTwoHopLinks)
-        .map((it) => it.link.key())
-    );
-
     const backwardLinks = await this.getBackLinks(activeFile, forwardLinkSet);
 
     const tagLinksList = await this.getTagLinksList(activeFile, activeFileCache);
+
+    return {
+      forwardLinks,
+      newLinks,
+      backwardLinks,
+      unresolvedTwoHopLinks,
+      resolvedTwoHopLinks,
+      tagLinksList
+    };
+  }
+
+  async renderTwohopLinks(): Promise<void> {
+    if (this.settings.showTwoHopLinksInSeparatePane) {
+      return;
+    }
+    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const activeFile = markdownView?.file;
+    if (activeFile == null) {
+      console.error('No active file');
+      return;
+    }
+
+    const {
+      forwardLinks,
+      newLinks,
+      backwardLinks,
+      unresolvedTwoHopLinks,
+      resolvedTwoHopLinks,
+      tagLinksList
+    } = await this.gatherTwoHopLinks(activeFile);
 
     // insert links to the footer
     for (const container of this.getContainerElements(markdownView)) {
@@ -155,6 +253,39 @@ export default class TwohopLinksPlugin extends Plugin {
         container
       );
     }
+  }
+
+  async renderTwohopLinksForView(activeFile: TFile): Promise<JSX.Element> {
+    if (!this.settings.showTwoHopLinksInSeparatePane) {
+      return;
+    }
+    const {
+      forwardLinks,
+      newLinks,
+      backwardLinks,
+      unresolvedTwoHopLinks,
+      resolvedTwoHopLinks,
+      tagLinksList
+    } = await this.gatherTwoHopLinks(activeFile);
+
+    return (
+      <TwohopLinksRootView
+        forwardConnectedLinks={forwardLinks}
+        newLinks={newLinks}
+        backwardConnectedLinks={backwardLinks}
+        unresolvedTwoHopLinks={unresolvedTwoHopLinks}
+        resolvedTwoHopLinks={resolvedTwoHopLinks}
+        tagLinksList={tagLinksList}
+        onClick={this.openFile.bind(this)}
+        getPreview={this.readPreview.bind(this)}
+        app={this.app}
+        showForwardConnectedLinks={this.settings.showForwardConnectedLinks}
+        showBackwardConnectedLinks={this.settings.showBackwardConnectedLinks}
+        autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
+        initialBoxCount={this.settings.initialBoxCount}
+        initialSectionCount={this.settings.initialSectionCount}
+      />
+    );
   }
 
   private getContainerElements(markdownView: MarkdownView): Element[] {
@@ -464,38 +595,6 @@ export default class TwohopLinksPlugin extends Plugin {
     return result;
   }
 
-  private async splitLinksByConnectivity(
-    links: FileEntity[],
-    twoHopLinkSets: Set<string>
-  ) {
-    const connectedLinks: FileEntity[] = [];
-    const newLinks: FileEntity[] = [];
-    const seen: Record<string, boolean> = {};
-    for (const link of links) {
-      const key = link.key();
-      if (seen[key]) {
-        continue;
-      }
-      seen[key] = true;
-
-      if (
-        this.app.metadataCache.getFirstLinkpathDest(
-          removeBlockReference(link.linkText),
-          link.sourcePath
-        )
-      ) {
-        connectedLinks.push(link);
-      } else {
-        // Exclude links, that are listed on two hop links
-        if (!twoHopLinkSets.has(link.key())) {
-          newLinks.push(link);
-        }
-      }
-    }
-
-    return [connectedLinks, newLinks];
-  }
-
   private async getForwardLinks(
     activeFile: TFile,
     activeFileCache: CachedMetadata
@@ -688,5 +787,105 @@ export default class TwohopLinksPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     return this.saveData(this.settings);
+  }
+}
+
+class TwoHopLinksView extends ItemView {
+  private plugin: TwohopLinksPlugin;
+  private lastActiveLeaf: WorkspaceLeaf | undefined;
+
+  constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
+    super(leaf);
+    this.plugin = plugin;
+    this.containerEl.addClass("TwoHopLinks");
+  }
+
+  getViewType(): string {
+    return "TwoHopLinksView";
+  }
+
+  getDisplayText(): string {
+    return "2Hop Links";
+  }
+
+  async onOpen(): Promise<void> {
+    try {
+      this.lastActiveLeaf = this.app.workspace.getLeaf();
+      await this.update();
+      this.registerActiveFileUpdateEvent();
+    } catch (error) {
+      console.error('Error updating TwoHopLinksView', error);
+    }
+  }
+
+  registerActiveFileUpdateEvent() {
+    this.registerEvent(this.app.workspace.on('active-leaf-change', async (leaf: WorkspaceLeaf) => {
+      if (leaf.view === this) {
+        return;
+      }
+      this.lastActiveLeaf = leaf;
+      await this.update();
+    }));
+  }
+
+  async update(): Promise<void> {
+    ReactDOM.render(<div>Loading...</div>, this.containerEl);
+    try {
+      const activeFile = this.app.workspace.getActiveFile();
+      if (activeFile == null) {
+        ReactDOM.render(<div>No active file</div>, this.containerEl);
+        return;
+      }
+      const twoHopLinksComponent = await this.plugin.renderTwohopLinksForView(activeFile);
+
+      ReactDOM.render(twoHopLinksComponent, this.containerEl);
+
+      this.addLinkEventListeners();
+    } catch (error) {
+      console.error('Error rendering two hop links', error);
+      ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
+    }
+  }
+
+  addLinkEventListeners(): void {
+    const links = this.containerEl.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const filePath = link.getAttribute('href');
+        if (!filePath) {
+          console.error('Link does not have href attribute', link);
+          return;
+        }
+
+        const fileOrFolder = this.app.vault.getAbstractFileByPath(filePath);
+        if (!fileOrFolder || !(fileOrFolder instanceof TFile)) {
+          console.error('No file found for path', filePath);
+          return;
+        }
+        const file = fileOrFolder as TFile;
+
+        if (!this.lastActiveLeaf) {
+          console.error('No last active leaf');
+          return;
+        }
+
+        await this.lastActiveLeaf.openFile(file);
+      });
+    });
+  }
+
+  async onload(): Promise<void> {
+    this.addStyles();
+  }
+
+  addStyles() {
+    const styleEl = this.app.workspace.containerEl.createEl('style');
+    styleEl.textContent = `
+    .TwoHopLinks {
+      overflow: auto;
+    }
+  `;
   }
 }
