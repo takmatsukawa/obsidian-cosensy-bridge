@@ -840,17 +840,4 @@ class TwoHopLinksView extends ItemView {
       });
     });
   }
-
-  async onload(): Promise<void> {
-    this.addStyles();
-  }
-
-  addStyles() {
-    const styleEl = this.app.workspace.containerEl.createEl('style');
-    styleEl.textContent = `
-    .TwoHopLinks {
-      overflow: auto;
-    }
-  `;
-  }
 }
