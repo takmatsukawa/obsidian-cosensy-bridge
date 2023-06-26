@@ -23,23 +23,23 @@ declare module "obsidian" {
 
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
-  enabled: boolean;
+  showLinksInMarkdown: boolean;
 
   async onload(): Promise<void> {
     console.debug("------ loading obsidian-twohop-links plugin");
 
     await this.loadSettings();
 
-    this.enabled = true;
+    this.showLinksInMarkdown = true;
 
     this.app.workspace.on("file-open", async () => {
-      if (this.enabled) {
+      if (this.showLinksInMarkdown) {
         await this.renderTwohopLinks();
       }
     });
 
     this.app.metadataCache.on("resolve", async (file) => {
-      if (this.enabled) {
+      if (this.showLinksInMarkdown) {
         const activeFile: TFile = this.app.workspace.getActiveFile();
         if (activeFile != null) {
           if (file.path == activeFile.path) {
@@ -63,13 +63,13 @@ export default class TwohopLinksPlugin extends Plugin {
       } else {
         this.updateOpenTwoHopLinksView();
       }
-      this.disable(false);
+      this.disableLinksInMarkdown();
     } else {
       if (this.isTwoHopLinksViewOpen()) {
         this.closeTwoHopLinksView();
       }
       await this.renderTwohopLinks();
-      this.enable(false);
+      this.enableLinksInMarkdown();
     }
   }
 
@@ -104,24 +104,15 @@ export default class TwohopLinksPlugin extends Plugin {
     this.app.workspace.detachLeavesOfType("TwoHopLinksView");
   }
 
-  enable(check: boolean): boolean {
-    if (check) {
-      return !this.enabled;
-    }
-
-    this.enabled = true;
+  enableLinksInMarkdown(): void {
+    this.showLinksInMarkdown = true;
     this.renderTwohopLinks().then(() =>
       console.debug("Rendered two hop links")
     );
-    return true;
   }
 
-  disable(check: boolean): boolean {
-    if (check) {
-      return this.enabled;
-    }
-
-    this.enabled = false;
+  disableLinksInMarkdown(): void {
+    this.showLinksInMarkdown = false;
     this.removeTwohopLinks();
     const container = this.app.workspace.containerEl.querySelector(
       ".twohop-links-container"
@@ -130,8 +121,7 @@ export default class TwohopLinksPlugin extends Plugin {
       ReactDOM.unmountComponentAtNode(container);
       container.remove();
     }
-    (app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
-    return true;
+    (this.app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
   }
 
   removeTwohopLinks(): void {
@@ -191,6 +181,7 @@ export default class TwohopLinksPlugin extends Plugin {
       tagLinksList
     };
   }
+
 
   async renderTwohopLinks(): Promise<void> {
     if (this.settings.showTwoHopLinksInSeparatePane) {
@@ -258,45 +249,53 @@ export default class TwohopLinksPlugin extends Plugin {
     );
   }
 
+  private getTopContainerElements(markdownView: MarkdownView): Element[] {
+    const elements = markdownView.containerEl.querySelectorAll(
+      ".markdown-source-view .CodeMirror-scroll, .markdown-preview-view, .markdown-source-view .cm-sizer"
+    );
+
+    const containers: Element[] = [];
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements.item(i);
+      const container: Element = ((): Element => {
+        const e = el.querySelector("." + CONTAINER_CLASS);
+        if (e) {
+          return e;
+        } else {
+          const c = document.createElement("div");
+          c.className = CONTAINER_CLASS;
+          el.insertBefore(c, el.firstChild);
+          return c;
+        }
+      })();
+      containers.push(container);
+    }
+
+    return containers;
+  }
+
+  private getOtherContainerElements(markdownView: MarkdownView): Element[] {
+    const elements = markdownView.containerEl.querySelectorAll(
+      ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer"
+    );
+
+    const containers: Element[] = [];
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements.item(i);
+      const container =
+        el.querySelector("." + CONTAINER_CLASS) ||
+        el.createDiv({ cls: CONTAINER_CLASS });
+      containers.push(container);
+    }
+
+    return containers;
+  }
+
   private getContainerElements(markdownView: MarkdownView): Element[] {
     if (this.settings.putOnTop) {
-      const elements = markdownView.containerEl.querySelectorAll(
-        ".markdown-source-view .CodeMirror-scroll, .markdown-preview-view, .markdown-source-view .cm-sizer"
-      );
-      console.debug(`getContainerElements: ${elements.length}`);
-
-      const containers: Element[] = [];
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements.item(i);
-        const container: Element = ((): Element => {
-          const e = el.querySelector("." + CONTAINER_CLASS);
-          if (e) {
-            return e;
-          } else {
-            const c = document.createElement("div");
-            c.className = CONTAINER_CLASS;
-            el.insertBefore(c, el.firstChild);
-            return c;
-          }
-        })();
-        containers.push(container);
-      }
-      console.debug(`Return container elements: ${containers.length}`);
-      return containers;
+      return this.getTopContainerElements(markdownView);
     } else {
-      const elements = markdownView.containerEl.querySelectorAll(
-        ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer"
-      );
-
-      const containers: Element[] = [];
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements.item(i);
-        const container =
-          el.querySelector("." + CONTAINER_CLASS) ||
-          el.createDiv({ cls: CONTAINER_CLASS });
-        containers.push(container);
-      }
-      return containers;
+      return this.getOtherContainerElements(markdownView);
     }
   }
 
@@ -336,66 +335,6 @@ export default class TwohopLinksPlugin extends Plugin {
       case 'createdAsc':
         return (a: any, b: any) => a.stat.ctime - b.stat.ctime;
     }
-  }
-
-  getTagLinksList = async (
-    activeFile: TFile,
-    activeFileCache: CachedMetadata
-  ): Promise<TagLinks[]> => {
-    if (activeFileCache.tags) {
-      const activeFileTagSet = new Set(
-        activeFileCache.tags.map((it) => it.tag)
-      );
-      const tagMap: Record<string, FileEntity[]> = {};
-      const seen: Record<string, boolean> = {};
-      for (const markdownFile of this.app.vault.getMarkdownFiles()) {
-        if (markdownFile == activeFile) {
-          continue;
-        }
-        const cachedMetadata =
-          this.app.metadataCache.getFileCache(markdownFile);
-        if (cachedMetadata && cachedMetadata.tags) {
-          for (const tag of cachedMetadata.tags.filter((it) =>
-            activeFileTagSet.has(it.tag)
-          )) {
-            if (!tagMap[tag.tag]) {
-              tagMap[tag.tag] = [];
-            }
-            if (!seen[markdownFile.path]) {
-              const linkText = path2linkText(markdownFile.path);
-              tagMap[tag.tag].push(new FileEntity(activeFile.path, linkText));
-              seen[markdownFile.path] = true;
-            }
-          }
-        }
-      }
-
-      const tagLinksEntities = await Promise.all(
-        Object.keys(tagMap).map(async (tag) => {
-          const statsPromises = tagMap[tag].map(async (entity) => {
-            const file = this.app.metadataCache.getFirstLinkpathDest(entity.linkText, entity.sourcePath);
-            if (!file) {
-              return null;
-            }
-            const stat = await this.app.vault.adapter.stat(file.path);
-            return { entity, stat };
-          });
-
-          const stats = (await Promise.all(statsPromises)).filter((it) => it && it.entity && it.stat);
-
-          const sortFunction = this.getSortFunction(this.settings.sortOrder);
-          stats.sort(sortFunction);
-
-          const sortedFileEntities = stats.map((it) => it!.entity);
-
-          return { tag, fileEntities: sortedFileEntities };
-        })
-      );
-
-      const tagLinksList: TagLinks[] = tagLinksEntities.map((it) => new TagLinks(it!.tag, it!.fileEntities));
-      return tagLinksList;
-    }
-    return [];
   }
 
   private async injectTwohopLinks(
@@ -463,6 +402,113 @@ export default class TwohopLinksPlugin extends Plugin {
     });
   }
 
+  private aggregate2hopLinks(
+    activeFile: TFile,
+    links: Record<string, Record<string, number>>
+  ): Record<string, string[]> {
+    const result: Record<string, string[]> = {};
+    const activeFileLinks = new Set(Object.keys(links[activeFile.path]));
+
+    for (const src of Object.keys(links)) {
+      if (src == activeFile.path) {
+        continue;
+      }
+      if (links[src] == null) {
+        continue;
+      }
+      for (const dest of Object.keys(links[src])) {
+        if (activeFileLinks.has(dest)) {
+          if (!result[dest]) {
+            result[dest] = [];
+          }
+          result[dest].push(src);
+        }
+      }
+    }
+    return result;
+  }
+
+  private async getSortedFileEntities(
+    entities: FileEntity[],
+    sourcePathFn: (entity: FileEntity) => string
+  ): Promise<FileEntity[]> {
+    const statsPromises = entities.map(async (entity) => {
+      const stat = await this.app.vault.adapter.stat(sourcePathFn(entity));
+      return { entity, stat };
+    });
+
+    const stats = (await Promise.all(statsPromises)).filter((it) => it);
+
+    const sortFunction = this.getSortFunction(this.settings.sortOrder);
+    stats.sort(sortFunction);
+
+    return stats.map((it) => it!.entity);
+  }
+
+  private async getForwardLinks(
+    activeFile: TFile,
+    activeFileCache: CachedMetadata
+  ): Promise<{ resolved: FileEntity[], new: FileEntity[] }> {
+    const resolvedLinks: FileEntity[] = [];
+    const newLinks: FileEntity[] = [];
+
+    if (activeFileCache != null && activeFileCache.links != null) {
+      const seen = new Set<string>();
+
+      for (const it of activeFileCache.links) {
+        const key = removeBlockReference(it.link);
+        if (!seen.has(key)) {
+          seen.add(key);
+          const targetFile = this.app.metadataCache.getFirstLinkpathDest(key, activeFile.path);
+
+          if (targetFile && this.shouldExcludePath(targetFile.path)) {
+            continue;
+          }
+
+          if (targetFile) {
+            resolvedLinks.push(new FileEntity(targetFile.path, it.link));
+          } else {
+            newLinks.push(new FileEntity(activeFile.path, it.link));
+          }
+        }
+      }
+      const sortedResolvedLinks = await this.getSortedFileEntities(resolvedLinks, (entity) => entity.sourcePath);
+
+      return {
+        resolved: sortedResolvedLinks,
+        new: newLinks
+      };
+    } else {
+      return { resolved: [], new: [] };
+    }
+  }
+
+  private async getBackLinks(
+    activeFile: TFile,
+    forwardLinkSet: Set<string>
+  ): Promise<FileEntity[]> {
+    const name = activeFile.path;
+    const resolvedLinks: Record<string, Record<string, number>> = this.app
+      .metadataCache.resolvedLinks;
+    const backLinkEntities: FileEntity[] = [];
+    for (const src of Object.keys(resolvedLinks)) {
+      if (this.shouldExcludePath(src)) {
+        continue;
+      }
+      for (const dest of Object.keys(resolvedLinks[src])) {
+        if (dest == name) {
+          const linkText = path2linkText(src);
+          if (forwardLinkSet.has(linkText)) {
+            // ignore files, already listed in forward links.
+            continue;
+          }
+          backLinkEntities.push(new FileEntity(src, linkText));
+        }
+      }
+    }
+    return await this.getSortedFileEntities(backLinkEntities, (entity) => entity.sourcePath);
+  }
+
   private async getTwohopLinks(
     activeFile: TFile,
     links: Record<string, Record<string, number>>,
@@ -504,21 +550,10 @@ export default class TwohopLinksPlugin extends Plugin {
         .filter((path) => !this.shouldExcludePath(path))
         .map(async (path) => {
           if (twoHopLinks[path]) {
-            const statsPromises = twoHopLinks[path].map(async (entity) => {
+            const sortedFileEntities = await this.getSortedFileEntities(twoHopLinks[path], (entity) => {
               const file = this.app.metadataCache.getFirstLinkpathDest(entity.linkText, entity.sourcePath);
-              if (!file) {
-                return null;
-              }
-              const stat = await this.app.vault.adapter.stat(file.path);
-              return { entity, stat };
+              return file ? file.path : null;
             });
-
-            const stats = (await Promise.all(statsPromises)).filter((it) => it && it.entity && it.stat);
-
-            const sortFunction = this.getSortFunction(this.settings.sortOrder);
-            stats.sort(sortFunction);
-
-            const sortedFileEntities = stats.map((it) => it!.entity);
 
             return { link: new FileEntity(activeFile.path, path), fileEntities: sortedFileEntities };
           }
@@ -539,114 +574,52 @@ export default class TwohopLinksPlugin extends Plugin {
     return twoHopLinkStats.map((it) => new TwohopLink(it!.twoHopLinkEntity.link, it!.twoHopLinkEntity.fileEntities)).filter((it) => it.fileEntities.length > 0);
   }
 
-  private aggregate2hopLinks(
-    activeFile: TFile,
-    links: Record<string, Record<string, number>>
-  ): Record<string, string[]> {
-    const result: Record<string, string[]> = {};
-    const activeFileLinks = new Set(Object.keys(links[activeFile.path]));
-
-    for (const src of Object.keys(links)) {
-      if (src == activeFile.path) {
-        continue;
-      }
-      if (links[src] == null) {
-        continue;
-      }
-      for (const dest of Object.keys(links[src])) {
-        if (activeFileLinks.has(dest)) {
-          if (!result[dest]) {
-            result[dest] = [];
-          }
-          result[dest].push(src);
-        }
-      }
-    }
-    return result;
-  }
-
-  private async getForwardLinks(
+  getTagLinksList = async (
     activeFile: TFile,
     activeFileCache: CachedMetadata
-  ): Promise<{ resolved: FileEntity[], new: FileEntity[] }> {
-    const resolvedLinks: FileEntity[] = [];
-    const newLinks: FileEntity[] = [];
-
-    if (activeFileCache != null && activeFileCache.links != null) {
-      const seen = new Set<string>();
-
-      for (const it of activeFileCache.links) {
-        const key = removeBlockReference(it.link);
-        if (!seen.has(key)) {
-          seen.add(key);
-          const targetFile = this.app.metadataCache.getFirstLinkpathDest(key, activeFile.path);
-
-          if (targetFile && this.shouldExcludePath(targetFile.path)) {
-            continue;
-          }
-
-          if (targetFile) {
-            resolvedLinks.push(new FileEntity(targetFile.path, it.link));
-          } else {
-            newLinks.push(new FileEntity(activeFile.path, it.link));
+  ): Promise<TagLinks[]> => {
+    if (activeFileCache.tags) {
+      const activeFileTagSet = new Set(
+        activeFileCache.tags.map((it) => it.tag)
+      );
+      const tagMap: Record<string, FileEntity[]> = {};
+      const seen: Record<string, boolean> = {};
+      for (const markdownFile of this.app.vault.getMarkdownFiles()) {
+        if (markdownFile == activeFile) {
+          continue;
+        }
+        const cachedMetadata =
+          this.app.metadataCache.getFileCache(markdownFile);
+        if (cachedMetadata && cachedMetadata.tags) {
+          for (const tag of cachedMetadata.tags.filter((it) =>
+            activeFileTagSet.has(it.tag)
+          )) {
+            if (!tagMap[tag.tag]) {
+              tagMap[tag.tag] = [];
+            }
+            if (!seen[markdownFile.path]) {
+              const linkText = path2linkText(markdownFile.path);
+              tagMap[tag.tag].push(new FileEntity(activeFile.path, linkText));
+              seen[markdownFile.path] = true;
+            }
           }
         }
       }
 
-      const statsPromises = resolvedLinks.map(async (entity) => {
-        const stat = await this.app.vault.adapter.stat(entity.sourcePath);
-        return { entity, stat };
-      });
+      const tagLinksEntities = await Promise.all(
+        Object.keys(tagMap).map(async (tag) => {
+          const sortedFileEntities = await this.getSortedFileEntities(tagMap[tag], (entity) => entity.sourcePath);
+          return { tag, fileEntities: sortedFileEntities };
+        })
+      );
 
-      const stats = (await Promise.all(statsPromises)).filter((it) => it);
+      const tagSortFunction = this.getSortFunction(this.settings.sortOrder);
+      tagLinksEntities.sort(tagSortFunction);
 
-      const sortFunction = this.getSortFunction(this.settings.sortOrder);
-      stats.sort(sortFunction);
-
-      return {
-        resolved: stats.map((it) => it!.entity),
-        new: newLinks
-      };
+      return tagLinksEntities.map((it) => new TagLinks(it.tag, it.fileEntities));
     } else {
-      return { resolved: [], new: [] };
+      return [];
     }
-  }
-
-  private async getBackLinks(
-    activeFile: TFile,
-    forwardLinkSet: Set<string>
-  ): Promise<FileEntity[]> {
-    const name = activeFile.path;
-    const resolvedLinks: Record<string, Record<string, number>> = this.app
-      .metadataCache.resolvedLinks;
-    const backLinkEntities: FileEntity[] = [];
-    for (const src of Object.keys(resolvedLinks)) {
-      if (this.shouldExcludePath(src)) {
-        continue;
-      }
-      for (const dest of Object.keys(resolvedLinks[src])) {
-        if (dest == name) {
-          const linkText = path2linkText(src);
-          if (forwardLinkSet.has(linkText)) {
-            // ignore files, already listed in forward links.
-            continue;
-          }
-          backLinkEntities.push(new FileEntity(src, linkText));
-        }
-      }
-    }
-
-    const statsPromises = backLinkEntities.map(async (entity) => {
-      const stat = await this.app.vault.adapter.stat(entity.sourcePath);
-      return { entity, stat };
-    });
-
-    const stats = (await Promise.all(statsPromises)).filter((it) => it);
-
-    const sortFunction = this.getSortFunction(this.settings.sortOrder);
-    stats.sort(sortFunction);
-
-    return stats.map((it) => it!.entity);
   }
 
   private async readPreview(fileEntity: FileEntity) {
@@ -742,7 +715,8 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   onunload(): void {
-    this.disable(false);
+    this.disableLinksInMarkdown();
+    this.closeTwoHopLinksView();
     console.log("unloading plugin");
   }
 
@@ -754,6 +728,7 @@ export default class TwohopLinksPlugin extends Plugin {
     return this.saveData(this.settings);
   }
 }
+
 
 class TwoHopLinksView extends ItemView {
   private plugin: TwohopLinksPlugin;
