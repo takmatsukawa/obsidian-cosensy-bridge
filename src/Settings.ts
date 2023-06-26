@@ -74,19 +74,6 @@ export class TwohopSettingTab extends PluginSettingTab {
           });
       });
 
-    new Setting(containerEl)
-      .setName("Auto load 2hop links")
-      .setDesc("Automatically load 2hop links when opening a note")
-      .addToggle((toggle) => {
-        toggle
-          .setValue(this.plugin.settings.autoLoadTwoHopLinks)
-          .onChange(async (value) => {
-            this.plugin.settings.autoLoadTwoHopLinks = value;
-            await this.plugin.saveSettings();
-            await this.plugin.updateTwoHopLinksView();
-          });
-      });
-
     new Setting(containerEl).setName("Show links").addToggle((toggle) =>
       toggle
         .setValue(this.plugin.settings.showForwardConnectedLinks)
@@ -106,21 +93,6 @@ export class TwohopSettingTab extends PluginSettingTab {
           await this.plugin.updateTwoHopLinksView();
         })
     );
-
-    new Setting(containerEl)
-      .setName("Put 2hop links to top of the pane(Experimental).")
-      .setDesc(
-        "Known bugs: This configuration doesn't work with the 'Embedded Note Titles' plugin."
-      )
-      .addToggle((toggle) => {
-        toggle
-          .setValue(this.plugin.settings.putOnTop)
-          .onChange(async (value) => {
-            this.plugin.settings.putOnTop = value;
-            await this.plugin.saveSettings();
-            await this.plugin.updateTwoHopLinksView();
-          });
-      });
 
     new Setting(containerEl)
       .setName("Show image in the 2hop links")
@@ -183,6 +155,34 @@ export class TwohopSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.enableDuplicateRemoval)
           .onChange(async (value) => {
             this.plugin.settings.enableDuplicateRemoval = value;
+            await this.plugin.saveSettings();
+            await this.plugin.updateTwoHopLinksView();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Auto load 2hop links")
+      .setDesc("Automatically load 2hop links when opening a note")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.autoLoadTwoHopLinks)
+          .onChange(async (value) => {
+            this.plugin.settings.autoLoadTwoHopLinks = value;
+            await this.plugin.saveSettings();
+            await this.plugin.updateTwoHopLinksView();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Put 2hop links to top of the pane(Experimental).")
+      .setDesc(
+        "Known bugs: This configuration doesn't work with the 'Embedded Note Titles' plugin."
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.putOnTop)
+          .onChange(async (value) => {
+            this.plugin.settings.putOnTop = value;
             await this.plugin.saveSettings();
             await this.plugin.updateTwoHopLinksView();
           });
