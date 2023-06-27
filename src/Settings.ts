@@ -13,6 +13,7 @@ export interface TwohopPluginSettings {
   enableDuplicateRemoval: boolean;
   sortOrder: string;
   showTwoHopLinksInSeparatePane: boolean;
+  excludeTags: string[];
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   enableDuplicateRemoval: true,
   sortOrder: 'modifiedAsc',
   showTwoHopLinksInSeparatePane: false,
+  excludeTags: [],
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -118,6 +120,23 @@ export class TwohopSettingTab extends PluginSettingTab {
           this.plugin.settings.excludePaths = (event.target as HTMLInputElement).value
             .split("\n")
             .map((path) => path.trim());
+          await this.plugin.saveSettings();
+          await this.plugin.updateTwoHopLinksView();
+        });
+      });
+
+    new Setting(containerEl)
+      .setName("Exclude tags")
+      .setDesc("List of tags to exclude, one per line")
+      .addTextArea((textArea) => {
+        textArea
+          .setPlaceholder("tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/")
+          .setValue(this.plugin.settings.excludeTags.join("\n"));
+        textArea.inputEl.style.height = "150px";
+        textArea.inputEl.addEventListener('blur', async (event) => {
+          this.plugin.settings.excludeTags = (event.target as HTMLInputElement).value
+            .split("\n")
+            .map((tag) => tag.trim());
           await this.plugin.saveSettings();
           await this.plugin.updateTwoHopLinksView();
         });

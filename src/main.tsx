@@ -442,7 +442,18 @@ export default class TwohopLinksPlugin extends Plugin {
         }
       }
     }
-    return tags;
+
+    return tags.filter(tag => {
+      for (const excludeTag of this.settings.excludeTags) {
+        if (excludeTag.endsWith("/") && (tag === excludeTag.slice(0, -1) || tag.startsWith(excludeTag))) {
+          return false;
+        }
+        if (!excludeTag.endsWith("/") && tag === excludeTag) {
+          return false;
+        }
+      }
+      return true;
+    });
   }
 
   getTagLinksList = async (
