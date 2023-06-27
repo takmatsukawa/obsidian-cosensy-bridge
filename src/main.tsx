@@ -350,7 +350,8 @@ export default class TwohopLinksPlugin extends Plugin {
   private async getTwohopLinks(
     activeFile: TFile,
     links: Record<string, Record<string, number>>,
-    forwardLinkSet: Set<string>
+    forwardLinkSet: Set<string>,
+    twoHopLinkSet: Set<string>
   ): Promise<TwohopLink[]> {
     const twoHopLinks: Record<string, FileEntity[]> = {};
     if (links[activeFile.path] == null) {
@@ -377,6 +378,7 @@ export default class TwohopLinksPlugin extends Plugin {
               return null;
             }
             seenLinks.add(linkText);
+            twoHopLinkSet.add(linkText);
             return new FileEntity(activeFile.path, linkText);
           })
           .filter((it) => it);
@@ -458,7 +460,9 @@ export default class TwohopLinksPlugin extends Plugin {
 
   getTagLinksList = async (
     activeFile: TFile,
-    activeFileCache: CachedMetadata
+    activeFileCache: CachedMetadata,
+    forwardLinkSet: Set<string>,
+    twoHopLinkSet: Set<string>
   ): Promise<TagLinks[]> => {
     const activeFileTags = this.getTagsFromCache(activeFileCache);
     if (activeFileTags.length === 0) return [];
@@ -478,7 +482,9 @@ export default class TwohopLinksPlugin extends Plugin {
         if (!activeFileTagSet.has(tag)) continue;
 
         tagMap[tag] = tagMap[tag] ?? [];
-        if (this.settings.enableDuplicateRemoval && seen[markdownFile.path]) continue;
+        if (this.settings.enableDuplicateRemoval &&
+          (seen[markdownFile.path] || forwardLinkSet.has(path2linkText(markdownFile.path)) ||
+            twoHopLinkSet.has(path2linkText(markdownFile.path)))) continue;
 
         const linkText = path2linkText(markdownFile.path);
         tagMap[tag].push(new FileEntity(activeFile.path, linkText));
@@ -493,9 +499,15 @@ export default class TwohopLinksPlugin extends Plugin {
   private async createTagLinkEntities(tagMap: Record<string, FileEntity[]>): Promise<TagLinks[]> {
     const tagLinksEntitiesPromises = Object.entries(tagMap).map(async ([tag, entities]) => {
       const sortedEntities = await this.getSortedFileEntities(entities, (entity) => entity.sourcePath);
+      if (sortedEntities.length === 0) {
+        return null;
+      }
       return new TagLinks(tag, sortedEntities);
     });
-    return Promise.all(tagLinksEntitiesPromises);
+
+    const tagLinksEntities = await Promise.all(tagLinksEntitiesPromises);
+
+    return tagLinksEntities.filter(it => it != null);
   }
 
   private async readPreview(fileEntity: FileEntity) {
@@ -646,19 +658,22 @@ export default class TwohopLinksPlugin extends Plugin {
     const { resolved: forwardLinks, new: newLinks } = await this.getForwardLinks(activeFile, activeFileCache);
     const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
 
+    const twoHopLinkSet = new Set<string>();
     const unresolvedTwoHopLinks = await this.getTwohopLinks(
       activeFile,
       this.app.metadataCache.unresolvedLinks,
-      forwardLinkSet
+      forwardLinkSet,
+      twoHopLinkSet
     );
     const resolvedTwoHopLinks = await this.getTwohopLinks(
       activeFile,
       this.app.metadataCache.resolvedLinks,
-      forwardLinkSet
+      forwardLinkSet,
+      twoHopLinkSet
     );
 
     const backwardLinks = await this.getBackLinks(activeFile, forwardLinkSet);
-    const tagLinksList = await this.getTagLinksList(activeFile, activeFileCache);
+    const tagLinksList = await this.getTagLinksList(activeFile, activeFileCache, forwardLinkSet, twoHopLinkSet);
 
     return {
       forwardLinks,
