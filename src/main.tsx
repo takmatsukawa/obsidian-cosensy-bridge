@@ -412,52 +412,79 @@ export default class TwohopLinksPlugin extends Plugin {
     return twoHopLinkStats.map((it) => new TwohopLink(it!.twoHopLinkEntity.link, it!.twoHopLinkEntity.fileEntities)).filter((it) => it.fileEntities.length > 0);
   }
 
+  private getTagsFromCache(cachedMetadata: CachedMetadata | null): string[] {
+    let tags: string[] = [];
+    if (cachedMetadata) {
+      if (cachedMetadata.tags) {
+        cachedMetadata.tags.forEach((it) => {
+          const tagHierarchy = it.tag.replace('#', '').split('/');
+          for (let i = 0; i < tagHierarchy.length; i++) {
+            tags.push(tagHierarchy.slice(0, i + 1).join('/'));
+          }
+        });
+      }
+
+      if (cachedMetadata.frontmatter?.tags) {
+        if (Array.isArray(cachedMetadata.frontmatter.tags)) {
+          cachedMetadata.frontmatter.tags.forEach((tag) => {
+            const tagHierarchy = tag.split('/');
+            for (let i = 0; i < tagHierarchy.length; i++) {
+              tags.push(tagHierarchy.slice(0, i + 1).join('/'));
+            }
+          });
+        } else if (typeof cachedMetadata.frontmatter.tags === 'string') {
+          cachedMetadata.frontmatter.tags.split(',').map((tag) => tag.trim()).forEach((tag) => {
+            const tagHierarchy = tag.split('/');
+            for (let i = 0; i < tagHierarchy.length; i++) {
+              tags.push(tagHierarchy.slice(0, i + 1).join('/'));
+            }
+          });
+        }
+      }
+    }
+    return tags;
+  }
+
   getTagLinksList = async (
     activeFile: TFile,
     activeFileCache: CachedMetadata
   ): Promise<TagLinks[]> => {
-    if (activeFileCache.tags) {
-      const activeFileTagSet = new Set(
-        activeFileCache.tags.map((it) => it.tag)
-      );
-      const tagMap: Record<string, FileEntity[]> = {};
-      const seen: Record<string, boolean> = {};
-      for (const markdownFile of this.app.vault.getMarkdownFiles()) {
-        if (markdownFile == activeFile || this.shouldExcludePath(markdownFile.path)) {
-          continue;
-        }
-        const cachedMetadata =
-          this.app.metadataCache.getFileCache(markdownFile);
-        if (cachedMetadata && cachedMetadata.tags) {
-          for (const tag of cachedMetadata.tags.filter((it) =>
-            activeFileTagSet.has(it.tag)
-          )) {
-            if (!tagMap[tag.tag]) {
-              tagMap[tag.tag] = [];
-            }
-            if (!seen[markdownFile.path]) {
-              const linkText = path2linkText(markdownFile.path);
-              tagMap[tag.tag].push(new FileEntity(activeFile.path, linkText));
-              seen[markdownFile.path] = true;
-            }
-          }
-        }
+    const activeFileTags = this.getTagsFromCache(activeFileCache);
+    if (activeFileTags.length === 0) return [];
+
+    const activeFileTagSet = new Set(activeFileTags);
+    const tagMap: Record<string, FileEntity[]> = {};
+    const seen: Record<string, boolean> = {};
+
+    const markdownFiles = this.app.vault.getMarkdownFiles().filter((markdownFile) =>
+      markdownFile !== activeFile && !this.shouldExcludePath(markdownFile.path));
+
+    for (const markdownFile of markdownFiles) {
+      const cachedMetadata = this.app.metadataCache.getFileCache(markdownFile);
+      const fileTags = this.getTagsFromCache(cachedMetadata).sort((a, b) => b.length - a.length);
+
+      for (const tag of fileTags) {
+        if (!activeFileTagSet.has(tag)) continue;
+
+        tagMap[tag] = tagMap[tag] ?? [];
+        if (this.settings.enableDuplicateRemoval && seen[markdownFile.path]) continue;
+
+        const linkText = path2linkText(markdownFile.path);
+        tagMap[tag].push(new FileEntity(activeFile.path, linkText));
+        seen[markdownFile.path] = true;
       }
-
-      const tagLinksEntities = await Promise.all(
-        Object.keys(tagMap).map(async (tag) => {
-          const sortedFileEntities = await this.getSortedFileEntities(tagMap[tag], (entity) => entity.sourcePath);
-          return { tag, fileEntities: sortedFileEntities };
-        })
-      );
-
-      const tagSortFunction = this.getSortFunction(this.settings.sortOrder);
-      tagLinksEntities.sort(tagSortFunction);
-
-      return tagLinksEntities.map((it) => new TagLinks(it.tag, it.fileEntities));
-    } else {
-      return [];
     }
+
+    const tagLinksEntities = await this.createTagLinkEntities(tagMap);
+    return tagLinksEntities.sort((a, b) => b.tag.length - a.tag.length);
+  }
+
+  private async createTagLinkEntities(tagMap: Record<string, FileEntity[]>): Promise<TagLinks[]> {
+    const tagLinksEntitiesPromises = Object.entries(tagMap).map(async ([tag, entities]) => {
+      const sortedEntities = await this.getSortedFileEntities(entities, (entity) => entity.sourcePath);
+      return new TagLinks(tag, sortedEntities);
+    });
+    return Promise.all(tagLinksEntitiesPromises);
   }
 
   private async readPreview(fileEntity: FileEntity) {
