@@ -421,7 +421,8 @@ export default class TwohopLinksPlugin extends Plugin {
       const tagMap: Record<string, FileEntity[]> = {};
       const seen: Record<string, boolean> = {};
       for (const markdownFile of this.app.vault.getMarkdownFiles()) {
-        if (markdownFile == activeFile) {
+        // Add the exclude check here.
+        if (markdownFile == activeFile || this.shouldExcludePath(markdownFile.path)) {
           continue;
         }
         const cachedMetadata =
