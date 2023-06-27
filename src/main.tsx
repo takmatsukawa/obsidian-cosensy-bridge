@@ -335,8 +335,7 @@ export default class TwohopLinksPlugin extends Plugin {
       for (const dest of Object.keys(resolvedLinks[src])) {
         if (dest == name) {
           const linkText = path2linkText(src);
-          if (forwardLinkSet.has(linkText)) {
-            // ignore files, already listed in forward links.
+          if (this.settings.enableDuplicateRemoval && forwardLinkSet.has(linkText)) {
             continue;
           }
           backLinkEntities.push(new FileEntity(src, linkText));
