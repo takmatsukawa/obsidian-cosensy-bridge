@@ -289,10 +289,12 @@ export default class TwohopLinksPlugin extends Plugin {
     const resolvedLinks: FileEntity[] = [];
     const newLinks: FileEntity[] = [];
 
-    if (activeFileCache != null && activeFileCache.links != null) {
+    if (activeFileCache != null && (activeFileCache.links != null || activeFileCache.embeds != null)) {
       const seen = new Set<string>();
 
-      for (const it of activeFileCache.links) {
+      const linkEntities = [...(activeFileCache.links || []), ...(activeFileCache.embeds || [])];
+
+      for (const it of linkEntities) {
         const key = removeBlockReference(it.link);
         if (!seen.has(key)) {
           seen.add(key);
@@ -421,7 +423,6 @@ export default class TwohopLinksPlugin extends Plugin {
       const tagMap: Record<string, FileEntity[]> = {};
       const seen: Record<string, boolean> = {};
       for (const markdownFile of this.app.vault.getMarkdownFiles()) {
-        // Add the exclude check here.
         if (markdownFile == activeFile || this.shouldExcludePath(markdownFile.path)) {
           continue;
         }
