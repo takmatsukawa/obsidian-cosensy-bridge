@@ -16,12 +16,6 @@ import { SeparatePaneView } from "./ui/SeparatePaneView";
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";
 
-declare module "obsidian" {
-  interface Workspace {
-    on(eventName: "layout-ready", callback: () => any, ctx?: any): EventRef;
-  }
-}
-
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
   showLinksInMarkdown: boolean;
