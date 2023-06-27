@@ -644,7 +644,42 @@ export default class TwohopLinksPlugin extends Plugin {
     }
   }
 
-  async gatherTwoHopLinks(activeFile: TFile): Promise<{
+  private async getSortedFiles(files: TFile[], sortFunction: (file: TFile) => string | number): Promise<TFile[]> {
+    const fileEntities: { file: TFile, sortValue: string | number }[] = files.map(file => {
+      return { file, sortValue: sortFunction(file) };
+    });
+    fileEntities.sort((a, b) => {
+      const sortValueA = a.sortValue;
+      const sortValueB = b.sortValue;
+      if (typeof sortValueA === "string" && typeof sortValueB === "string") {
+        return sortValueA.localeCompare(sortValueB);
+      } else if (typeof sortValueA === "number" && typeof sortValueB === "number") {
+        return sortValueA - sortValueB;
+      } else {
+        return 0;
+      }
+    });
+    return fileEntities.map(entity => entity.file);
+  }
+
+  private getSortFunctionForFile(sortOrder: string) {
+    switch (sortOrder) {
+      case 'filenameAsc':
+        return (file: TFile) => file.basename;
+      case 'filenameDesc':
+        return (file: TFile) => -file.basename;
+      case 'modifiedDesc':
+        return (file: TFile) => -file.stat.mtime;
+      case 'modifiedAsc':
+        return (file: TFile) => file.stat.mtime;
+      case 'createdDesc':
+        return (file: TFile) => -file.stat.ctime;
+      case 'createdAsc':
+        return (file: TFile) => file.stat.ctime;
+    }
+  }
+
+  async gatherTwoHopLinks(activeFile: TFile | null): Promise<{
     forwardLinks: FileEntity[];
     newLinks: FileEntity[];
     backwardLinks: FileEntity[];
@@ -652,28 +687,41 @@ export default class TwohopLinksPlugin extends Plugin {
     resolvedTwoHopLinks: TwohopLink[];
     tagLinksList: TagLinks[];
   }> {
+    let forwardLinks: FileEntity[] = [];
+    let newLinks: FileEntity[] = [];
+    let backwardLinks: FileEntity[] = [];
+    let unresolvedTwoHopLinks: TwohopLink[] = [];
+    let resolvedTwoHopLinks: TwohopLink[] = [];
+    let tagLinksList: TagLinks[] = [];
 
-    const activeFileCache: CachedMetadata = this.app.metadataCache.getFileCache(activeFile);
+    if (activeFile) {
+      const activeFileCache: CachedMetadata = this.app.metadataCache.getFileCache(activeFile);
+      ({ resolved: forwardLinks, new: newLinks } = await this.getForwardLinks(activeFile, activeFileCache));
+      const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
 
-    const { resolved: forwardLinks, new: newLinks } = await this.getForwardLinks(activeFile, activeFileCache);
-    const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
+      const twoHopLinkSet = new Set<string>();
+      unresolvedTwoHopLinks = await this.getTwohopLinks(
+        activeFile,
+        this.app.metadataCache.unresolvedLinks,
+        forwardLinkSet,
+        twoHopLinkSet
+      );
+      resolvedTwoHopLinks = await this.getTwohopLinks(
+        activeFile,
+        this.app.metadataCache.resolvedLinks,
+        forwardLinkSet,
+        twoHopLinkSet
+      );
 
-    const twoHopLinkSet = new Set<string>();
-    const unresolvedTwoHopLinks = await this.getTwohopLinks(
-      activeFile,
-      this.app.metadataCache.unresolvedLinks,
-      forwardLinkSet,
-      twoHopLinkSet
-    );
-    const resolvedTwoHopLinks = await this.getTwohopLinks(
-      activeFile,
-      this.app.metadataCache.resolvedLinks,
-      forwardLinkSet,
-      twoHopLinkSet
-    );
+      backwardLinks = await this.getBackLinks(activeFile, forwardLinkSet);
+      tagLinksList = await this.getTagLinksList(activeFile, activeFileCache, forwardLinkSet, twoHopLinkSet);
+    } else {
+      const allMarkdownFiles = this.app.vault.getMarkdownFiles()
+        .filter(file => !this.shouldExcludePath(file.path));
 
-    const backwardLinks = await this.getBackLinks(activeFile, forwardLinkSet);
-    const tagLinksList = await this.getTagLinksList(activeFile, activeFileCache, forwardLinkSet, twoHopLinkSet);
+      const sortedFiles = await this.getSortedFiles(allMarkdownFiles, this.getSortFunctionForFile(this.settings.sortOrder));
+      forwardLinks = sortedFiles.map(file => new FileEntity("", file.path));
+    }
 
     return {
       forwardLinks,

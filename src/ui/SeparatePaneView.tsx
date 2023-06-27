@@ -53,11 +53,7 @@ export class SeparatePaneView extends ItemView {
       }
 
       const newActiveFile = (leaf.view as any).file as TFile;
-      if (!newActiveFile) {
-        return;
-      }
-
-      const newActiveFilePath = newActiveFile.path;
+      const newActiveFilePath = newActiveFile ? newActiveFile.path : null;
 
       if (lastActiveFilePath !== newActiveFilePath) {
         this.lastActiveLeaf = leaf;
@@ -70,11 +66,7 @@ export class SeparatePaneView extends ItemView {
   async update(): Promise<void> {
     try {
       const activeFile = this.app.workspace.getActiveFile();
-      if (activeFile == null) {
-        ReactDOM.unmountComponentAtNode(this.containerEl);
-        ReactDOM.render(<div>No active file</div>, this.containerEl);
-        return;
-      }
+
       const {
         forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
       } = await this.plugin.gatherTwoHopLinks(activeFile);
