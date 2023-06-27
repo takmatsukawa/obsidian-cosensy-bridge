@@ -559,13 +559,17 @@ export default class TwohopLinksPlugin extends Plugin {
         return (a: any, b: any) =>
           a.entity && b.entity ? b.entity.linkText.localeCompare(a.entity.linkText) : 0;
       case 'modifiedDesc':
-        return (a: any, b: any) => b.stat.mtime - a.stat.mtime;
+        return (a: any, b: any) =>
+          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? b.stat.mtime - a.stat.mtime : 0;
       case 'modifiedAsc':
-        return (a: any, b: any) => a.stat.mtime - b.stat.mtime;
+        return (a: any, b: any) =>
+          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? a.stat.mtime - b.stat.mtime : 0;
       case 'createdDesc':
-        return (a: any, b: any) => b.stat.ctime - a.stat.ctime;
+        return (a: any, b: any) =>
+          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? b.stat.ctime - a.stat.ctime : 0;
       case 'createdAsc':
-        return (a: any, b: any) => a.stat.ctime - b.stat.ctime;
+        return (a: any, b: any) =>
+          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? a.stat.ctime - b.stat.ctime : 0;
     }
   }
 
