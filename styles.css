@@ -135,3 +135,7 @@ body:not(.zoom-off) .view-content div:not(.canvas-node-content) .twohop-links-bo
 .TwoHopLinks {
   overflow: auto;
 }
+
+.settings-button {
+  cursor: pointer;
+}
