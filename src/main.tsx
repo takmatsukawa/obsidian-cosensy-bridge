@@ -1,4 +1,4 @@
-import { CachedMetadata, MarkdownView, Plugin, TFile, WorkspaceLeaf, ItemView } from "obsidian";
+import { CachedMetadata, MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import { FileEntity } from "./model/FileEntity";
@@ -11,6 +11,7 @@ import {
   TwohopPluginSettings,
   TwohopSettingTab,
 } from "./Settings";
+import { SeparatePaneView } from "./ui/SeparatePaneView";
 
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";
@@ -51,7 +52,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
     this.addSettingTab(new TwohopSettingTab(this.app, this));
 
-    this.registerView("TwoHopLinksView", (leaf: WorkspaceLeaf) => new TwoHopLinksView(leaf, this));
+    this.registerView("TwoHopLinksView", (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this));
 
     this.updateTwoHopLinksView();
   }
@@ -90,7 +91,7 @@ export default class TwohopLinksPlugin extends Plugin {
   async updateOpenTwoHopLinksView() {
     for (let leaf of this.app.workspace.getLeavesOfType("TwoHopLinksView")) {
       let view = leaf.view;
-      if (view instanceof TwoHopLinksView) {
+      if (view instanceof SeparatePaneView) {
         await view.onOpen();
       }
     }
@@ -686,135 +687,4 @@ export default class TwohopLinksPlugin extends Plugin {
     });
   }
 
-}
-
-
-class TwoHopLinksView extends ItemView {
-  private plugin: TwohopLinksPlugin;
-  private lastActiveLeaf: WorkspaceLeaf | undefined;
-
-  constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
-    super(leaf);
-    this.plugin = plugin;
-    this.containerEl.addClass("TwoHopLinks");
-  }
-
-  getViewType(): string {
-    return "TwoHopLinksView";
-  }
-
-  getDisplayText(): string {
-    return "2Hop Links";
-  }
-
-  getIcon(): string {
-    return 'network';
-  }
-
-  async onOpen(): Promise<void> {
-    try {
-      this.lastActiveLeaf = this.app.workspace.getLeaf();
-      await this.update();
-
-      this.registerActiveFileUpdateEvent();
-
-      this.registerEvent(this.app.vault.on('modify', async (file: TFile) => {
-        if (file === this.app.workspace.getActiveFile()) {
-          setTimeout(async () => {
-            await this.update();
-          }, 500);
-        }
-      }));
-    } catch (error) {
-      console.error('Error updating TwoHopLinksView', error);
-    }
-  }
-
-  registerActiveFileUpdateEvent() {
-    let lastActiveFilePath: string | null = null;
-
-    this.registerEvent(this.app.workspace.on('active-leaf-change', async (leaf: WorkspaceLeaf) => {
-      if (leaf.view === this) {
-        return;
-      }
-
-      const newActiveFile = (leaf.view as any).file as TFile;
-      if (!newActiveFile) {
-        return;
-      }
-
-      const newActiveFilePath = newActiveFile.path;
-
-      if (lastActiveFilePath !== newActiveFilePath) {
-        this.lastActiveLeaf = leaf;
-        lastActiveFilePath = newActiveFilePath;
-        await this.update();
-      }
-    }));
-  }
-
-  async update(): Promise<void> {
-    try {
-      const activeFile = this.app.workspace.getActiveFile();
-      if (activeFile == null) {
-        ReactDOM.unmountComponentAtNode(this.containerEl);
-        ReactDOM.render(<div>No active file</div>, this.containerEl);
-        return;
-      }
-      const {
-        forwardLinks,
-        newLinks,
-        backwardLinks,
-        unresolvedTwoHopLinks,
-        resolvedTwoHopLinks,
-        tagLinksList
-      } = await this.plugin.gatherTwoHopLinks(activeFile);
-
-      ReactDOM.unmountComponentAtNode(this.containerEl);
-      await this.plugin.injectTwohopLinks(
-        forwardLinks,
-        newLinks,
-        backwardLinks,
-        unresolvedTwoHopLinks,
-        resolvedTwoHopLinks,
-        tagLinksList,
-        this.containerEl
-      );
-
-      this.addLinkEventListeners();
-    } catch (error) {
-      console.error('Error rendering two hop links', error);
-      ReactDOM.unmountComponentAtNode(this.containerEl);
-      ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
-    }
-  }
-
-  addLinkEventListeners(): void {
-    const links = this.containerEl.querySelectorAll('a');
-    links.forEach(link => {
-      link.addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        const filePath = link.getAttribute('href');
-        if (!filePath) {
-          console.error('Link does not have href attribute', link);
-          return;
-        }
-
-        const fileOrFolder = this.app.vault.getAbstractFileByPath(filePath);
-        if (!fileOrFolder || !(fileOrFolder instanceof TFile)) {
-          console.error('No file found for path', filePath);
-          return;
-        }
-        const file = fileOrFolder as TFile;
-
-        if (!this.lastActiveLeaf) {
-          console.error('No last active leaf');
-          return;
-        }
-
-        await this.lastActiveLeaf.openFile(file);
-      });
-    });
-  }
 }
