@@ -707,6 +707,10 @@ class TwoHopLinksView extends ItemView {
     return "2Hop Links";
   }
 
+  getIcon(): string {
+    return 'network';
+  }
+
   async onOpen(): Promise<void> {
     try {
       this.lastActiveLeaf = this.app.workspace.getLeaf();
