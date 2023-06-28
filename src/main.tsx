@@ -627,22 +627,22 @@ export default class TwohopLinksPlugin extends Plugin {
         return () => Math.random() - 0.5;
       case 'filenameAsc':
         return (a: any, b: any) =>
-          a.entity && b.entity ? a.entity.linkText.localeCompare(b.entity.linkText) : 0;
+          a.entity && b.entity ? a.entity.linkText.localeCompare(b.entity.linkText) : Math.random() - 0.5;
       case 'filenameDesc':
         return (a: any, b: any) =>
-          a.entity && b.entity ? b.entity.linkText.localeCompare(a.entity.linkText) : 0;
+          a.entity && b.entity ? b.entity.linkText.localeCompare(a.entity.linkText) : Math.random() - 0.5;
       case 'modifiedDesc':
         return (a: any, b: any) =>
-          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? b.stat.mtime - a.stat.mtime : 0;
+          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? b.stat.mtime - a.stat.mtime : Math.random() - 0.5;
       case 'modifiedAsc':
         return (a: any, b: any) =>
-          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? a.stat.mtime - b.stat.mtime : 0;
+          a.stat && b.stat && a.stat.mtime && b.stat.mtime ? a.stat.mtime - b.stat.mtime : Math.random() - 0.5;
       case 'createdDesc':
         return (a: any, b: any) =>
-          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? b.stat.ctime - a.stat.ctime : 0;
+          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? b.stat.ctime - a.stat.ctime : Math.random() - 0.5;
       case 'createdAsc':
         return (a: any, b: any) =>
-          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? a.stat.ctime - b.stat.ctime : 0;
+          a.stat && b.stat && a.stat.ctime && b.stat.ctime ? a.stat.ctime - b.stat.ctime : Math.random() - 0.5;
     }
   }
 
@@ -652,10 +652,10 @@ export default class TwohopLinksPlugin extends Plugin {
         return () => Math.random() - 0.5;
       case 'filenameAsc':
         return (a: any, b: any) =>
-          a.twoHopLinkEntity && b.twoHopLinkEntity ? a.twoHopLinkEntity.link.linkText.localeCompare(b.twoHopLinkEntity.link.linkText) : 0;
+          a.twoHopLinkEntity && b.twoHopLinkEntity ? a.twoHopLinkEntity.link.linkText.localeCompare(b.twoHopLinkEntity.link.linkText) : Math.random() - 0.5;
       case 'filenameDesc':
         return (a: any, b: any) =>
-          a.twoHopLinkEntity && b.twoHopLinkEntity ? b.twoHopLinkEntity.link.linkText.localeCompare(a.twoHopLinkEntity.link.linkText) : 0;
+          a.twoHopLinkEntity && b.twoHopLinkEntity ? b.twoHopLinkEntity.link.linkText.localeCompare(a.twoHopLinkEntity.link.linkText) : Math.random() - 0.5;
       case 'modifiedDesc':
         return (a: any, b: any) => b.stat.mtime - a.stat.mtime;
       case 'modifiedAsc':
