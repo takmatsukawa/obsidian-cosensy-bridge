@@ -6,7 +6,7 @@ import TwohopLinksPlugin from "../main";
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
   private lastActiveLeaf: WorkspaceLeaf | undefined;
-  private previousLinkCount: number = 0;
+  private previousLinks: string[] = [];
 
   constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
     super(leaf);
@@ -64,17 +64,17 @@ export class SeparatePaneView extends ItemView {
     }));
   }
 
-  private getActiveFileLinkCount(file: TFile): number {
+  private getActiveFileLinks(file: TFile): string[] {
     const cache = this.app.metadataCache.getFileCache(file);
-    return cache ? cache.links.length : 0;
+    return cache && cache.links ? cache.links.map(link => link.link) : [];
   }
 
   async update(): Promise<void> {
     try {
       const activeFile = this.app.workspace.getActiveFile();
-      const currentLinkCount = this.getActiveFileLinkCount(activeFile);
+      const currentLinks = this.getActiveFileLinks(activeFile);
 
-      if (this.previousLinkCount !== currentLinkCount) {
+      if (this.previousLinks.sort().join(',') !== currentLinks.sort().join(',')) {
         const {
           forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
         } = await this.plugin.gatherTwoHopLinks(activeFile);
@@ -92,7 +92,7 @@ export class SeparatePaneView extends ItemView {
 
         this.addLinkEventListeners();
 
-        this.previousLinkCount = currentLinkCount;
+        this.previousLinks = currentLinks;
       }
     } catch (error) {
       console.error('Error rendering two hop links', error);
