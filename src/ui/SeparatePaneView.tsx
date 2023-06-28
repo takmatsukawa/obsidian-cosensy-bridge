@@ -29,14 +29,14 @@ export class SeparatePaneView extends ItemView {
   async onOpen(): Promise<void> {
     try {
       this.lastActiveLeaf = this.app.workspace.getLeaf();
-      await this.update();
+      await this.forceUpdate();
 
       this.registerActiveFileUpdateEvent();
 
       this.registerEvent(this.app.vault.on('modify', async (file: TFile) => {
         if (file === this.app.workspace.getActiveFile()) {
           setTimeout(async () => {
-            await this.update();
+          await this.update();
           }, 500);
         }
       }));
@@ -56,10 +56,10 @@ export class SeparatePaneView extends ItemView {
       const newActiveFile = (leaf.view as any).file as TFile;
       const newActiveFilePath = newActiveFile ? newActiveFile.path : null;
 
-      if (lastActiveFilePath !== newActiveFilePath) {
+      if (lastActiveFilePath !== newActiveFilePath || newActiveFilePath === null) {
         this.lastActiveLeaf = leaf;
         lastActiveFilePath = newActiveFilePath;
-        await this.update();
+        await this.forceUpdate();
       }
     }));
   }
@@ -78,12 +78,11 @@ export class SeparatePaneView extends ItemView {
       const activeFile = this.app.workspace.getActiveFile();
       const currentLinks = this.getActiveFileLinks(activeFile);
 
-      if (this.previousLinks.sort().join(',') !== currentLinks.sort().join(',')) {
+      if (this.previousLinks.sort().join(',') !== currentLinks.sort().join(',') || activeFile === null) {
         const {
           forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
         } = await this.plugin.gatherTwoHopLinks(activeFile);
 
-        ReactDOM.unmountComponentAtNode(this.containerEl);
         await this.plugin.injectTwohopLinks(
           forwardLinks,
           newLinks,
@@ -98,6 +97,35 @@ export class SeparatePaneView extends ItemView {
 
         this.previousLinks = currentLinks;
       }
+    } catch (error) {
+      console.error('Error rendering two hop links', error);
+      ReactDOM.unmountComponentAtNode(this.containerEl);
+      ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
+    }
+  }
+
+  async forceUpdate(): Promise<void> {
+    try {
+      const activeFile = this.app.workspace.getActiveFile();
+      const {
+        forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
+      } = await this.plugin.gatherTwoHopLinks(activeFile);
+
+      ReactDOM.unmountComponentAtNode(this.containerEl);
+      await this.plugin.injectTwohopLinks(
+        forwardLinks,
+        newLinks,
+        backwardLinks,
+        unresolvedTwoHopLinks,
+        resolvedTwoHopLinks,
+        tagLinksList,
+        this.containerEl
+      );
+
+      this.addLinkEventListeners();
+
+      this.previousLinks = this.getActiveFileLinks(activeFile);
+
     } catch (error) {
       console.error('Error rendering two hop links', error);
       ReactDOM.unmountComponentAtNode(this.containerEl);
