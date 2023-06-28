@@ -414,6 +414,23 @@ export default class TwohopLinksPlugin extends Plugin {
     return twoHopLinkStats.map((it) => new TwohopLink(it!.twoHopLinkEntity.link, it!.twoHopLinkEntity.fileEntities)).filter((it) => it.fileEntities.length > 0);
   }
 
+  getTagHierarchySortFunction(sortOrder: string) {
+    const sortFunction = this.getSortFunction(sortOrder);
+    return (a: TagLinks, b: TagLinks) => {
+      const aTagHierarchy = a.tag.split('/');
+      const bTagHierarchy = b.tag.split('/');
+      for (let i = 0; i < Math.min(aTagHierarchy.length, bTagHierarchy.length); i++) {
+        if (aTagHierarchy[i] !== bTagHierarchy[i]) {
+          return sortFunction(aTagHierarchy[i], bTagHierarchy[i]);
+        }
+      }
+      if (aTagHierarchy.length !== bTagHierarchy.length) {
+        return aTagHierarchy.length > bTagHierarchy.length ? -1 : 1;
+      }
+      return sortFunction(a.tag, b.tag);
+    };
+  }
+
   private getTagsFromCache(cachedMetadata: CachedMetadata | null): string[] {
     let tags: string[] = [];
     if (cachedMetadata) {
@@ -493,7 +510,9 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     const tagLinksEntities = await this.createTagLinkEntities(tagMap);
-    return tagLinksEntities.sort((a, b) => b.tag.length - a.tag.length);
+
+    const sortFunction = this.getTagHierarchySortFunction(this.settings.sortOrder);
+    return tagLinksEntities.sort(sortFunction);
   }
 
   private async createTagLinkEntities(tagMap: Record<string, FileEntity[]>): Promise<TagLinks[]> {
