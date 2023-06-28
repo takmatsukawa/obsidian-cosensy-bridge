@@ -6,6 +6,7 @@ import TwohopLinksPlugin from "../main";
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
   private lastActiveLeaf: WorkspaceLeaf | undefined;
+  private previousLinkCount: number = 0;
 
   constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
     super(leaf);
@@ -63,26 +64,36 @@ export class SeparatePaneView extends ItemView {
     }));
   }
 
+  private getActiveFileLinkCount(file: TFile): number {
+    const cache = this.app.metadataCache.getFileCache(file);
+    return cache ? cache.links.length : 0;
+  }
+
   async update(): Promise<void> {
     try {
       const activeFile = this.app.workspace.getActiveFile();
+      const currentLinkCount = this.getActiveFileLinkCount(activeFile);
 
-      const {
-        forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
-      } = await this.plugin.gatherTwoHopLinks(activeFile);
+      if (this.previousLinkCount !== currentLinkCount) {
+        const {
+          forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
+        } = await this.plugin.gatherTwoHopLinks(activeFile);
 
-      ReactDOM.unmountComponentAtNode(this.containerEl);
-      await this.plugin.injectTwohopLinks(
-        forwardLinks,
-        newLinks,
-        backwardLinks,
-        unresolvedTwoHopLinks,
-        resolvedTwoHopLinks,
-        tagLinksList,
-        this.containerEl
-      );
+        ReactDOM.unmountComponentAtNode(this.containerEl);
+        await this.plugin.injectTwohopLinks(
+          forwardLinks,
+          newLinks,
+          backwardLinks,
+          unresolvedTwoHopLinks,
+          resolvedTwoHopLinks,
+          tagLinksList,
+          this.containerEl
+        );
 
-      this.addLinkEventListeners();
+        this.addLinkEventListeners();
+
+        this.previousLinkCount = currentLinkCount;
+      }
     } catch (error) {
       console.error('Error rendering two hop links', error);
       ReactDOM.unmountComponentAtNode(this.containerEl);
