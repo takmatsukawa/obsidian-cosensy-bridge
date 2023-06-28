@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   initialBoxCount: 10,
   initialSectionCount: 20,
   enableDuplicateRemoval: true,
-  sortOrder: 'modifiedAsc',
+  sortOrder: 'random',
   showTwoHopLinksInSeparatePane: false,
   excludeTags: [],
 };
@@ -61,6 +61,7 @@ export class TwohopSettingTab extends PluginSettingTab {
       .setName("Sort Order")
       .setDesc("Choose the sort order for the files")
       .addDropdown((dropdown) => {
+        dropdown.addOption('random', 'Random');
         dropdown.addOption('filenameAsc', 'File name (A to Z)');
         dropdown.addOption('filenameDesc', 'File name (Z to A)');
         dropdown.addOption('modifiedDesc', 'Modified time (new to old)');

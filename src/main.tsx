@@ -604,6 +604,8 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private getSortFunction(sortOrder: string) {
     switch (sortOrder) {
+      case 'random':
+        return () => Math.random() - 0.5;
       case 'filenameAsc':
         return (a: any, b: any) =>
           a.entity && b.entity ? a.entity.linkText.localeCompare(b.entity.linkText) : 0;
@@ -627,6 +629,8 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private getTwoHopSortFunction(sortOrder: string) {
     switch (sortOrder) {
+      case 'random':
+        return () => Math.random() - 0.5;
       case 'filenameAsc':
         return (a: any, b: any) =>
           a.twoHopLinkEntity && b.twoHopLinkEntity ? a.twoHopLinkEntity.link.linkText.localeCompare(b.twoHopLinkEntity.link.linkText) : 0;
@@ -641,6 +645,25 @@ export default class TwohopLinksPlugin extends Plugin {
         return (a: any, b: any) => b.stat.ctime - a.stat.ctime;
       case 'createdAsc':
         return (a: any, b: any) => a.stat.ctime - b.stat.ctime;
+    }
+  }
+
+  private getSortFunctionForFile(sortOrder: string) {
+    switch (sortOrder) {
+      case 'random':
+        return () => Math.random() - 0.5;
+      case 'filenameAsc':
+        return (file: TFile) => file.basename;
+      case 'filenameDesc':
+        return (file: TFile) => -file.basename;
+      case 'modifiedDesc':
+        return (file: TFile) => -file.stat.mtime;
+      case 'modifiedAsc':
+        return (file: TFile) => file.stat.mtime;
+      case 'createdDesc':
+        return (file: TFile) => -file.stat.ctime;
+      case 'createdAsc':
+        return (file: TFile) => file.stat.ctime;
     }
   }
 
@@ -660,23 +683,6 @@ export default class TwohopLinksPlugin extends Plugin {
       }
     });
     return fileEntities.map(entity => entity.file);
-  }
-
-  private getSortFunctionForFile(sortOrder: string) {
-    switch (sortOrder) {
-      case 'filenameAsc':
-        return (file: TFile) => file.basename;
-      case 'filenameDesc':
-        return (file: TFile) => -file.basename;
-      case 'modifiedDesc':
-        return (file: TFile) => -file.stat.mtime;
-      case 'modifiedAsc':
-        return (file: TFile) => file.stat.mtime;
-      case 'createdDesc':
-        return (file: TFile) => -file.stat.ctime;
-      case 'createdAsc':
-        return (file: TFile) => file.stat.ctime;
-    }
   }
 
   async gatherTwoHopLinks(activeFile: TFile | null): Promise<{
