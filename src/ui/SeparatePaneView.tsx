@@ -64,7 +64,11 @@ export class SeparatePaneView extends ItemView {
     }));
   }
 
-  private getActiveFileLinks(file: TFile): string[] {
+  private getActiveFileLinks(file: TFile | null): string[] {
+    if (!file) {
+      return [];
+    }
+
     const cache = this.app.metadataCache.getFileCache(file);
     return cache && cache.links ? cache.links.map(link => link.link) : [];
   }
