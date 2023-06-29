@@ -570,9 +570,18 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     if (this.settings.showImage) {
+      const youtubeEmbedMatch = content.match(/!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+)\)/);
+      if (youtubeEmbedMatch) {
+        const youtubeEmbedUrl = youtubeEmbedMatch[1];
+        const youtubeThumbnailUrl = this.getThumbnailUrlFromIframeUrl(youtubeEmbedUrl);
+        if (youtubeThumbnailUrl) {
+          return youtubeThumbnailUrl;
+        }
+      }
+
       const m =
         content.match(
-          /!\[(?:[^\]]*?)\]\(((?:https?:\/\/[^\)]+)|(?:[^\)]+.(?:png|bmp|jpg)))\)/
+          /!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:png|bmp|jpg))\)/
         ) || content.match(/!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/);
       if (m) {
         const img = m[1];
