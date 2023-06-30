@@ -7,6 +7,7 @@ export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
   private lastActiveLeaf: WorkspaceLeaf | undefined;
   private previousLinks: string[] = [];
+  private previousTags: string[] = [];
 
   constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
     super(leaf);
@@ -33,11 +34,9 @@ export class SeparatePaneView extends ItemView {
 
       this.registerActiveFileUpdateEvent();
 
-      this.registerEvent(this.app.vault.on('modify', async (file: TFile) => {
+      this.registerEvent(this.app.metadataCache.on('changed', async (file: TFile) => {
         if (file === this.app.workspace.getActiveFile()) {
-          setTimeout(async () => {
           await this.update();
-          }, 500);
         }
       }));
     } catch (error) {
@@ -73,14 +72,44 @@ export class SeparatePaneView extends ItemView {
     return cache && cache.links ? cache.links.map(link => link.link) : [];
   }
 
+  private getActiveFileTags(file: TFile | null): string[] {
+    if (!file) {
+      return [];
+    }
+
+    const cache = this.app.metadataCache.getFileCache(file);
+
+    let tags = cache && cache.tags ? cache.tags.map(tag => tag.tag) : [];
+
+    if (cache && cache.frontmatter && cache.frontmatter.tags) {
+      if (typeof cache.frontmatter.tags === 'string') {
+        tags.push(cache.frontmatter.tags);
+      } else if (Array.isArray(cache.frontmatter.tags)) {
+        tags = tags.concat(cache.frontmatter.tags);
+      }
+    }
+
+    return tags;
+  }
+
   async update(): Promise<void> {
     try {
       const activeFile = this.app.workspace.getActiveFile();
       const currentLinks = this.getActiveFileLinks(activeFile);
+      const currentTags = this.getActiveFileTags(activeFile);
 
-      if (this.previousLinks.sort().join(',') !== currentLinks.sort().join(',') || activeFile === null) {
+      if (
+        this.previousLinks.sort().join(',') !== currentLinks.sort().join(',') ||
+        this.previousTags.sort().join(',') !== currentTags.sort().join(',') ||
+        activeFile === null
+      ) {
         const {
-          forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
+          forwardLinks,
+          newLinks,
+          backwardLinks,
+          unresolvedTwoHopLinks,
+          resolvedTwoHopLinks,
+          tagLinksList,
         } = await this.plugin.gatherTwoHopLinks(activeFile);
 
         await this.plugin.injectTwohopLinks(
@@ -96,11 +125,15 @@ export class SeparatePaneView extends ItemView {
         this.addLinkEventListeners();
 
         this.previousLinks = currentLinks;
+        this.previousTags = currentTags;
       }
     } catch (error) {
       console.error('Error rendering two hop links', error);
       ReactDOM.unmountComponentAtNode(this.containerEl);
-      ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
+      ReactDOM.render(
+        <div>Error: Could not render two hop links</div>,
+        this.containerEl
+      );
     }
   }
 
@@ -108,7 +141,12 @@ export class SeparatePaneView extends ItemView {
     try {
       const activeFile = this.app.workspace.getActiveFile();
       const {
-        forwardLinks, newLinks, backwardLinks, unresolvedTwoHopLinks, resolvedTwoHopLinks, tagLinksList
+        forwardLinks,
+        newLinks,
+        backwardLinks,
+        unresolvedTwoHopLinks,
+        resolvedTwoHopLinks,
+        tagLinksList,
       } = await this.plugin.gatherTwoHopLinks(activeFile);
 
       ReactDOM.unmountComponentAtNode(this.containerEl);
@@ -125,11 +163,15 @@ export class SeparatePaneView extends ItemView {
       this.addLinkEventListeners();
 
       this.previousLinks = this.getActiveFileLinks(activeFile);
+      this.previousTags = this.getActiveFileTags(activeFile);
 
     } catch (error) {
       console.error('Error rendering two hop links', error);
       ReactDOM.unmountComponentAtNode(this.containerEl);
-      ReactDOM.render(<div>Error: Could not render two hop links</div>, this.containerEl);
+      ReactDOM.render(
+        <div>Error: Could not render two hop links</div>,
+        this.containerEl
+      );
     }
   }
 
