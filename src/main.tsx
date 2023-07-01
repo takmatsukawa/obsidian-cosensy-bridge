@@ -430,7 +430,7 @@ export default class TwohopLinksPlugin extends Plugin {
     };
   }
 
-  private getTagsFromCache(cachedMetadata: CachedMetadata | null): string[] {
+  private getTagsFromCache(cachedMetadata: CachedMetadata | null | undefined): string[] {
     let tags: string[] = [];
     if (cachedMetadata) {
       if (cachedMetadata.tags) {
@@ -492,6 +492,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
     for (const markdownFile of markdownFiles) {
       const cachedMetadata = this.app.metadataCache.getFileCache(markdownFile);
+      if (!cachedMetadata) continue;
       const fileTags = this.getTagsFromCache(cachedMetadata).sort((a, b) => b.length - a.length);
 
       for (const tag of fileTags) {
