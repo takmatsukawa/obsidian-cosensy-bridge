@@ -77,7 +77,6 @@ export default class TwohopLinksPlugin extends Plugin {
       if (this.isTwoHopLinksViewOpen()) {
         this.closeTwoHopLinksView();
       }
-      await this.renderTwohopLinks();
       this.enableLinksInMarkdown();
     }
   }
