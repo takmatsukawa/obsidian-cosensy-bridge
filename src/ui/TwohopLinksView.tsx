@@ -1,9 +1,8 @@
-import { TwohopLink } from "../model/TwohopLink";
-
-import React from "react";
+import React, { createRef } from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
-import { App } from "obsidian";
+import { TwohopLink } from "../model/TwohopLink";
+import { App, setIcon } from "obsidian";
 
 interface TwohopLinksViewProps {
   twoHopLinks: TwohopLink[];
@@ -31,16 +30,28 @@ interface LinkComponentState {
 }
 
 class LinkComponent extends React.Component<LinkComponentProps, LinkComponentState> {
+  loadMoreRef = createRef<HTMLDivElement>();
+
   constructor(props: LinkComponentProps) {
     super(props);
     this.state = {
       displayedEntitiesCount: props.initialDisplayedEntitiesCount,
     };
   }
-  
+
+  componentDidMount() {
+    if (this.loadMoreRef.current) {
+      setIcon(this.loadMoreRef.current, "more-horizontal");
+    }
+  }
+
   componentDidUpdate(prevProps: LinkComponentProps) {
     if (this.props.resetDisplayedEntitiesCount && this.props.resetDisplayedEntitiesCount !== prevProps.resetDisplayedEntitiesCount) {
       this.setState({ displayedEntitiesCount: this.props.initialDisplayedEntitiesCount });
+    }
+
+    if (this.loadMoreRef.current) {
+      setIcon(this.loadMoreRef.current, "more-horizontal");
     }
   }
 
@@ -80,8 +91,7 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
           />
         ))}
         {this.props.link.fileEntities.length > this.state.displayedEntitiesCount && (
-          <div onClick={this.loadMoreEntities} className="load-more-button twohop-links-box">
-            Load more
+          <div ref={this.loadMoreRef} onClick={this.loadMoreEntities} className="load-more-button twohop-links-box">
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { createRef } from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
-import { App } from "obsidian";
+import { App, setIcon } from "obsidian";
 
 interface NewLinksViewProps {
   fileEntities: FileEntity[];
@@ -13,8 +13,22 @@ interface NewLinksViewProps {
 }
 
 export default class NewLinksView extends React.Component<NewLinksViewProps> {
+  loadMoreRef = createRef<HTMLDivElement>();
+
   constructor(props: NewLinksViewProps) {
     super(props);
+  }
+
+  componentDidMount() {
+    if (this.loadMoreRef.current) {
+      setIcon(this.loadMoreRef.current, "more-horizontal");
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.loadMoreRef.current) {
+      setIcon(this.loadMoreRef.current, "more-horizontal");
+    }
   }
 
   render(): JSX.Element {
@@ -36,8 +50,7 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
             );
           })}
           {this.props.displayedBoxCount < this.props.fileEntities.length &&
-            <div onClick={this.props.onLoadMore} className="load-more-button twohop-links-box">
-              Load more
+            <div ref={this.loadMoreRef} onClick={this.props.onLoadMore} className="load-more-button twohop-links-box">
             </div>
           }
         </div>

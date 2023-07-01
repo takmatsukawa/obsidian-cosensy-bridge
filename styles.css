@@ -130,6 +130,9 @@ body:not(.zoom-off) .view-content div:not(.canvas-node-content) .twohop-links-bo
 
 .load-more-button {
   width: -webkit-fill-available;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .TwoHopLinks {

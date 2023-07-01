@@ -1,13 +1,13 @@
 import { TwohopLink } from "../model/TwohopLink";
 
-import React from "react";
+import React, { createRef } from "react";
 import { FileEntity } from "../model/FileEntity";
 import TwohopLinksView from "./TwohopLinksView";
 import ConnectedLinksView from "./ConnectedLinksView";
 import NewLinksView from "./NewLinksView";
 import { TagLinks } from "../model/TagLinks";
 import TagLinksListView from "./TagLinksListView";
-import { App } from "obsidian";
+import { App, setIcon } from "obsidian";
 
 interface TwohopLinksRootViewProps {
   forwardConnectedLinks: FileEntity[];
@@ -36,6 +36,15 @@ interface TwohopLinksRootViewState {
 }
 
 export default class TwohopLinksRootView extends React.Component<TwohopLinksRootViewProps, TwohopLinksRootViewState> {
+  loadMoreRefs: Record<Category, React.RefObject<HTMLButtonElement>> = {
+    forwardConnectedLinks: createRef(),
+    newLinks: createRef(),
+    backwardConnectedLinks: createRef(),
+    resolvedTwoHopLinks: createRef(),
+    unresolvedTwoHopLinks: createRef(),
+    tagLinksList: createRef(),
+  };
+
   constructor(props: TwohopLinksRootViewProps) {
     super(props);
     this.state = {
@@ -80,6 +89,14 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
     }));
   }
 
+  componentDidMount() {
+    for (let ref of Object.values(this.loadMoreRefs)) {
+      if (ref.current) {
+        setIcon(ref.current, "more-horizontal");
+      }
+    }
+  }
+
   componentDidUpdate(prevProps: TwohopLinksRootViewProps) {
     if (this.props !== prevProps) {
       this.setState({
@@ -102,6 +119,11 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
         prevProps: this.props,
         isLoaded: this.props.autoLoadTwoHopLinks,
       });
+    }
+    for (let ref of Object.values(this.loadMoreRefs)) {
+      if (ref.current) {
+        setIcon(ref.current, "more-horizontal");
+      }
     }
   }
 
@@ -159,7 +181,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedSectionCount.unresolvedTwoHopLinks < this.props.unresolvedTwoHopLinks.length &&
-          <button className="load-more-button" onClick={() => this.loadMoreSections('unresolvedTwoHopLinks')}>Load more</button>
+          <button ref={this.loadMoreRefs.unresolvedTwoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('unresolvedTwoHopLinks')}>Load more</button>
         }
         <TwohopLinksView
           twoHopLinks={this.props.resolvedTwoHopLinks}
@@ -172,7 +194,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedSectionCount.resolvedTwoHopLinks < this.props.resolvedTwoHopLinks.length &&
-          <button className="load-more-button" onClick={() => this.loadMoreSections('resolvedTwoHopLinks')}>Load more</button>
+          <button ref={this.loadMoreRefs.resolvedTwoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('resolvedTwoHopLinks')}>Load more</button>
         }
         <NewLinksView
           fileEntities={this.props.newLinks}
@@ -192,7 +214,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
         {this.state.displayedSectionCount.tagLinksList < this.props.tagLinksList.length &&
-          <button className="load-more-button" onClick={() => this.loadMoreSections('tagLinksList')}>Load more</button>
+          <button ref={this.loadMoreRefs.tagLinksList} className="load-more-button" onClick={() => this.loadMoreSections('tagLinksList')}>Load more</button>
         }
       </div>
     );
