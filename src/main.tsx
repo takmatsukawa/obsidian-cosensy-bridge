@@ -324,6 +324,8 @@ export default class TwohopLinksPlugin extends Plugin {
             const targetFile = this.app.vault.getAbstractFileByPath(key);
             if (targetFile && !this.shouldExcludePath(targetFile.path)) {
               resolvedLinks.push(new FileEntity(targetFile.path, key));
+            } else {
+              newLinks.push(new FileEntity(activeFile.path, key));
             }
           }
         }
@@ -359,6 +361,24 @@ export default class TwohopLinksPlugin extends Plugin {
         }
       }
     }
+
+    const allFiles: TFile[] = this.app.vault.getFiles();
+    const canvasFiles: TFile[] = allFiles.filter(file => file.extension === "canvas");
+
+    for (const canvasFile of canvasFiles) {
+      const canvasContent = await this.app.vault.read(canvasFile);
+      const canvasData = JSON.parse(canvasContent);
+
+      for (const node of canvasData.nodes) {
+        if (node.type === "file" && node.file === activeFile.path) {
+          const linkText = path2linkText(canvasFile.path);
+          if (!forwardLinkSet.has(linkText)) {
+            backLinkEntities.push(new FileEntity(canvasFile.path, linkText));
+          }
+        }
+      }
+    }
+
     return await this.getSortedFileEntities(backLinkEntities, (entity) => entity.sourcePath);
   }
 
@@ -369,39 +389,48 @@ export default class TwohopLinksPlugin extends Plugin {
     twoHopLinkSet: Set<string>
   ): Promise<TwohopLink[]> {
     const twoHopLinks: Record<string, FileEntity[]> = {};
-    if (links[activeFile.path] == null) {
-      return [];
-    }
-    const twohopLinkList = this.aggregate2hopLinks(activeFile, links);
+    const twohopLinkList = await this.aggregate2hopLinks(activeFile, links);
+
     if (twohopLinkList == null) {
       return [];
     }
 
     let seenLinks = new Set<string>();
 
-    for (const k of Object.keys(twohopLinkList)) {
-      if (twohopLinkList[k].length > 0) {
-        twoHopLinks[k] = twohopLinkList[k]
-          .filter((it) => !this.shouldExcludePath(it))
-          .map((it) => {
-            const linkText = path2linkText(it);
-            if (
-              this.settings.enableDuplicateRemoval &&
-              (forwardLinkSet.has(removeBlockReference(linkText)) ||
-                seenLinks.has(linkText))
-            ) {
-              return null;
-            }
-            seenLinks.add(linkText);
-            twoHopLinkSet.add(linkText);
-            return new FileEntity(activeFile.path, linkText);
-          })
-          .filter((it) => it);
+    if (twohopLinkList) {
+      for (const k of Object.keys(twohopLinkList)) {
+        if (twohopLinkList[k].length > 0) {
+          twoHopLinks[k] = twohopLinkList[k]
+            .filter((it) => !this.shouldExcludePath(it))
+            .map((it) => {
+              const linkText = path2linkText(it);
+              if (
+                this.settings.enableDuplicateRemoval &&
+                (forwardLinkSet.has(removeBlockReference(linkText)) ||
+                  seenLinks.has(linkText))
+              ) {
+                return null;
+              }
+              seenLinks.add(linkText);
+              twoHopLinkSet.add(linkText);
+              return new FileEntity(activeFile.path, linkText);
+            })
+            .filter((it) => it);
+        }
       }
     }
 
+    let linkKeys: string[] = [];
+    if (activeFile.extension === "canvas") {
+      const canvasContent = await this.app.vault.read(activeFile);
+      const canvasData = JSON.parse(canvasContent);
+      linkKeys = canvasData.nodes.filter((node: any) => node.type === "file").map((node: any) => node.file);
+    } else if (links[activeFile.path]) {
+      linkKeys = Object.keys(links[activeFile.path]);
+    }
+
     const twoHopLinkEntities = (await Promise.all(
-      Object.keys(links[activeFile.path])
+      linkKeys
         .filter((path) => !this.shouldExcludePath(path))
         .map(async (path) => {
           if (twoHopLinks[path]) {
@@ -785,26 +814,44 @@ export default class TwohopLinksPlugin extends Plugin {
     };
   }
 
-  private aggregate2hopLinks(
+  private async aggregate2hopLinks(
     activeFile: TFile,
     links: Record<string, Record<string, number>>
-  ): Record<string, string[]> {
+  ): Promise<Record<string, string[]>> {
     const result: Record<string, string[]> = {};
-    const activeFileLinks = new Set(Object.keys(links[activeFile.path]));
 
-    for (const src of Object.keys(links)) {
-      if (src == activeFile.path) {
-        continue;
+    let activeFileLinks = new Set<string>();
+
+    if (links && activeFile && activeFile.path && links[activeFile.path]) {
+      activeFileLinks = new Set(Object.keys(links[activeFile.path]));
+    }
+
+    if (activeFile.extension === "canvas") {
+      const canvasContent = await this.app.vault.read(activeFile);
+      const canvasData = JSON.parse(canvasContent);
+
+      for (const node of canvasData.nodes) {
+        if (node.type === "file") {
+          activeFileLinks.add(node.file);
+        }
       }
-      if (links[src] == null) {
-        continue;
-      }
-      for (const dest of Object.keys(links[src])) {
-        if (activeFileLinks.has(dest)) {
-          if (!result[dest]) {
-            result[dest] = [];
+    }
+
+    if (links) {
+      for (const src of Object.keys(links)) {
+        if (src == activeFile.path) {
+          continue;
+        }
+        const link = links[src];
+        if (link) {
+          for (const dest of Object.keys(link)) {
+            if (activeFileLinks.has(dest)) {
+              if (!result[dest]) {
+                result[dest] = [];
+              }
+              result[dest].push(src);
+            }
           }
-          result[dest].push(src);
         }
       }
     }
