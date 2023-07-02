@@ -430,11 +430,11 @@ export default class TwohopLinksPlugin extends Plugin {
     };
   }
 
-  private getTagsFromCache(cachedMetadata: CachedMetadata | null | undefined): string[] {
+  private getTagsFromCache(cache: CachedMetadata | null | undefined): string[] {
     let tags: string[] = [];
-    if (cachedMetadata) {
-      if (cachedMetadata.tags) {
-        cachedMetadata.tags.forEach((it) => {
+    if (cache) {
+      if (cache.tags) {
+        cache.tags.forEach((it) => {
           const tagHierarchy = it.tag.replace('#', '').split('/');
           for (let i = 0; i < tagHierarchy.length; i++) {
             tags.push(tagHierarchy.slice(0, i + 1).join('/'));
@@ -442,16 +442,16 @@ export default class TwohopLinksPlugin extends Plugin {
         });
       }
 
-      if (cachedMetadata.frontmatter?.tags) {
-        if (Array.isArray(cachedMetadata.frontmatter.tags)) {
-          cachedMetadata.frontmatter.tags.forEach((tag) => {
+      if (cache.frontmatter?.tags) {
+        if (Array.isArray(cache.frontmatter.tags)) {
+          cache.frontmatter.tags.forEach((tag) => {
             const tagHierarchy = tag.split('/');
             for (let i = 0; i < tagHierarchy.length; i++) {
               tags.push(tagHierarchy.slice(0, i + 1).join('/'));
             }
           });
-        } else if (typeof cachedMetadata.frontmatter.tags === 'string') {
-          cachedMetadata.frontmatter.tags.split(',').map((tag) => tag.trim()).forEach((tag) => {
+        } else if (typeof cache.frontmatter.tags === 'string') {
+          cache.frontmatter.tags.split(',').map((tag) => tag.trim()).forEach((tag) => {
             const tagHierarchy = tag.split('/');
             for (let i = 0; i < tagHierarchy.length; i++) {
               tags.push(tagHierarchy.slice(0, i + 1).join('/'));
