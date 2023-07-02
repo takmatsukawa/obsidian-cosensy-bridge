@@ -65,10 +65,10 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
         <div className={"twohop-links-tag-header twohop-links-box"}>
           {this.props.tagLink.tag}
         </div>
-        {this.props.tagLink.fileEntities.slice(0, this.state.displayedEntitiesCount).map((it) => (
+        {this.props.tagLink.fileEntities.slice(0, this.state.displayedEntitiesCount).map((it, index) => (
           <LinkView
             fileEntity={it}
-            key={this.props.tagLink.tag + it.key()}
+            key={this.props.tagLink.tag + it.key() + index}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
             app={this.props.app}
