@@ -445,9 +445,11 @@ export default class TwohopLinksPlugin extends Plugin {
       if (cache.frontmatter?.tags) {
         if (Array.isArray(cache.frontmatter.tags)) {
           cache.frontmatter.tags.forEach((tag) => {
-            const tagHierarchy = tag.split('/');
-            for (let i = 0; i < tagHierarchy.length; i++) {
-              tags.push(tagHierarchy.slice(0, i + 1).join('/'));
+            if (typeof tag === 'string') {
+              const tagHierarchy = tag.split('/');
+              for (let i = 0; i < tagHierarchy.length; i++) {
+                tags.push(tagHierarchy.slice(0, i + 1).join('/'));
+              }
             }
           });
         } else if (typeof cache.frontmatter.tags === 'string') {
