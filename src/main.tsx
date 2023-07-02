@@ -313,7 +313,13 @@ export default class TwohopLinksPlugin extends Plugin {
       }
     } else if (activeFile.extension === "canvas") {
       const canvasContent = await this.app.vault.read(activeFile);
-      const canvasData = JSON.parse(canvasContent);
+      let canvasData;
+      try {
+        canvasData = JSON.parse(canvasContent);
+      } catch (error) {
+        console.error('Invalid JSON in canvas:', error);
+        canvasData = { nodes: [] };
+      }
 
       const seen = new Set<string>();
       for (const node of canvasData.nodes) {
@@ -367,7 +373,13 @@ export default class TwohopLinksPlugin extends Plugin {
 
     for (const canvasFile of canvasFiles) {
       const canvasContent = await this.app.vault.read(canvasFile);
-      const canvasData = JSON.parse(canvasContent);
+      let canvasData;
+      try {
+        canvasData = JSON.parse(canvasContent);
+      } catch (error) {
+        console.error('Invalid JSON in canvas:', error);
+        canvasData = { nodes: [] };
+      }
 
       for (const node of canvasData.nodes) {
         if (node.type === "file" && node.file === activeFile.path) {
@@ -423,7 +435,13 @@ export default class TwohopLinksPlugin extends Plugin {
     let linkKeys: string[] = [];
     if (activeFile.extension === "canvas") {
       const canvasContent = await this.app.vault.read(activeFile);
-      const canvasData = JSON.parse(canvasContent);
+      let canvasData;
+      try {
+        canvasData = JSON.parse(canvasContent);
+      } catch (error) {
+        console.error('Invalid JSON in canvas:', error);
+        canvasData = { nodes: [] };
+      }
 
       if (Array.isArray(canvasData.nodes)) {
         linkKeys = canvasData.nodes.filter((node: any) => node.type === "file").map((node: any) => node.file);
@@ -833,7 +851,13 @@ export default class TwohopLinksPlugin extends Plugin {
 
     if (activeFile.extension === "canvas") {
       const canvasContent = await this.app.vault.read(activeFile);
-      const canvasData = JSON.parse(canvasContent);
+      let canvasData;
+      try {
+        canvasData = JSON.parse(canvasContent);
+      } catch (error) {
+        console.error('Invalid JSON in canvas:', error);
+        canvasData = { nodes: [] };
+      }
 
       for (const node of canvasData.nodes) {
         if (node.type === "file") {
