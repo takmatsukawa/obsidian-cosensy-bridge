@@ -290,7 +290,6 @@ export default class TwohopLinksPlugin extends Plugin {
 
     if (activeFileCache != null && (activeFileCache.links != null || activeFileCache.embeds != null)) {
       const seen = new Set<string>();
-
       const linkEntities = [...(activeFileCache.links || []), ...(activeFileCache.embeds || [])];
 
       for (const it of linkEntities) {
@@ -310,15 +309,30 @@ export default class TwohopLinksPlugin extends Plugin {
           }
         }
       }
-      const sortedResolvedLinks = await this.getSortedFileEntities(resolvedLinks, (entity) => entity.sourcePath);
+    } else if (activeFile.extension === "canvas") {
+      const canvasContent = await this.app.vault.read(activeFile);
+      const canvasData = JSON.parse(canvasContent);
 
-      return {
-        resolved: sortedResolvedLinks,
-        new: newLinks
-      };
-    } else {
-      return { resolved: [], new: [] };
+      const seen = new Set<string>();
+      for (const node of canvasData.nodes) {
+        if (node.type === "file") {
+          const key = node.file;
+          if (!seen.has(key)) {
+            seen.add(key);
+            const targetFile = this.app.vault.getAbstractFileByPath(key);
+            if (targetFile && !this.shouldExcludePath(targetFile.path)) {
+              resolvedLinks.push(new FileEntity(targetFile.path, key));
+            }
+          }
+        }
+      }
     }
+
+    const sortedResolvedLinks = await this.getSortedFileEntities(resolvedLinks, (entity) => entity.sourcePath);
+    return {
+      resolved: sortedResolvedLinks,
+      new: newLinks
+    };
   }
 
   private async getBackLinks(
