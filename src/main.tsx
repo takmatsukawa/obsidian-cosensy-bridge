@@ -95,7 +95,9 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   async openTwoHopLinksView() {
-    const leaf = this.app.workspace.getLeftLeaf(false);
+    const leaf = this.settings.panePositionIsRight
+      ? this.app.workspace.getRightLeaf(false)
+      : this.app.workspace.getLeftLeaf(false);
     leaf.setViewState({ type: "TwoHopLinksView" });
     this.app.workspace.revealLeaf(leaf);
   }

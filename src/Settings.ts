@@ -14,6 +14,7 @@ export interface TwohopPluginSettings {
   sortOrder: string;
   showTwoHopLinksInSeparatePane: boolean;
   excludeTags: string[];
+  panePositionIsRight: boolean;
 }
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
@@ -29,6 +30,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   sortOrder: 'random',
   showTwoHopLinksInSeparatePane: false,
   excludeTags: [],
+  panePositionIsRight: false
 };
 
 export class TwohopSettingTab extends PluginSettingTab {
@@ -54,8 +56,32 @@ export class TwohopSettingTab extends PluginSettingTab {
             this.plugin.settings.showTwoHopLinksInSeparatePane = value;
             await this.plugin.saveSettings();
             await this.plugin.updateTwoHopLinksView();
+
+            if (value) {
+              positionSetting.settingEl.style.display = "flex";
+            } else {
+              positionSetting.settingEl.style.display = "none";
+            }
           });
       });
+
+    let positionSetting = new Setting(containerEl)
+      .setName("Show 2hop links on the right")
+      .setDesc("If true, the pane for 2hop links is displayed on the right, otherwise on the left.")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.panePositionIsRight)
+          .onChange(async (value) => {
+            this.plugin.settings.panePositionIsRight = value;
+            await this.plugin.saveSettings();
+            this.plugin.closeTwoHopLinksView();
+            await this.plugin.updateTwoHopLinksView();
+          });
+      });
+
+    if (!this.plugin.settings.showTwoHopLinksInSeparatePane) {
+      positionSetting.settingEl.style.display = "none";
+    }
 
     new Setting(containerEl)
       .setName("Sort Order")
