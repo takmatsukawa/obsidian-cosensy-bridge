@@ -424,7 +424,12 @@ export default class TwohopLinksPlugin extends Plugin {
     if (activeFile.extension === "canvas") {
       const canvasContent = await this.app.vault.read(activeFile);
       const canvasData = JSON.parse(canvasContent);
-      linkKeys = canvasData.nodes.filter((node: any) => node.type === "file").map((node: any) => node.file);
+
+      if (Array.isArray(canvasData.nodes)) {
+        linkKeys = canvasData.nodes.filter((node: any) => node.type === "file").map((node: any) => node.file);
+      } else {
+        linkKeys = [];
+      }
     } else if (links[activeFile.path]) {
       linkKeys = Object.keys(links[activeFile.path]);
     }
