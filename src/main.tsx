@@ -316,6 +316,10 @@ export default class TwohopLinksPlugin extends Plugin {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
+        if (!Array.isArray(canvasData.nodes)) {
+          console.error('Invalid structure in canvas: nodes is not an array');
+          canvasData = { nodes: [] };
+        }
       } catch (error) {
         console.error('Invalid JSON in canvas:', error);
         canvasData = { nodes: [] };
@@ -376,6 +380,10 @@ export default class TwohopLinksPlugin extends Plugin {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
+        if (!Array.isArray(canvasData.nodes)) {
+          console.error('Invalid structure in canvas: nodes is not an array');
+          canvasData = { nodes: [] };
+        }
       } catch (error) {
         console.error('Invalid JSON in canvas:', error);
         canvasData = { nodes: [] };
@@ -854,6 +862,10 @@ export default class TwohopLinksPlugin extends Plugin {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
+        if (!Array.isArray(canvasData.nodes)) {
+          console.error('Invalid structure in canvas: nodes is not an array');
+          canvasData = { nodes: [] };
+        }
       } catch (error) {
         console.error('Invalid JSON in canvas:', error);
         canvasData = { nodes: [] };
