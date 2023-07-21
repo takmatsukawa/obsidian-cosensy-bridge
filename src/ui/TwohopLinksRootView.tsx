@@ -1,5 +1,4 @@
 import { TwohopLink } from "../model/TwohopLink";
-
 import React, { createRef } from "react";
 import { FileEntity } from "../model/FileEntity";
 import TwohopLinksView from "./TwohopLinksView";

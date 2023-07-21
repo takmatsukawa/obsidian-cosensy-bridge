@@ -2,6 +2,7 @@ import { TFile, WorkspaceLeaf, ItemView } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import TwohopLinksPlugin from "../main";
+import { gatherTwoHopLinks } from "src/linkLogic";
 
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
@@ -63,7 +64,7 @@ export class SeparatePaneView extends ItemView {
           unresolvedTwoHopLinks,
           resolvedTwoHopLinks,
           tagLinksList,
-        } = await this.plugin.gatherTwoHopLinks(activeFile);
+        } = await gatherTwoHopLinks(this.plugin.settings, activeFile);
 
         ReactDOM.unmountComponentAtNode(this.containerEl);
         await this.plugin.injectTwohopLinks(
