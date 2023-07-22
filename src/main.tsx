@@ -91,17 +91,13 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   async updateTwoHopLinksView() {
+    if (this.isTwoHopLinksViewOpen()) {
+      this.closeTwoHopLinksView();
+    }
     if (this.settings.showTwoHopLinksInSeparatePane) {
-      if (!this.isTwoHopLinksViewOpen()) {
-        this.openTwoHopLinksView();
-      } else {
-        this.updateOpenTwoHopLinksView();
-      }
+      this.openTwoHopLinksView();
       this.disableLinksInMarkdown();
     } else {
-      if (this.isTwoHopLinksViewOpen()) {
-        this.closeTwoHopLinksView();
-      }
       this.enableLinksInMarkdown();
     }
   }

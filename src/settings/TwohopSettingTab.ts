@@ -67,10 +67,7 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings[key] = value;
             await saveSettings(this.plugin);
-            if (key === "panePositionIsRight") {
-              this.plugin.closeTwoHopLinksView();
-            }
-            await this.plugin.updateTwoHopLinksView();
+            this.plugin.updateTwoHopLinksView();
             if (key === "showTwoHopLinksInSeparatePane") {
               this.display();
             }
