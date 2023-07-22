@@ -24,5 +24,5 @@ export async function loadSettings(plugin: TwohopLinksPlugin): Promise<TwohopPlu
 }
 
 export async function saveSettings(plugin: TwohopLinksPlugin): Promise<void> {
-    return plugin.saveData(this.settings);
+    return plugin.saveData(plugin.settings);
 }

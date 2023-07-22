@@ -33,7 +33,9 @@ export class TwohopSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     this.createToggleSetting("Show 2hop links in separate pane", "If true, the 2hop links is displayed in a separate pane.", "showTwoHopLinksInSeparatePane");
-    this.createToggleSetting("Show 2hop links on the right", "If true, the pane for 2hop links is displayed on the right, otherwise on the left.", "panePositionIsRight");
+    if (this.plugin.settings.showTwoHopLinksInSeparatePane) {
+      this.createToggleSetting("Show 2hop links on the right", "If true, the pane for 2hop links is displayed on the right, otherwise on the left.", "panePositionIsRight");
+    }
     this.createDropdownSetting("Sort Order", "Choose the sort order for the files", "sortOrder", {
       'random': 'Random',
       'filenameAsc': 'File name (A to Z)',
@@ -65,7 +67,13 @@ export class TwohopSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings[key] = value;
             await saveSettings(this.plugin);
+            if (key === "panePositionIsRight") {
+              this.plugin.closeTwoHopLinksView();
+            }
             await this.plugin.updateTwoHopLinksView();
+            if (key === "showTwoHopLinksInSeparatePane") {
+              this.display();
+            }
           });
       });
   }
