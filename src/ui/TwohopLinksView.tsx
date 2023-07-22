@@ -92,12 +92,14 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
   }
 }
 
-export default class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
+const MemoizedLinkComponent = React.memo(LinkComponent);
+
+class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
   render(): JSX.Element {
     return (
       <div>
         {this.props.twoHopLinks.slice(0, this.props.displayedSectionCount).map((link, index) => (
-          <LinkComponent
+          <MemoizedLinkComponent
             key={index}
             link={link}
             onClick={this.props.onClick}
@@ -111,3 +113,5 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
     );
   }
 }
+
+export default React.memo(TwohopLinksView);

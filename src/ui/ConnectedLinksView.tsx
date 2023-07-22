@@ -28,6 +28,14 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
     }
   }
 
+  shouldComponentUpdate(nextProps: ConnectedLinksViewProps) {
+    return nextProps.fileEntities !== this.props.fileEntities ||
+           nextProps.displayedBoxCount !== this.props.displayedBoxCount ||
+           nextProps.title !== this.props.title ||
+           nextProps.className !== this.props.className ||
+           nextProps.app !== this.props.app;
+  }
+
   render(): JSX.Element {
     if (this.props.fileEntities.length > 0) {
       return (
