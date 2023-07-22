@@ -45,15 +45,15 @@ export class TwohopSettingTab extends PluginSettingTab {
       'createdDesc': 'Created time (new to old)',
       'createdAsc': 'Created time (old to new)'
     });
-    this.createToggleSetting("Show links", "", "showForwardConnectedLinks");
-    this.createToggleSetting("Show back links", "", "showBackwardConnectedLinks");
-    this.createToggleSetting("Show image in the 2hop links", "", "showImage");
-    this.createTextAreaSetting("Exclude paths", "List of file or folder paths to exclude, one per line", "excludePaths", "path/to/file.md\npath/to/folder/");
-    this.createTextAreaSetting("Exclude tags", "List of tags to exclude, one per line", "excludeTags", "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/");
+    this.createToggleSetting("Show Links", "", "showForwardConnectedLinks");
+    this.createToggleSetting("Show Back Links", "", "showBackwardConnectedLinks");
+    this.createToggleSetting("Show Image in the 2hop Links", "", "showImage");
+    this.createTextAreaSetting("Exclude Paths", "List of file or folder paths to exclude, one per line", "excludePaths", "path/to/file.md\npath/to/folder/");
+    this.createTextAreaSetting("Exclude Tags", "List of tags to exclude, one per line", "excludeTags", "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/");
     this.createTextSetting("Initial Box Count", "Set the initial number of boxes to be displayed", "initialBoxCount");
     this.createTextSetting("Initial Section Count", "Set the initial number of sections to be displayed", "initialSectionCount");
     this.createToggleSetting("Enable Duplicate Removal", "Enable the removal of duplicate links", "enableDuplicateRemoval");
-    this.createToggleSetting("Auto load 2hop links", "Automatically load 2hop links when opening a note", "autoLoadTwoHopLinks");
+    this.createToggleSetting("Auto Load 2hop Links", "Automatically load 2hop links when opening a note", "autoLoadTwoHopLinks");
     this.createToggleSetting("Create Files For Multiple Linked", "Create new files for links that are connected to more than one other file.", "createFilesForMultiLinked");
   }
 
