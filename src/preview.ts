@@ -30,7 +30,7 @@ export async function readPreview(fileEntity: FileEntity) {
         );
         return "";
     }
-    const content = await this.app.vault.read(file);
+    const content = await this.app.vault.cachedRead(file);
 
     const iframeMatch = content.match(/<iframe[^>]*src="([^"]+)"[^>]*>/i);
     if (iframeMatch) {
