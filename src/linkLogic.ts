@@ -22,19 +22,12 @@ export async function gatherTwoHopLinks(settings: any, activeFile: TFile | null)
     if (activeFile) {
         const activeFileCache: CachedMetadata = app.metadataCache.getFileCache(activeFile);
         ({ resolved: forwardLinks, new: newLinks } = await getForwardLinks(settings, activeFile, activeFileCache));
-        const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
-
+        const seenLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
+        backwardLinks = await getBackLinks(settings, activeFile, seenLinkSet);
+        backwardLinks.forEach(link => seenLinkSet.add(link.key()));
         const twoHopLinkSet = new Set<string>();
-        twoHopLinks = await getTwohopLinks(
-            settings,
-            activeFile,
-            app.metadataCache.resolvedLinks,
-            forwardLinkSet,
-            twoHopLinkSet
-        );
-
-        backwardLinks = await getBackLinks(settings, activeFile, forwardLinkSet);
-        tagLinksList = await getLinksListOfFilesWithTag(app, settings, activeFile, activeFileCache, forwardLinkSet, twoHopLinkSet);
+        twoHopLinks = await getTwohopLinks(settings, activeFile, app.metadataCache.resolvedLinks, seenLinkSet, twoHopLinkSet);
+        tagLinksList = await getLinksListOfFilesWithTag(app, settings, activeFile, activeFileCache, seenLinkSet, twoHopLinkSet);
     } else {
         const allMarkdownFiles = app.vault.getMarkdownFiles()
             .filter((file: { path: string; }) => !shouldExcludePath(file.path, settings.excludePaths));
