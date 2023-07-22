@@ -48,7 +48,6 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private registerEventHandlers(): void {
     this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this));
-
     this.app.metadataCache.on("resolve", this.refreshTwohopLinksIfActive.bind(this));
   }
 
@@ -132,17 +131,54 @@ export default class TwohopLinksPlugin extends Plugin {
     this.app.workspace.detachLeavesOfType("TwoHopLinksView");
   }
 
-  private getContainerElements(markdownView: MarkdownView, query: string): Element[] {
-    const elements = markdownView.containerEl.querySelectorAll(query);
+  private getTopContainerElements(markdownView: MarkdownView): Element[] {
+    const elements = markdownView.containerEl.querySelectorAll(
+      ".markdown-source-view .CodeMirror-scroll, .markdown-preview-view, .markdown-source-view .cm-sizer"
+    );
 
     const containers: Element[] = [];
     for (let i = 0; i < elements.length; i++) {
       const el = elements.item(i);
-      const container = el.querySelector("." + CONTAINER_CLASS) || el.createDiv({ cls: CONTAINER_CLASS });
+      const container: Element = ((): Element => {
+        const e = el.querySelector("." + CONTAINER_CLASS);
+        if (e) {
+          return e;
+        } else {
+          const c = document.createElement("div");
+          c.className = CONTAINER_CLASS;
+          el.insertBefore(c, el.firstChild);
+          return c;
+        }
+      })();
       containers.push(container);
     }
 
     return containers;
+  }
+
+  private getBottomContainerElements(markdownView: MarkdownView): Element[] {
+    const elements = markdownView.containerEl.querySelectorAll(
+      ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer"
+    );
+
+    const containers: Element[] = [];
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements.item(i);
+      const container =
+        el.querySelector("." + CONTAINER_CLASS) ||
+        el.createDiv({ cls: CONTAINER_CLASS });
+      containers.push(container);
+    }
+
+    return containers;
+  }
+
+  private getContainerElements(markdownView: MarkdownView): Element[] {
+    if (this.settings.putOnTop) {
+      return this.getTopContainerElements(markdownView);
+    } else {
+      return this.getBottomContainerElements(markdownView);
+    }
   }
 
   async renderTwohopLinks(): Promise<void> {
@@ -164,7 +200,7 @@ export default class TwohopLinksPlugin extends Plugin {
       tagLinksList
     } = await gatherTwoHopLinks(this.settings, activeFile);
 
-    for (const container of this.getContainerElements(markdownView, this.settings.putOnTop ? ".markdown-source-view .CodeMirror-scroll, .markdown-preview-view, .markdown-source-view .cm-sizer" : ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer")) {
+    for (const container of this.getContainerElements(markdownView)) {
       await this.injectTwohopLinks(
         forwardLinks,
         newLinks,
@@ -230,7 +266,7 @@ export default class TwohopLinksPlugin extends Plugin {
     const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
 
     if (markdownView !== null) {
-      for (const element of this.getContainerElements(markdownView, this.settings.putOnTop ? ".markdown-source-view .CodeMirror-scroll, .markdown-preview-view, .markdown-source-view .cm-sizer" : ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer")) {
+      for (const element of this.getContainerElements(markdownView)) {
         const container = element.querySelector("." + CONTAINER_CLASS);
         if (container) {
           container.remove();
