@@ -12,8 +12,7 @@ interface TwohopLinksRootViewProps {
   forwardConnectedLinks: FileEntity[];
   newLinks: FileEntity[];
   backwardConnectedLinks: FileEntity[];
-  resolvedTwoHopLinks: TwohopLink[];
-  unresolvedTwoHopLinks: TwohopLink[];
+  twoHopLinks: TwohopLink[];
   tagLinksList: TagLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
@@ -25,7 +24,7 @@ interface TwohopLinksRootViewProps {
   initialSectionCount: number;
 }
 
-type Category = "forwardConnectedLinks" | "backwardConnectedLinks" | "unresolvedTwoHopLinks" | "resolvedTwoHopLinks" | "newLinks" | "tagLinksList";
+type Category = "forwardConnectedLinks" | "backwardConnectedLinks" | "twoHopLinks" | "newLinks" | "tagLinksList";
 
 interface TwohopLinksRootViewState {
   displayedBoxCount: Record<Category, number>;
@@ -39,8 +38,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
     forwardConnectedLinks: createRef(),
     newLinks: createRef(),
     backwardConnectedLinks: createRef(),
-    resolvedTwoHopLinks: createRef(),
-    unresolvedTwoHopLinks: createRef(),
+    twoHopLinks: createRef(),
     tagLinksList: createRef(),
   };
 
@@ -51,16 +49,14 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
         forwardConnectedLinks: props.initialBoxCount,
         newLinks: props.initialBoxCount,
         backwardConnectedLinks: props.initialBoxCount,
-        resolvedTwoHopLinks: props.initialBoxCount,
-        unresolvedTwoHopLinks: props.initialBoxCount,
+        twoHopLinks: props.initialBoxCount,
         tagLinksList: props.initialBoxCount,
       },
       displayedSectionCount: {
         forwardConnectedLinks: props.initialSectionCount,
         newLinks: props.initialSectionCount,
         backwardConnectedLinks: props.initialSectionCount,
-        resolvedTwoHopLinks: props.initialSectionCount,
-        unresolvedTwoHopLinks: props.initialSectionCount,
+        twoHopLinks: props.initialSectionCount,
         tagLinksList: props.initialSectionCount,
       },
       prevProps: null,
@@ -102,8 +98,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
         displayedBoxCount: {
           forwardConnectedLinks: this.props.initialBoxCount,
           backwardConnectedLinks: this.props.initialBoxCount,
-          unresolvedTwoHopLinks: this.props.initialBoxCount,
-          resolvedTwoHopLinks: this.props.initialBoxCount,
+          twoHopLinks: this.props.initialBoxCount,
           newLinks: this.props.initialBoxCount,
           tagLinksList: this.props.initialBoxCount,
         },
@@ -111,8 +106,7 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           forwardConnectedLinks: this.props.initialSectionCount,
           newLinks: this.props.initialSectionCount,
           backwardConnectedLinks: this.props.initialSectionCount,
-          resolvedTwoHopLinks: this.props.initialSectionCount,
-          unresolvedTwoHopLinks: this.props.initialSectionCount,
+          twoHopLinks: this.props.initialSectionCount,
           tagLinksList: this.props.initialSectionCount,
         },
         prevProps: this.props,
@@ -170,30 +164,16 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           />
         )}
         <TwohopLinksView
-          twoHopLinks={this.props.unresolvedTwoHopLinks}
-          resolved={false}
+          twoHopLinks={this.props.twoHopLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
           app={this.props.app}
-          displayedSectionCount={this.state.displayedSectionCount.unresolvedTwoHopLinks}
+          displayedSectionCount={this.state.displayedSectionCount.twoHopLinks}
           initialDisplayedEntitiesCount={this.props.initialBoxCount}
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
-        {this.state.displayedSectionCount.unresolvedTwoHopLinks < this.props.unresolvedTwoHopLinks.length &&
-          <button ref={this.loadMoreRefs.unresolvedTwoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('unresolvedTwoHopLinks')}>Load more</button>
-        }
-        <TwohopLinksView
-          twoHopLinks={this.props.resolvedTwoHopLinks}
-          resolved={true}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          app={this.props.app}
-          displayedSectionCount={this.state.displayedSectionCount.resolvedTwoHopLinks}
-          initialDisplayedEntitiesCount={this.props.initialBoxCount}
-          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
-        />
-        {this.state.displayedSectionCount.resolvedTwoHopLinks < this.props.resolvedTwoHopLinks.length &&
-          <button ref={this.loadMoreRefs.resolvedTwoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('resolvedTwoHopLinks')}>Load more</button>
+        {this.state.displayedSectionCount.twoHopLinks < this.props.twoHopLinks.length &&
+          <button ref={this.loadMoreRefs.twoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('twoHopLinks')}>Load more</button>
         }
         <NewLinksView
           fileEntities={this.props.newLinks}

@@ -160,8 +160,7 @@ export default class TwohopLinksPlugin extends Plugin {
       forwardLinks,
       newLinks,
       backwardLinks,
-      unresolvedTwoHopLinks,
-      resolvedTwoHopLinks,
+      twoHopLinks,
       tagLinksList
     } = await gatherTwoHopLinks(this.settings, activeFile);
 
@@ -170,8 +169,7 @@ export default class TwohopLinksPlugin extends Plugin {
         forwardLinks,
         newLinks,
         backwardLinks,
-        unresolvedTwoHopLinks,
-        resolvedTwoHopLinks,
+        twoHopLinks,
         tagLinksList,
         container
       );
@@ -182,8 +180,7 @@ export default class TwohopLinksPlugin extends Plugin {
     forwardConnectedLinks: FileEntity[],
     newLinks: FileEntity[],
     backwardConnectedLinks: FileEntity[],
-    unresolvedTwoHopLinks: TwohopLink[],
-    resolvedTwoHopLinks: TwohopLink[],
+    twoHopLinks: TwohopLink[],
     tagLinksList: TagLinks[],
     container: Element
   ) {
@@ -194,8 +191,7 @@ export default class TwohopLinksPlugin extends Plugin {
         forwardConnectedLinks={forwardConnectedLinks}
         newLinks={newLinks}
         backwardConnectedLinks={backwardConnectedLinks}
-        unresolvedTwoHopLinks={unresolvedTwoHopLinks}
-        resolvedTwoHopLinks={resolvedTwoHopLinks}
+        twoHopLinks={twoHopLinks}
         tagLinksList={tagLinksList}
         onClick={this.openFile.bind(this)}
         getPreview={readPreview.bind(this)}

@@ -61,8 +61,7 @@ export class SeparatePaneView extends ItemView {
           forwardLinks,
           newLinks,
           backwardLinks,
-          unresolvedTwoHopLinks,
-          resolvedTwoHopLinks,
+          twoHopLinks,
           tagLinksList,
         } = await gatherTwoHopLinks(this.plugin.settings, activeFile);
 
@@ -71,8 +70,7 @@ export class SeparatePaneView extends ItemView {
           forwardLinks,
           newLinks,
           backwardLinks,
-          unresolvedTwoHopLinks,
-          resolvedTwoHopLinks,
+          twoHopLinks,
           tagLinksList,
           this.containerEl
         );

@@ -6,7 +6,6 @@ import { App, setIcon } from "obsidian";
 
 interface TwohopLinksViewProps {
   twoHopLinks: TwohopLink[];
-  resolved: boolean;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
@@ -17,7 +16,6 @@ interface TwohopLinksViewProps {
 
 interface LinkComponentProps {
   link: TwohopLink;
-  resolved: boolean;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
@@ -64,12 +62,7 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
   render(): JSX.Element {
     return (
       <div
-        className={
-          "twohop-links-section " +
-          (this.props.resolved
-            ? "twohop-links-resolved"
-            : "twohop-links-unresolved")
-        }
+        className={"twohop-links-section " + "twohop-links-resolved"}
         key={this.props.link.link.linkText}
       >
         <div
@@ -107,7 +100,6 @@ export default class TwohopLinksView extends React.Component<TwohopLinksViewProp
           <LinkComponent
             key={index}
             link={link}
-            resolved={this.props.resolved}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
             app={this.props.app}

@@ -10,31 +10,22 @@ export async function gatherTwoHopLinks(settings: any, activeFile: TFile | null)
     forwardLinks: FileEntity[];
     newLinks: FileEntity[];
     backwardLinks: FileEntity[];
-    unresolvedTwoHopLinks: TwohopLink[];
-    resolvedTwoHopLinks: TwohopLink[];
+    twoHopLinks: TwohopLink[];
     tagLinksList: TagLinks[];
 }> {
     let forwardLinks: FileEntity[] = [];
     let newLinks: FileEntity[] = [];
     let backwardLinks: FileEntity[] = [];
-    let unresolvedTwoHopLinks: TwohopLink[] = [];
-    let resolvedTwoHopLinks: TwohopLink[] = [];
+    let twoHopLinks: TwohopLink[] = [];
     let tagLinksList: TagLinks[] = [];
 
     if (activeFile) {
         const activeFileCache: CachedMetadata = app.metadataCache.getFileCache(activeFile);
         ({ resolved: forwardLinks, new: newLinks } = await getForwardLinks(settings, activeFile, activeFileCache));
-        const forwardLinkSet = new Set<string>([...forwardLinks.map((it) => it.key()), ...newLinks.map((it) => it.key())]);
-        const twoHopLinkSet = new Set<string>();
+        const forwardLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
 
-        unresolvedTwoHopLinks = await getTwohopLinks(
-            settings,
-            activeFile,
-            app.metadataCache.unresolvedLinks,
-            forwardLinkSet,
-            twoHopLinkSet
-        );
-        resolvedTwoHopLinks = await getTwohopLinks(
+        const twoHopLinkSet = new Set<string>();
+        twoHopLinks = await getTwohopLinks(
             settings,
             activeFile,
             app.metadataCache.resolvedLinks,
@@ -56,8 +47,7 @@ export async function gatherTwoHopLinks(settings: any, activeFile: TFile | null)
         forwardLinks,
         newLinks,
         backwardLinks,
-        unresolvedTwoHopLinks,
-        resolvedTwoHopLinks,
+        twoHopLinks,
         tagLinksList
     };
 }
