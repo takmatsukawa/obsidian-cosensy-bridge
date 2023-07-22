@@ -6,7 +6,6 @@ export interface TwohopPluginSettings {
   autoLoadTwoHopLinks: boolean;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
-  putOnTop: boolean;
   showImage: boolean;
   excludePaths: string[];
   initialBoxCount: number;
@@ -54,7 +53,6 @@ export class TwohopSettingTab extends PluginSettingTab {
     this.createTextSetting("Initial Section Count", "Set the initial number of sections to be displayed", "initialSectionCount");
     this.createToggleSetting("Enable Duplicate Removal", "Enable the removal of duplicate links", "enableDuplicateRemoval");
     this.createToggleSetting("Auto load 2hop links", "Automatically load 2hop links when opening a note", "autoLoadTwoHopLinks");
-    this.createToggleSetting("Put 2hop links to top of the pane(Experimental).", "Known bugs: This configuration doesn't work with the 'Embedded Note Titles' plugin.", "putOnTop");
   }
 
   createToggleSetting(name: string, desc: string, key: keyof TwohopPluginSettings) {
