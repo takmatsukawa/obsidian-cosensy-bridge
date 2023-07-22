@@ -31,7 +31,7 @@ export async function getForwardLinks(
                     resolvedLinks.push(new FileEntity(targetFile.path, it.link));
                 } else {
                     const backlinksCount = await getBacklinksCount(it.link);
-                    if (2 <= backlinksCount) {
+                    if (2 <= backlinksCount && settings.createFilesForMultiLinked) {
                         await app.vault.create(`${app.workspace.getActiveFile().parent.path}/${it.link}.md`, '');
                         resolvedLinks.push(new FileEntity(activeFile.path, it.link));
                     } else {

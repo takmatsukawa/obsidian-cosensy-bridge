@@ -15,6 +15,7 @@ export interface TwohopPluginSettings {
   showTwoHopLinksInSeparatePane: boolean;
   excludeTags: string[];
   panePositionIsRight: boolean;
+  createFilesForMultiLinked: boolean;
   [key: string]: boolean | string | string[] | number | undefined;
 }
 
@@ -53,6 +54,7 @@ export class TwohopSettingTab extends PluginSettingTab {
     this.createTextSetting("Initial Section Count", "Set the initial number of sections to be displayed", "initialSectionCount");
     this.createToggleSetting("Enable Duplicate Removal", "Enable the removal of duplicate links", "enableDuplicateRemoval");
     this.createToggleSetting("Auto load 2hop links", "Automatically load 2hop links when opening a note", "autoLoadTwoHopLinks");
+    this.createToggleSetting("Create Files For Multiple Linked", "Create new files for links that are connected to more than one other file.", "createFilesForMultiLinked");
   }
 
   createToggleSetting(name: string, desc: string, key: keyof TwohopPluginSettings) {

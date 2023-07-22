@@ -13,7 +13,8 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
     sortOrder: 'random',
     showTwoHopLinksInSeparatePane: false,
     excludeTags: [],
-    panePositionIsRight: false
+    panePositionIsRight: false,
+    createFilesForMultiLinked: false,
 };
 
 export async function loadSettings(plugin: TwohopLinksPlugin): Promise<TwohopPluginSettings> {
