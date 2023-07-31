@@ -48,20 +48,20 @@ export async function getForwardLinks(
         }
 
         if (targetFile) {
-          resolvedLinks.push(new FileEntity(targetFile.path, it.link));
+          resolvedLinks.push(new FileEntity(targetFile.path, key));
         } else {
           const backlinksCount = await getBacklinksCount(
-            it.link,
+            key,
             activeFile.path
           );
           if (1 <= backlinksCount && settings.createFilesForMultiLinked) {
             await app.vault.create(
-              `${app.workspace.getActiveFile().parent.path}/${it.link}.md`,
+              `${app.workspace.getActiveFile().parent.path}/${key}.md`,
               ""
             );
-            resolvedLinks.push(new FileEntity(activeFile.path, it.link));
+            resolvedLinks.push(new FileEntity(activeFile.path, key));
           } else {
-            newLinks.push(new FileEntity(activeFile.path, it.link));
+            newLinks.push(new FileEntity(activeFile.path, key));
           }
         }
       }
@@ -123,7 +123,8 @@ export async function getBacklinksCount(
     if (excludeFile && src === excludeFile) {
       continue;
     }
-    for (const dest of Object.keys(unresolvedLinks[src])) {
+    for (let dest of Object.keys(unresolvedLinks[src])) {
+      dest = removeBlockReference(dest);
       if (dest === file) {
         backlinkCount++;
       }
