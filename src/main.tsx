@@ -6,7 +6,10 @@ import { TwohopLink } from "./model/TwohopLink";
 import TwohopLinksRootView from "./ui/TwohopLinksRootView";
 import { TagLinks } from "./model/TagLinks";
 import { removeBlockReference } from "./utils";
-import { TwohopPluginSettings, TwohopSettingTab } from "./settings/TwohopSettingTab";
+import {
+  TwohopPluginSettings,
+  TwohopSettingTab,
+} from "./settings/TwohopSettingTab";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import { readPreview } from "./preview";
 import { loadSettings } from "./settings/index";
@@ -31,7 +34,10 @@ export default class TwohopLinksPlugin extends Plugin {
   async initPlugin() {
     this.registerEventHandlers();
     this.addSettingTab(new TwohopSettingTab(this.app, this));
-    this.registerView("TwoHopLinksView", (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this));
+    this.registerView(
+      "TwoHopLinksView",
+      (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this)
+    );
 
     this.updateTwoHopLinksView();
   }
@@ -48,7 +54,10 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private registerEventHandlers(): void {
     this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this));
-    this.app.metadataCache.on("resolve", this.refreshTwohopLinksIfActive.bind(this));
+    this.app.metadataCache.on(
+      "resolve",
+      this.refreshTwohopLinksIfActive.bind(this)
+    );
   }
 
   async refreshTwohopLinks() {
@@ -148,20 +157,16 @@ export default class TwohopLinksPlugin extends Plugin {
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
     }
-    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const markdownView: MarkdownView =
+      this.app.workspace.getActiveViewOfType(MarkdownView);
     const activeFile = markdownView?.file;
     if (activeFile == null) {
-      console.error('No active file');
+      console.error("No active file");
       return;
     }
 
-    const {
-      forwardLinks,
-      newLinks,
-      backwardLinks,
-      twoHopLinks,
-      tagLinksList
-    } = await gatherTwoHopLinks(this.settings, activeFile);
+    const { forwardLinks, newLinks, backwardLinks, twoHopLinks, tagLinksList } =
+      await gatherTwoHopLinks(this.settings, activeFile);
 
     for (const container of this.getContainerElements(markdownView)) {
       await this.injectTwohopLinks(
@@ -226,7 +231,8 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   removeTwohopLinks(): void {
-    const markdownView: MarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const markdownView: MarkdownView =
+      this.app.workspace.getActiveViewOfType(MarkdownView);
 
     if (markdownView !== null) {
       for (const element of this.getContainerElements(markdownView)) {
@@ -237,7 +243,11 @@ export default class TwohopLinksPlugin extends Plugin {
       }
 
       if (markdownView.previewMode !== null) {
-        const previewElements = Array.from(markdownView.previewMode.containerEl.querySelectorAll("." + CONTAINER_CLASS));
+        const previewElements = Array.from(
+          markdownView.previewMode.containerEl.querySelectorAll(
+            "." + CONTAINER_CLASS
+          )
+        );
         for (const element of previewElements) {
           element.remove();
         }

@@ -20,9 +20,11 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
   }
 
   shouldComponentUpdate(nextProps: NewLinksViewProps) {
-    return this.props.fileEntities !== nextProps.fileEntities ||
-           this.props.displayedBoxCount !== nextProps.displayedBoxCount ||
-           this.props.app !== nextProps.app;
+    return (
+      this.props.fileEntities !== nextProps.fileEntities ||
+      this.props.displayedBoxCount !== nextProps.displayedBoxCount ||
+      this.props.app !== nextProps.app
+    );
   }
 
   componentDidMount() {
@@ -44,21 +46,26 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
           <div className={"twohop-links-box twohop-links-new-links-header"}>
             New links
           </div>
-          {this.props.fileEntities.slice(0, this.props.displayedBoxCount).map((it) => {
-            return (
-              <LinkView
-                fileEntity={it}
-                key={it.key()}
-                onClick={this.props.onClick}
-                getPreview={this.props.getPreview}
-                app={this.props.app}
-              />
-            );
-          })}
-          {this.props.displayedBoxCount < this.props.fileEntities.length &&
-            <div ref={this.loadMoreRef} onClick={this.props.onLoadMore} className="load-more-button twohop-links-box">
-            </div>
-          }
+          {this.props.fileEntities
+            .slice(0, this.props.displayedBoxCount)
+            .map((it) => {
+              return (
+                <LinkView
+                  fileEntity={it}
+                  key={it.key()}
+                  onClick={this.props.onClick}
+                  getPreview={this.props.getPreview}
+                  app={this.props.app}
+                />
+              );
+            })}
+          {this.props.displayedBoxCount < this.props.fileEntities.length && (
+            <div
+              ref={this.loadMoreRef}
+              onClick={this.props.onLoadMore}
+              className="load-more-button twohop-links-box"
+            ></div>
+          )}
         </div>
       );
     } else {

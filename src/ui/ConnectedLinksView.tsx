@@ -24,16 +24,18 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
 
   componentDidMount() {
     if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, 'more-horizontal');
+      setIcon(this.loadMoreRef.current, "more-horizontal");
     }
   }
 
   shouldComponentUpdate(nextProps: ConnectedLinksViewProps) {
-    return nextProps.fileEntities !== this.props.fileEntities ||
-           nextProps.displayedBoxCount !== this.props.displayedBoxCount ||
-           nextProps.title !== this.props.title ||
-           nextProps.className !== this.props.className ||
-           nextProps.app !== this.props.app;
+    return (
+      nextProps.fileEntities !== this.props.fileEntities ||
+      nextProps.displayedBoxCount !== this.props.displayedBoxCount ||
+      nextProps.title !== this.props.title ||
+      nextProps.className !== this.props.className ||
+      nextProps.app !== this.props.app
+    );
   }
 
   render(): JSX.Element {
@@ -45,20 +47,25 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
           >
             {this.props.title}
           </div>
-          {this.props.fileEntities.slice(0, this.props.displayedBoxCount).map((it) => {
-            return (
-              <LinkView
-                fileEntity={it}
-                key={it.key()}
-                onClick={this.props.onClick}
-                getPreview={this.props.getPreview}
-                app={this.props.app}
-              />
-            );
-          })}
+          {this.props.fileEntities
+            .slice(0, this.props.displayedBoxCount)
+            .map((it) => {
+              return (
+                <LinkView
+                  fileEntity={it}
+                  key={it.key()}
+                  onClick={this.props.onClick}
+                  getPreview={this.props.getPreview}
+                  app={this.props.app}
+                />
+              );
+            })}
           {this.props.fileEntities.length > this.props.displayedBoxCount && (
-            <div ref={this.loadMoreRef} onClick={this.props.onLoadMore} className="load-more-button twohop-links-box">
-            </div>
+            <div
+              ref={this.loadMoreRef}
+              onClick={this.props.onLoadMore}
+              className="load-more-button twohop-links-box"
+            ></div>
           )}
         </div>
       );

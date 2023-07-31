@@ -8,7 +8,10 @@ export function removeBlockReference(src: string): string {
   return src.replace(/#.*$/, "");
 }
 
-export function shouldExcludePath(path: string, excludePaths: string[]): boolean {
+export function shouldExcludePath(
+  path: string,
+  excludePaths: string[]
+): boolean {
   return excludePaths.some((excludePath: string) => {
     if (excludePath.endsWith("/")) {
       return path.startsWith(excludePath);

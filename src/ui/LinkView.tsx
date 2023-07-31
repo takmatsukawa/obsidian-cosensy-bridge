@@ -20,14 +20,20 @@ interface LinkViewState {
 
 export default class LinkView
   extends React.Component<LinkViewProps, LinkViewState>
-  implements HoverParent {
+  implements HoverParent
+{
   private abortController: AbortController;
   hoverPopover: HoverPopover | null;
   isMobile: boolean;
 
   constructor(props: LinkViewProps) {
     super(props);
-    this.state = { preview: null, mouseDown: false, dragging: false, touchStart: 0 };
+    this.state = {
+      preview: null,
+      mouseDown: false,
+      dragging: false,
+      touchStart: 0,
+    };
     this.isMobile = window.matchMedia("(pointer: coarse)").matches;
   }
 
@@ -46,9 +52,7 @@ export default class LinkView
     this.abortController.abort();
   }
 
-  async openFileWithOptions(
-    options?: "tab" | "split-vertical" | "window"
-  ) {
+  async openFileWithOptions(options?: "tab" | "split-vertical" | "window") {
     const { app, fileEntity } = this.props;
     const file = app.metadataCache.getFirstLinkpathDest(
       removeBlockReference(fileEntity.linkText),
@@ -65,8 +69,14 @@ export default class LinkView
     if ("button" in event && event.button !== 2) return;
     event.preventDefault();
 
-    const clientX = ("changedTouches" in event) ? event.changedTouches[0].clientX : event.clientX;
-    const clientY = ("changedTouches" in event) ? event.changedTouches[0].clientY : event.clientY;
+    const clientX =
+      "changedTouches" in event
+        ? event.changedTouches[0].clientX
+        : event.clientX;
+    const clientY =
+      "changedTouches" in event
+        ? event.changedTouches[0].clientY
+        : event.clientY;
 
     const menu = new Menu();
 
@@ -120,7 +130,7 @@ export default class LinkView
       await this.props.onClick(this.props.fileEntity);
     }
     this.setState({ touchStart: 0, dragging: false });
-  }
+  };
 
   render(): JSX.Element {
     return (
@@ -156,9 +166,11 @@ export default class LinkView
         onContextMenu={this.handleContextMenu}
         onMouseOver={this.onMouseOver}
         draggable="true"
-        onDragStart={event => {
-          const fileEntityLinkText = removeBlockReference(this.props.fileEntity.linkText);
-          event.dataTransfer.setData('text/plain', `[[${fileEntityLinkText}]]`);
+        onDragStart={(event) => {
+          const fileEntityLinkText = removeBlockReference(
+            this.props.fileEntity.linkText
+          );
+          event.dataTransfer.setData("text/plain", `[[${fileEntityLinkText}]]`);
         }}
       >
         <div className="twohop-links-box-title">
@@ -166,7 +178,7 @@ export default class LinkView
         </div>
         <div className={"twohop-links-box-preview"}>
           {this.state.preview &&
-            this.state.preview.match(/^(app|https?):\/\//) ? (
+          this.state.preview.match(/^(app|https?):\/\//) ? (
             <img src={this.state.preview} alt={"preview image"} />
           ) : (
             <div>{this.state.preview}</div>

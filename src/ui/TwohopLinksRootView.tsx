@@ -24,7 +24,12 @@ interface TwohopLinksRootViewProps {
   initialSectionCount: number;
 }
 
-type Category = "forwardConnectedLinks" | "backwardConnectedLinks" | "twoHopLinks" | "newLinks" | "tagLinksList";
+type Category =
+  | "forwardConnectedLinks"
+  | "backwardConnectedLinks"
+  | "twoHopLinks"
+  | "newLinks"
+  | "tagLinksList";
 
 interface TwohopLinksRootViewState {
   displayedBoxCount: Record<Category, number>;
@@ -33,7 +38,10 @@ interface TwohopLinksRootViewState {
   isLoaded: boolean;
 }
 
-export default class TwohopLinksRootView extends React.Component<TwohopLinksRootViewProps, TwohopLinksRootViewState> {
+export default class TwohopLinksRootView extends React.Component<
+  TwohopLinksRootViewProps,
+  TwohopLinksRootViewState
+> {
   loadMoreRefs: Record<Category, React.RefObject<HTMLButtonElement>> = {
     forwardConnectedLinks: createRef(),
     newLinks: createRef(),
@@ -65,24 +73,27 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
   }
 
   loadMoreBox = (category: Category) => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       displayedBoxCount: {
         ...prevState.displayedBoxCount,
-        [category]: prevState.displayedBoxCount[category] + this.props.initialBoxCount
+        [category]:
+          prevState.displayedBoxCount[category] + this.props.initialBoxCount,
       },
-      prevProps: this.props
+      prevProps: this.props,
     }));
-  }
+  };
 
   loadMoreSections = (category: Category) => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       displayedSectionCount: {
         ...prevState.displayedSectionCount,
-        [category]: prevState.displayedSectionCount[category] + this.props.initialSectionCount
+        [category]:
+          prevState.displayedSectionCount[category] +
+          this.props.initialSectionCount,
       },
-      prevProps: this.props
+      prevProps: this.props,
     }));
-  }
+  };
 
   componentDidMount() {
     for (let ref of Object.values(this.loadMoreRefs)) {
@@ -121,31 +132,47 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
   }
 
   render(): JSX.Element {
-    const { showForwardConnectedLinks, showBackwardConnectedLinks, autoLoadTwoHopLinks } = this.props;
+    const {
+      showForwardConnectedLinks,
+      showBackwardConnectedLinks,
+      autoLoadTwoHopLinks,
+    } = this.props;
     const { isLoaded } = this.state;
 
     if (!autoLoadTwoHopLinks && !isLoaded) {
       return (
-        <button className="load-more-button" onClick={() => this.setState({ isLoaded: true })}>Show 2hop links</button>
+        <button
+          className="load-more-button"
+          onClick={() => this.setState({ isLoaded: true })}
+        >
+          Show 2hop links
+        </button>
       );
     }
 
     return (
       <div>
-        <button className="settings-button" onClick={() => {
-          this.props.app.setting.open();
-          this.props.app.setting.openTabById('obsidian-2hop-links-plugin'); // Temporary solution
-          this.props.app.setting.openTabById('obsidian-2hop-links-plugin-plus');
-        }}>
+        <button
+          className="settings-button"
+          onClick={() => {
+            this.props.app.setting.open();
+            this.props.app.setting.openTabById("obsidian-2hop-links-plugin"); // Temporary solution
+            this.props.app.setting.openTabById(
+              "obsidian-2hop-links-plugin-plus"
+            );
+          }}
+        >
           Open Settings
         </button>
         {showForwardConnectedLinks && (
           <ConnectedLinksView
             fileEntities={this.props.forwardConnectedLinks}
-            displayedBoxCount={this.state.displayedBoxCount.forwardConnectedLinks}
+            displayedBoxCount={
+              this.state.displayedBoxCount.forwardConnectedLinks
+            }
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
-            onLoadMore={() => this.loadMoreBox('forwardConnectedLinks')}
+            onLoadMore={() => this.loadMoreBox("forwardConnectedLinks")}
             title={"Links"}
             className={"twohop-links-forward-links"}
             app={this.props.app}
@@ -154,10 +181,12 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
         {showBackwardConnectedLinks && (
           <ConnectedLinksView
             fileEntities={this.props.backwardConnectedLinks}
-            displayedBoxCount={this.state.displayedBoxCount.backwardConnectedLinks}
+            displayedBoxCount={
+              this.state.displayedBoxCount.backwardConnectedLinks
+            }
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
-            onLoadMore={() => this.loadMoreBox('backwardConnectedLinks')}
+            onLoadMore={() => this.loadMoreBox("backwardConnectedLinks")}
             title={"Back Links"}
             className={"twohop-links-back-links"}
             app={this.props.app}
@@ -172,15 +201,22 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           initialDisplayedEntitiesCount={this.props.initialBoxCount}
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
-        {this.state.displayedSectionCount.twoHopLinks < this.props.twoHopLinks.length &&
-          <button ref={this.loadMoreRefs.twoHopLinks} className="load-more-button" onClick={() => this.loadMoreSections('twoHopLinks')}>Load more</button>
-        }
+        {this.state.displayedSectionCount.twoHopLinks <
+          this.props.twoHopLinks.length && (
+          <button
+            ref={this.loadMoreRefs.twoHopLinks}
+            className="load-more-button"
+            onClick={() => this.loadMoreSections("twoHopLinks")}
+          >
+            Load more
+          </button>
+        )}
         <NewLinksView
           fileEntities={this.props.newLinks}
           displayedBoxCount={this.state.displayedBoxCount.newLinks}
           onClick={this.props.onClick}
           getPreview={this.props.getPreview}
-          onLoadMore={() => this.loadMoreBox('newLinks')}
+          onLoadMore={() => this.loadMoreBox("newLinks")}
           app={this.props.app}
         />
         <TagLinksListView
@@ -192,9 +228,16 @@ export default class TwohopLinksRootView extends React.Component<TwohopLinksRoot
           initialDisplayedEntitiesCount={this.props.initialBoxCount}
           resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
         />
-        {this.state.displayedSectionCount.tagLinksList < this.props.tagLinksList.length &&
-          <button ref={this.loadMoreRefs.tagLinksList} className="load-more-button" onClick={() => this.loadMoreSections('tagLinksList')}>Load more</button>
-        }
+        {this.state.displayedSectionCount.tagLinksList <
+          this.props.tagLinksList.length && (
+          <button
+            ref={this.loadMoreRefs.tagLinksList}
+            className="load-more-button"
+            onClick={() => this.loadMoreSections("tagLinksList")}
+          >
+            Load more
+          </button>
+        )}
       </div>
     );
   }

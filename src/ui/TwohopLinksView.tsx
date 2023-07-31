@@ -27,7 +27,10 @@ interface LinkComponentState {
   displayedEntitiesCount: number;
 }
 
-class LinkComponent extends React.Component<LinkComponentProps, LinkComponentState> {
+class LinkComponent extends React.Component<
+  LinkComponentProps,
+  LinkComponentState
+> {
   loadMoreRef = createRef<HTMLDivElement>();
 
   constructor(props: LinkComponentProps) {
@@ -44,8 +47,14 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
   }
 
   componentDidUpdate(prevProps: LinkComponentProps) {
-    if (this.props.resetDisplayedEntitiesCount && this.props.resetDisplayedEntitiesCount !== prevProps.resetDisplayedEntitiesCount) {
-      this.setState({ displayedEntitiesCount: this.props.initialDisplayedEntitiesCount });
+    if (
+      this.props.resetDisplayedEntitiesCount &&
+      this.props.resetDisplayedEntitiesCount !==
+        prevProps.resetDisplayedEntitiesCount
+    ) {
+      this.setState({
+        displayedEntitiesCount: this.props.initialDisplayedEntitiesCount,
+      });
     }
 
     if (this.loadMoreRef.current) {
@@ -55,7 +64,9 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
 
   loadMoreEntities = () => {
     this.setState((prevState) => ({
-      displayedEntitiesCount: prevState.displayedEntitiesCount + this.props.initialDisplayedEntitiesCount,
+      displayedEntitiesCount:
+        prevState.displayedEntitiesCount +
+        this.props.initialDisplayedEntitiesCount,
     }));
   };
 
@@ -74,18 +85,24 @@ class LinkComponent extends React.Component<LinkComponentProps, LinkComponentSta
         >
           {this.props.link.link.linkText.replace(/\.md$/, "")}
         </div>
-        {this.props.link.fileEntities.slice(0, this.state.displayedEntitiesCount).map((it) => (
-          <LinkView
-            fileEntity={it}
-            key={this.props.link.link.linkText + it.key()}
-            onClick={this.props.onClick}
-            getPreview={this.props.getPreview}
-            app={this.props.app}
-          />
-        ))}
-        {this.props.link.fileEntities.length > this.state.displayedEntitiesCount && (
-          <div ref={this.loadMoreRef} onClick={this.loadMoreEntities} className="load-more-button twohop-links-box">
-          </div>
+        {this.props.link.fileEntities
+          .slice(0, this.state.displayedEntitiesCount)
+          .map((it) => (
+            <LinkView
+              fileEntity={it}
+              key={this.props.link.link.linkText + it.key()}
+              onClick={this.props.onClick}
+              getPreview={this.props.getPreview}
+              app={this.props.app}
+            />
+          ))}
+        {this.props.link.fileEntities.length >
+          this.state.displayedEntitiesCount && (
+          <div
+            ref={this.loadMoreRef}
+            onClick={this.loadMoreEntities}
+            className="load-more-button twohop-links-box"
+          ></div>
         )}
       </div>
     );
@@ -98,17 +115,23 @@ class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
   render(): JSX.Element {
     return (
       <div>
-        {this.props.twoHopLinks.slice(0, this.props.displayedSectionCount).map((link, index) => (
-          <MemoizedLinkComponent
-            key={index}
-            link={link}
-            onClick={this.props.onClick}
-            getPreview={this.props.getPreview}
-            app={this.props.app}
-            initialDisplayedEntitiesCount={this.props.initialDisplayedEntitiesCount}
-            resetDisplayedEntitiesCount={this.props.resetDisplayedEntitiesCount}
-          />
-        ))}
+        {this.props.twoHopLinks
+          .slice(0, this.props.displayedSectionCount)
+          .map((link, index) => (
+            <MemoizedLinkComponent
+              key={index}
+              link={link}
+              onClick={this.props.onClick}
+              getPreview={this.props.getPreview}
+              app={this.props.app}
+              initialDisplayedEntitiesCount={
+                this.props.initialDisplayedEntitiesCount
+              }
+              resetDisplayedEntitiesCount={
+                this.props.resetDisplayedEntitiesCount
+              }
+            />
+          ))}
       </div>
     );
   }

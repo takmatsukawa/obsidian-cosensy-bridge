@@ -45,8 +45,14 @@ const LinkComponent = React.memo(
     }
 
     componentDidUpdate(prevProps: LinkComponentProps) {
-      if (this.props.resetDisplayedEntitiesCount && this.props.resetDisplayedEntitiesCount !== prevProps.resetDisplayedEntitiesCount) {
-        this.setState({ displayedEntitiesCount: this.props.initialDisplayedEntitiesCount });
+      if (
+        this.props.resetDisplayedEntitiesCount &&
+        this.props.resetDisplayedEntitiesCount !==
+          prevProps.resetDisplayedEntitiesCount
+      ) {
+        this.setState({
+          displayedEntitiesCount: this.props.initialDisplayedEntitiesCount,
+        });
       }
 
       if (this.loadMoreRef.current) {
@@ -56,7 +62,9 @@ const LinkComponent = React.memo(
 
     loadMoreEntities = () => {
       this.setState((prevState) => ({
-        displayedEntitiesCount: prevState.displayedEntitiesCount + this.props.initialDisplayedEntitiesCount,
+        displayedEntitiesCount:
+          prevState.displayedEntitiesCount +
+          this.props.initialDisplayedEntitiesCount,
       }));
     };
 
@@ -66,18 +74,24 @@ const LinkComponent = React.memo(
           <div className={"twohop-links-tag-header twohop-links-box"}>
             {this.props.tagLink.tag}
           </div>
-          {this.props.tagLink.fileEntities.slice(0, this.state.displayedEntitiesCount).map((it, index) => (
-            <LinkView
-              fileEntity={it}
-              key={this.props.tagLink.tag + it.key() + index}
-              onClick={this.props.onClick}
-              getPreview={this.props.getPreview}
-              app={this.props.app}
-            />
-          ))}
-          {this.props.tagLink.fileEntities.length > this.state.displayedEntitiesCount && (
-            <div ref={this.loadMoreRef} onClick={this.loadMoreEntities} className="load-more-button twohop-links-box">
-            </div>
+          {this.props.tagLink.fileEntities
+            .slice(0, this.state.displayedEntitiesCount)
+            .map((it, index) => (
+              <LinkView
+                fileEntity={it}
+                key={this.props.tagLink.tag + it.key() + index}
+                onClick={this.props.onClick}
+                getPreview={this.props.getPreview}
+                app={this.props.app}
+              />
+            ))}
+          {this.props.tagLink.fileEntities.length >
+            this.state.displayedEntitiesCount && (
+            <div
+              ref={this.loadMoreRef}
+              onClick={this.loadMoreEntities}
+              className="load-more-button twohop-links-box"
+            ></div>
           )}
         </div>
       );
@@ -90,17 +104,23 @@ const TagLinksListView = React.memo(
     render(): JSX.Element {
       return (
         <div>
-          {this.props.tagLinksList.slice(0, this.props.displayedSectionCount).map((tagLink, index) => (
-            <LinkComponent
-              key={index}
-              tagLink={tagLink}
-              onClick={this.props.onClick}
-              getPreview={this.props.getPreview}
-              app={this.props.app}
-              initialDisplayedEntitiesCount={this.props.initialDisplayedEntitiesCount}
-              resetDisplayedEntitiesCount={this.props.resetDisplayedEntitiesCount}
-            />
-          ))}
+          {this.props.tagLinksList
+            .slice(0, this.props.displayedSectionCount)
+            .map((tagLink, index) => (
+              <LinkComponent
+                key={index}
+                tagLink={tagLink}
+                onClick={this.props.onClick}
+                getPreview={this.props.getPreview}
+                app={this.props.app}
+                initialDisplayedEntitiesCount={
+                  this.props.initialDisplayedEntitiesCount
+                }
+                resetDisplayedEntitiesCount={
+                  this.props.resetDisplayedEntitiesCount
+                }
+              />
+            ))}
         </div>
       );
     }

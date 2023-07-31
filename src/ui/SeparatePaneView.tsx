@@ -25,7 +25,7 @@ export class SeparatePaneView extends ItemView {
   }
 
   getIcon(): string {
-    return 'network';
+    return "network";
   }
 
   async onOpen(): Promise<void> {
@@ -35,13 +35,15 @@ export class SeparatePaneView extends ItemView {
 
       this.registerActiveFileUpdateEvent();
 
-      this.registerEvent(this.app.metadataCache.on('changed', async (file: TFile) => {
-        if (file === this.app.workspace.getActiveFile()) {
-          await this.updateOrForceUpdate(false);
-        }
-      }));
+      this.registerEvent(
+        this.app.metadataCache.on("changed", async (file: TFile) => {
+          if (file === this.app.workspace.getActiveFile()) {
+            await this.updateOrForceUpdate(false);
+          }
+        })
+      );
     } catch (error) {
-      this.handleError('Error updating TwoHopLinksView', error);
+      this.handleError("Error updating TwoHopLinksView", error);
     }
   }
 
@@ -53,8 +55,8 @@ export class SeparatePaneView extends ItemView {
 
       if (
         isForceUpdate ||
-        this.previousLinks.sort().join(',') !== currentLinks.sort().join(',') ||
-        this.previousTags.sort().join(',') !== currentTags.sort().join(',') ||
+        this.previousLinks.sort().join(",") !== currentLinks.sort().join(",") ||
+        this.previousTags.sort().join(",") !== currentTags.sort().join(",") ||
         activeFile === null
       ) {
         const {
@@ -81,7 +83,7 @@ export class SeparatePaneView extends ItemView {
         this.previousTags = currentTags;
       }
     } catch (error) {
-      this.handleError('Error rendering two hop links', error);
+      this.handleError("Error rendering two hop links", error);
     }
   }
 
@@ -97,20 +99,28 @@ export class SeparatePaneView extends ItemView {
   registerActiveFileUpdateEvent() {
     let lastActiveFilePath: string | null = null;
 
-    this.registerEvent(this.app.workspace.on('active-leaf-change', async (leaf: WorkspaceLeaf) => {
-      if (leaf.view === this) {
-        return;
-      }
+    this.registerEvent(
+      this.app.workspace.on(
+        "active-leaf-change",
+        async (leaf: WorkspaceLeaf) => {
+          if (leaf.view === this) {
+            return;
+          }
 
-      const newActiveFile = (leaf.view as any).file as TFile;
-      const newActiveFilePath = newActiveFile ? newActiveFile.path : null;
+          const newActiveFile = (leaf.view as any).file as TFile;
+          const newActiveFilePath = newActiveFile ? newActiveFile.path : null;
 
-      if (lastActiveFilePath !== newActiveFilePath || newActiveFilePath === null) {
-        this.lastActiveLeaf = leaf;
-        lastActiveFilePath = newActiveFilePath;
-        await this.updateOrForceUpdate(true);
-      }
-    }));
+          if (
+            lastActiveFilePath !== newActiveFilePath ||
+            newActiveFilePath === null
+          ) {
+            this.lastActiveLeaf = leaf;
+            lastActiveFilePath = newActiveFilePath;
+            await this.updateOrForceUpdate(true);
+          }
+        }
+      )
+    );
   }
 
   private getActiveFileLinks(file: TFile | null): string[] {
@@ -119,7 +129,7 @@ export class SeparatePaneView extends ItemView {
     }
 
     const cache = this.app.metadataCache.getFileCache(file);
-    return cache && cache.links ? cache.links.map(link => link.link) : [];
+    return cache && cache.links ? cache.links.map((link) => link.link) : [];
   }
 
   private getActiveFileTags(file: TFile | null): string[] {
@@ -129,10 +139,10 @@ export class SeparatePaneView extends ItemView {
 
     const cache = this.app.metadataCache.getFileCache(file);
 
-    let tags = cache && cache.tags ? cache.tags.map(tag => tag.tag) : [];
+    let tags = cache && cache.tags ? cache.tags.map((tag) => tag.tag) : [];
 
     if (cache && cache.frontmatter && cache.frontmatter.tags) {
-      if (typeof cache.frontmatter.tags === 'string') {
+      if (typeof cache.frontmatter.tags === "string") {
         tags.push(cache.frontmatter.tags);
       } else if (Array.isArray(cache.frontmatter.tags)) {
         tags = tags.concat(cache.frontmatter.tags);
@@ -143,26 +153,26 @@ export class SeparatePaneView extends ItemView {
   }
 
   addLinkEventListeners(): void {
-    const links = this.containerEl.querySelectorAll('a');
-    links.forEach(link => {
-      link.addEventListener('click', async (event) => {
+    const links = this.containerEl.querySelectorAll("a");
+    links.forEach((link) => {
+      link.addEventListener("click", async (event) => {
         event.preventDefault();
 
-        const filePath = link.getAttribute('href');
+        const filePath = link.getAttribute("href");
         if (!filePath) {
-          console.error('Link does not have href attribute', link);
+          console.error("Link does not have href attribute", link);
           return;
         }
 
         const fileOrFolder = this.app.vault.getAbstractFileByPath(filePath);
         if (!fileOrFolder || !(fileOrFolder instanceof TFile)) {
-          console.error('No file found for path', filePath);
+          console.error("No file found for path", filePath);
           return;
         }
         const file = fileOrFolder as TFile;
 
         if (!this.lastActiveLeaf) {
-          console.error('No last active leaf');
+          console.error("No last active leaf");
           return;
         }
 
