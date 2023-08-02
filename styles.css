@@ -1,6 +1,7 @@
 :root{
   --box-width: 139px;
   --box-height: 170px;
+  --box-font-size: 100%;
 }
 /* switch light/dark mode */
 .theme-light {
@@ -44,6 +45,7 @@
   grid-template-columns: repeat(auto-fill, minmax(var(--box-width), 1fr));
   grid-gap: 8px;
   margin: 20px;
+  font-size: var(--box-font-size);
 }
 
 /* common */
@@ -158,15 +160,21 @@ id: obsidian-2hop-links-plugin-plus
 settings:
     -
         id: box-width
-        title: Box min width
+        title: Box min width (px)
         type: variable-number
         default: 139
         format: px
     -
         id: box-height
-        title: Box max height
+        title: Box max height (px)
         type: variable-number
         default: 170
         format: px
+    -
+        id: box-font-size
+        title: Box font size (%)
+        type: variable-number
+        default: 100
+        format: '%'
 
 */
