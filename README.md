@@ -1,5 +1,5 @@
 > **Note**
-> This repository is a fork of [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin).
+> This repository is a fork of [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin). You can install it using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 >
 > The main changes are as follows:
 >
