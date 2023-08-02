@@ -44,6 +44,7 @@ export default class TwohopLinksPlugin extends Plugin {
       "TwoHopLinksView",
       (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this)
     );
+    this.app.workspace.trigger("parse-style-settings");
 
     if (this.app.workspace.layoutReady) {
       this.updateTwoHopLinksView();
