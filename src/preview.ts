@@ -2,6 +2,19 @@ import { FileEntity } from "./model/FileEntity";
 import { removeBlockReference } from "./utils";
 
 export async function readPreview(fileEntity: FileEntity) {
+  const linkText = removeBlockReference(fileEntity.linkText);
+
+  if (fileEntity.linkText.match(/\.(png|bmp|jpg)$/i)) {
+    const file = this.app.metadataCache.getFirstLinkpathDest(
+      linkText,
+      fileEntity.sourcePath
+    );
+    if (file) {
+      const resourcePath = this.app.vault.getResourcePath(file);
+      return resourcePath;
+    }
+  }
+
   if (
     fileEntity.linkText.match(/\.[a-z0-9_-]+$/i) &&
     !fileEntity.linkText.match(/\.(?:md|markdown|txt|text)$/i)
@@ -10,7 +23,6 @@ export async function readPreview(fileEntity: FileEntity) {
     return "";
   }
 
-  const linkText = removeBlockReference(fileEntity.linkText);
   console.debug(
     `readPreview: getFirstLinkpathDest: ${linkText}, fileEntity.linkText=${fileEntity.linkText}
       sourcePath=${fileEntity.sourcePath}`
