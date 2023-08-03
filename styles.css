@@ -1,4 +1,4 @@
-:root{
+:root {
   --box-width: 139px;
   --box-height: 170px;
   --box-font-size: 100%;
@@ -172,9 +172,93 @@ settings:
         format: px
     -
         id: box-font-size
-        title: Box font size (%)
+        title: Font size (%)
         type: variable-number
         default: 100
         format: '%'
+    -
+        id: title-box
+        title: Title color
+        type: variable-themed-color
+        format: hex
+        default-light: '#363c49'
+        default-dark: '#f0f0f0'
+    -
+        id: text-box
+        title: Text color
+        type: variable-themed-color
+        format: hex
+        default-light: '#b7b7b7'
+        default-dark: '#b4b5b6'
+    -
+        id: bg-box-top
+        title: Box color (Top)
+        type: variable-themed-color
+        format: hex
+        default-light: '#e2e2e2'
+        default-dark: '#2b2e38'
+    -
+        id: bg-box
+        title: Box color
+        type: variable-themed-color
+        format: hex
+        default-light: '#ffffff'
+        default-dark: '#373b44'
+    -
+        id: bg-header-connected
+        title: Header box color (Links & Backlinks)
+        type: variable-themed-color
+        format: hex
+        default-light: '#5e8af6'
+        default-dark: '#80c9fe'
+    -
+        id: title-header-connected
+        title: Header title color (Links & Backlinks)
+        type: variable-themed-color
+        format: hex
+        default-light: '#ffffff'
+        default-dark: '#202277'
+    -
+        id: bg-header-twohop
+        title: Header box color (2Hop links)
+        type: variable-themed-color
+        format: hex
+        default-light: '#9babc1'
+        default-dark: '#2b2e38'
+    -
+        id: title-header-twohop
+        title: Header title color (2Hop links)
+        type: variable-themed-color
+        format: hex
+        default-light: '#ffffff'
+        default-dark: '#dddede'
+    -
+        id: bg-header-new
+        title: Header box color (New links)
+        type: variable-themed-color
+        format: hex
+        default-light: '#fd7373'
+        default-dark: '#fb7476'
+    -
+        id: title-header-new
+        title: Header title color (New links)
+        type: variable-themed-color
+        format: hex
+        default-light: '#ffffff'
+        default-dark: '#ffffff'
+    -
+        id: bg-header-tag
+        title: Header box color (Tag)
+        type: variable-themed-color
+        format: hex
+        default-light: '#46af5d'
+        default-dark: '#46af5d'
+    -
+        id: title-header-tag
+        title: Header title color (Tag)
+        type: variable-themed-color
+        format: hex
+        default-light: '#ffffff'
+        default-dark: '#ffffff'
 
 */
