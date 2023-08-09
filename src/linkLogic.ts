@@ -29,7 +29,7 @@ export async function gatherTwoHopLinks(
 
   if (activeFile) {
     const activeFileCache: CachedMetadata =
-      app.metadataCache.getFileCache(activeFile);
+      this.app.metadataCache.getFileCache(activeFile);
     ({ resolved: forwardLinks, new: newLinks } = await getForwardLinks(
       settings,
       activeFile,
@@ -42,12 +42,12 @@ export async function gatherTwoHopLinks(
     twoHopLinks = await getTwohopLinks(
       settings,
       activeFile,
-      app.metadataCache.resolvedLinks,
+      this.app.metadataCache.resolvedLinks,
       seenLinkSet,
       twoHopLinkSet
     );
     tagLinksList = await getLinksListOfFilesWithTag(
-      app,
+      this.app,
       settings,
       activeFile,
       activeFileCache,
@@ -55,7 +55,7 @@ export async function gatherTwoHopLinks(
       twoHopLinkSet
     );
   } else {
-    const allMarkdownFiles = app.vault
+    const allMarkdownFiles = this.app.vault
       .getMarkdownFiles()
       .filter(
         (file: { path: string }) =>
