@@ -1,7 +1,7 @@
 import React from "react";
 import { FileEntity } from "../model/FileEntity";
 import { removeBlockReference } from "../utils";
-import { App, Menu, HoverParent, HoverPopover } from "obsidian";
+import { App, Menu, HoverParent, HoverPopover, WorkspaceLeaf } from "obsidian";
 import { HOVER_LINK_ID } from "../main";
 
 interface LinkViewProps {
@@ -58,11 +58,15 @@ export default class LinkView
       removeBlockReference(fileEntity.linkText),
       fileEntity.sourcePath
     );
+
+    let leaf: WorkspaceLeaf;
     if (options === "split-vertical") {
-      await app.workspace.getLeaf("split", "vertical").openFile(file);
+      leaf = app.workspace.splitActiveLeaf("vertical");
     } else {
-      await app.workspace.getLeaf(options).openFile(file);
+      leaf = app.workspace.getLeaf(options);
     }
+
+    await leaf.openFile(file);
   }
 
   handleContextMenu = (event: React.MouseEvent | React.TouchEvent) => {
@@ -78,7 +82,7 @@ export default class LinkView
         ? event.changedTouches[0].clientY
         : event.clientY;
 
-    const menu = new Menu();
+    const menu = new Menu(this.props.app);
 
     menu.addItem((item) =>
       item.setTitle("Open link").onClick(async () => {
