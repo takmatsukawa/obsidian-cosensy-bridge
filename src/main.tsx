@@ -18,15 +18,18 @@ import { gatherTwoHopLinks } from "./linkLogic";
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";
 
-declare module 'obsidian' {
+declare module "obsidian" {
   interface Workspace {
-    on(eventName: 'layout-ready', callback: () => any, ctx?: any): EventRef;
+    on(eventName: "layout-ready", callback: () => any, ctx?: any): EventRef;
   }
 }
 
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
   showLinksInMarkdown: boolean;
+
+  private previousLinks: string[] = [];
+  private previousTags: string[] = [];
 
   async onload(): Promise<void> {
     console.debug("------ loading obsidian-twohop-links plugin");
@@ -38,14 +41,22 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   async initPlugin() {
-    this.registerEventHandlers();
     this.addSettingTab(new TwohopSettingTab(this.app, this));
     this.registerView(
       "TwoHopLinksView",
       (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this)
     );
+    this.registerEvent(
+      this.app.metadataCache.on("changed", async (file: TFile) => {
+        if (file === this.app.workspace.getActiveFile()) {
+          await this.renderTwohopLinks(false);
+        }
+      })
+    );
+    this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this));
     this.app.workspace.trigger("parse-style-settings");
 
+    await this.renderTwohopLinks(true);
     if (this.app.workspace.layoutReady) {
       this.updateTwoHopLinksView();
     } else {
@@ -68,28 +79,9 @@ export default class TwohopLinksPlugin extends Plugin {
     this.closeTwoHopLinksView();
   }
 
-  private registerEventHandlers(): void {
-    this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this));
-    this.app.metadataCache.on(
-      "resolve",
-      this.refreshTwohopLinksIfActive.bind(this)
-    );
-  }
-
   async refreshTwohopLinks() {
     if (this.showLinksInMarkdown) {
-      await this.renderTwohopLinks();
-    }
-  }
-
-  async refreshTwohopLinksIfActive(file: TFile) {
-    if (this.showLinksInMarkdown) {
-      const activeFile: TFile = this.app.workspace.getActiveFile();
-      if (activeFile != null) {
-        if (file.path == activeFile.path) {
-          await this.renderTwohopLinks();
-        }
-      }
+      await this.renderTwohopLinks(true);
     }
   }
 
@@ -169,7 +161,36 @@ export default class TwohopLinksPlugin extends Plugin {
     return containers;
   }
 
-  async renderTwohopLinks(): Promise<void> {
+  private getActiveFileLinks(file: TFile | null): string[] {
+    if (!file) {
+      return [];
+    }
+
+    const cache = this.app.metadataCache.getFileCache(file);
+    return cache && cache.links ? cache.links.map((link) => link.link) : [];
+  }
+
+  private getActiveFileTags(file: TFile | null): string[] {
+    if (!file) {
+      return [];
+    }
+
+    const cache = this.app.metadataCache.getFileCache(file);
+
+    let tags = cache && cache.tags ? cache.tags.map((tag) => tag.tag) : [];
+
+    if (cache && cache.frontmatter && cache.frontmatter.tags) {
+      if (typeof cache.frontmatter.tags === "string") {
+        tags.push(cache.frontmatter.tags);
+      } else if (Array.isArray(cache.frontmatter.tags)) {
+        tags = tags.concat(cache.frontmatter.tags);
+      }
+    }
+
+    return tags;
+  }
+
+  async renderTwohopLinks(isForceUpdate: boolean): Promise<void> {
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
     }
@@ -181,18 +202,36 @@ export default class TwohopLinksPlugin extends Plugin {
       return;
     }
 
-    const { forwardLinks, newLinks, backwardLinks, twoHopLinks, tagLinksList } =
-      await gatherTwoHopLinks(this.settings, activeFile);
+    const currentLinks = this.getActiveFileLinks(activeFile);
+    const currentTags = this.getActiveFileTags(activeFile);
 
-    for (const container of this.getContainerElements(markdownView)) {
-      await this.injectTwohopLinks(
+    if (
+      isForceUpdate ||
+      this.previousLinks.sort().join(",") !== currentLinks.sort().join(",") ||
+      this.previousTags.sort().join(",") !== currentTags.sort().join(",") ||
+      activeFile === null
+    ) {
+      const {
         forwardLinks,
         newLinks,
         backwardLinks,
         twoHopLinks,
         tagLinksList,
-        container
-      );
+      } = await gatherTwoHopLinks(this.settings, activeFile);
+
+      for (const container of this.getContainerElements(markdownView)) {
+        await this.injectTwohopLinks(
+          forwardLinks,
+          newLinks,
+          backwardLinks,
+          twoHopLinks,
+          tagLinksList,
+          container
+        );
+      }
+
+      this.previousLinks = currentLinks;
+      this.previousTags = currentTags;
     }
   }
 
@@ -228,7 +267,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
   enableLinksInMarkdown(): void {
     this.showLinksInMarkdown = true;
-    this.renderTwohopLinks().then(() =>
+    this.renderTwohopLinks(true).then(() =>
       console.debug("Rendered two hop links")
     );
   }
