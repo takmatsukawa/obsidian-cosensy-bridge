@@ -197,7 +197,7 @@ export default class TwohopLinksPlugin extends Plugin {
     const markdownView: MarkdownView =
       this.app.workspace.getActiveViewOfType(MarkdownView);
     const activeFile = markdownView?.file;
-    if (activeFile == null) {
+    if (activeFile === null) {
       console.error("No active file");
       return;
     }
