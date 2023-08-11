@@ -53,7 +53,9 @@ export default class TwohopLinksPlugin extends Plugin {
         }
       })
     );
-    this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this));
+    this.registerEvent(
+      this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this))
+    );
     this.app.workspace.trigger("parse-style-settings");
 
     await this.renderTwohopLinks(true);
@@ -197,8 +199,7 @@ export default class TwohopLinksPlugin extends Plugin {
     const markdownView: MarkdownView =
       this.app.workspace.getActiveViewOfType(MarkdownView);
     const activeFile = markdownView?.file;
-    if (activeFile === null) {
-      console.error("No active file");
+    if (!activeFile) {
       return;
     }
 
