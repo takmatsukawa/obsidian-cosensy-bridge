@@ -209,8 +209,7 @@ export default class TwohopLinksPlugin extends Plugin {
     if (
       isForceUpdate ||
       this.previousLinks.sort().join(",") !== currentLinks.sort().join(",") ||
-      this.previousTags.sort().join(",") !== currentTags.sort().join(",") ||
-      activeFile === null
+      this.previousTags.sort().join(",") !== currentTags.sort().join(",")
     ) {
       const {
         forwardLinks,
