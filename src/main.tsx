@@ -54,7 +54,10 @@ export default class TwohopLinksPlugin extends Plugin {
       })
     );
     this.registerEvent(
-      this.app.workspace.on("file-open", this.refreshTwohopLinks.bind(this))
+      this.app.workspace.on(
+        "active-leaf-change",
+        this.refreshTwohopLinks.bind(this)
+      )
     );
     this.app.workspace.trigger("parse-style-settings");
 
