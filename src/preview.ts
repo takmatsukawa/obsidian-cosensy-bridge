@@ -43,7 +43,7 @@ export async function readPreview(fileEntity: FileEntity) {
   const content = await this.app.vault.cachedRead(file);
 
   const combinedMatch = content.match(
-    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:png|bmp|jpg))\)|!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/
+    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:png|bmp|jpg))\)|!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/
   );
   if (combinedMatch) {
     const iframeUrl = combinedMatch[1];
@@ -90,10 +90,11 @@ export async function readPreview(fileEntity: FileEntity) {
 
 export function getThumbnailUrlFromIframeUrl(iframeUrl: string): string | null {
   const youtubeIdMatch = iframeUrl.match(
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?&]+)(?:\?[^?]+)?$/
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:youtu\.be\/)([^?&]+)(?:\?[^?]+)?$/
   );
   if (youtubeIdMatch) {
-    const youtubeId = youtubeIdMatch[1];
+    const youtubeId =
+      youtubeIdMatch[1] || youtubeIdMatch[2] || youtubeIdMatch[3];
     return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
   }
 
