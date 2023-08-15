@@ -1,6 +1,6 @@
 {
-  "name": "obsidian-twohop-links-plugin",
-  "version": "0.11.13",
+  "name": "2hop-links-plus",
+  "version": "0.30.0",
   "description": "This plugin will display the page linked 2hop ahead.",
   "main": "main.js",
   "scripts": {
