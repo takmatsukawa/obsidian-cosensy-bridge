@@ -1,7 +1,7 @@
 {
   "name": "2hop-links-plus",
-  "version": "0.30.0",
-  "description": "This plugin will display the page linked 2hop ahead.",
+  "version": "0.31.0",
+  "description": "Related links up to 2 hops away are displayed in a card format, allowing for easy browsing through connections between notes. Each card includes a preview of the corresponding note.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",

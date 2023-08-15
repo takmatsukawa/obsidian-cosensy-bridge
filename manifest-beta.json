@@ -1,9 +1,9 @@
 {
-  "id": "obsidian-2hop-links-plugin-plus",
-  "name": "2Hop Links Plugin Plus",
-  "version": "0.30.0",
-  "minAppVersion": "0.9.12",
-  "description": "Add links to other pages at the bottom of the editor.",
+  "id": "2hop-links-plus",
+  "name": "2Hop Links Plus",
+  "version": "0.31.0",
+  "minAppVersion": "1.3.7",
+  "description": "Related links up to 2 hops away are displayed in a card format, allowing for easy browsing through connections between notes. Each card includes a preview of the corresponding note.",
   "author": "L7Cy",
   "authorUrl": "https://github.com/L7Cy",
   "isDesktopOnly": false
