@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   excludeTags: [],
   panePositionIsRight: false,
   createFilesForMultiLinked: false,
+  frontmatterKeys: [],
 };
 
 export async function loadSettings(

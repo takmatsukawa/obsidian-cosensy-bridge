@@ -50,10 +50,7 @@ export async function getForwardLinks(
         if (targetFile) {
           resolvedLinks.push(new FileEntity(targetFile.path, key));
         } else {
-          const backlinksCount = await getBacklinksCount(
-            key,
-            activeFile.path
-          );
+          const backlinksCount = await getBacklinksCount(key, activeFile.path);
           if (1 <= backlinksCount && settings.createFilesForMultiLinked) {
             await this.app.vault.create(
               `${this.app.workspace.getActiveFile().parent.path}/${key}.md`,
@@ -284,7 +281,9 @@ export async function getTwohopLinks(
 
   const twoHopLinkStatsPromises = twoHopLinkEntities.map(
     async (twoHopLinkEntity) => {
-      const stat = await this.app.vault.adapter.stat(twoHopLinkEntity.link.linkText);
+      const stat = await this.app.vault.adapter.stat(
+        twoHopLinkEntity.link.linkText
+      );
       return { twoHopLinkEntity, stat };
     }
   );
@@ -319,9 +318,17 @@ export async function getLinksListOfFilesWithTag(
     activeFileCache,
     settings.excludeTags
   );
-  if (activeFileTags.length === 0) return [];
+  const activeFileFrontmatterValues = getFrontmatterValues(
+    activeFileCache,
+    settings.frontmatterKeys
+  );
+  const activeFileCombined = [
+    ...activeFileTags,
+    ...activeFileFrontmatterValues,
+  ];
+  if (activeFileCombined.length === 0) return [];
 
-  const activeFileTagSet = new Set(activeFileTags);
+  const activeFileTagSet = new Set(activeFileCombined);
   const tagMap: Record<string, FileEntity[]> = {};
   const seen: Record<string, boolean> = {};
 
@@ -336,12 +343,16 @@ export async function getLinksListOfFilesWithTag(
   for (const markdownFile of markdownFiles) {
     const cachedMetadata = app.metadataCache.getFileCache(markdownFile);
     if (!cachedMetadata) continue;
-    const fileTags = getTagsFromCache(
+    const fileTags = getTagsFromCache(cachedMetadata, settings.excludePaths);
+    const fileFrontmatterValues = getFrontmatterValues(
       cachedMetadata,
-      settings.excludePaths
-    ).sort((a: string | any[], b: string | any[]) => b.length - a.length);
+      settings.frontmatterKeys
+    );
+    const combinedTagsAndValues = [...fileTags, ...fileFrontmatterValues].sort(
+      (a: string | any[], b: string | any[]) => b.length - a.length
+    );
 
-    for (const tag of fileTags) {
+    for (const tag of combinedTagsAndValues) {
       if (!activeFileTagSet.has(tag)) continue;
 
       tagMap[tag] = tagMap[tag] ?? [];
@@ -363,6 +374,16 @@ export async function getLinksListOfFilesWithTag(
 
   const sortFunction = getTagHierarchySortFunction(settings.sortOrder);
   return tagLinksEntities.sort(sortFunction);
+}
+
+function getFrontmatterValues(cache: CachedMetadata, keys: string[]): string[] {
+  if (!cache.frontmatter || !keys || keys.length === 0) return [];
+  return keys
+    .reduce((acc, key) => {
+      const value = cache.frontmatter[key];
+      return acc.concat(Array.isArray(value) ? value : [value]);
+    }, [])
+    .filter(Boolean);
 }
 
 export async function createTagLinkEntities(

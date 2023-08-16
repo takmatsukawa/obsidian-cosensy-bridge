@@ -16,6 +16,7 @@ export interface TwohopPluginSettings {
   excludeTags: string[];
   panePositionIsRight: boolean;
   createFilesForMultiLinked: boolean;
+  frontmatterKeys: string[];
   [key: string]: boolean | string | string[] | number | undefined;
 }
 
@@ -76,6 +77,12 @@ export class TwohopSettingTab extends PluginSettingTab {
       "List of tags to exclude, one per line",
       "excludeTags",
       "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/"
+    );
+    this.createTextAreaSetting(
+      "Frontmatter Keys",
+      "List of frontmatter keys to include, one per line. The values of these keys will be treated like tags.",
+      "frontmatterKeys",
+      "key1\nkey2\nkey3"
     );
     this.createTextSetting(
       "Initial Box Count",
