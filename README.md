@@ -2,7 +2,8 @@
 
 Related links up to 2 hops away are displayed in a card format, allowing for easy browsing through connections between notes. Each card includes a preview of the corresponding note.
 
-[![Image from Gyazo](https://i.gyazo.com/0f77a6b34282872874ce2f30f25c2827.png)](https://gyazo.com/0f77a6b34282872874ce2f30f25c2827)
+[![Image from Gyazo](https://i.gyazo.com/bf49c9e6314b4141215fd6f627e80da1.png)](https://gyazo.com/bf49c9e6314b4141215fd6f627e80da1)
+[![Image from Gyazo](https://i.gyazo.com/34faf64594d8a344781c756f21010c4c.png)](https://gyazo.com/34faf64594d8a344781c756f21010c4c)
 
 > **Note**
 >This plugin is a fork of [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin) and extends its functionality.
