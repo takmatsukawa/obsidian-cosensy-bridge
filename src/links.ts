@@ -381,7 +381,22 @@ function getFrontmatterValues(cache: CachedMetadata, keys: string[]): string[] {
   return keys
     .reduce((acc, key) => {
       const value = cache.frontmatter[key];
-      return acc.concat(Array.isArray(value) ? value : [value]);
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (typeof v === "string") {
+            const hierarchy = v.split("/");
+            for (let i = 0; i < hierarchy.length; i++) {
+              acc.push(hierarchy.slice(0, i + 1).join("/"));
+            }
+          }
+        });
+      } else if (typeof value === "string") {
+        const hierarchy = value.split("/");
+        for (let i = 0; i < hierarchy.length; i++) {
+          acc.push(hierarchy.slice(0, i + 1).join("/"));
+        }
+      }
+      return acc;
     }, [])
     .filter(Boolean);
 }
