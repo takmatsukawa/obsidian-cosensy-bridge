@@ -376,8 +376,11 @@ export async function getLinksListOfFilesWithTag(
   return tagLinksEntities.sort(sortFunction);
 }
 
-function getFrontmatterValues(cache: CachedMetadata, keys: string[]): string[] {
-  if (!cache.frontmatter || !keys || keys.length === 0) return [];
+function getFrontmatterValues(
+  cache: CachedMetadata | null | undefined,
+  keys: string[]
+): string[] {
+  if (!cache || !cache.frontmatter || !keys || keys.length === 0) return [];
   return keys
     .reduce((acc, key) => {
       const value = cache.frontmatter[key];
