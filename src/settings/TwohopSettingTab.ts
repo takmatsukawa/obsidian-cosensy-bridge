@@ -47,7 +47,7 @@ export class TwohopSettingTab extends PluginSettingTab {
     }
     this.createDropdownSetting(
       "Sort Order",
-      "Choose the sort order for the files",
+      "",
       "sortOrder",
       {
         random: "Random",
@@ -68,13 +68,13 @@ export class TwohopSettingTab extends PluginSettingTab {
     this.createToggleSetting("Show Image in the 2hop Links", "", "showImage");
     this.createTextAreaSetting(
       "Exclude Paths",
-      "List of file or folder paths to exclude, one per line",
+      "List of file or folder paths to exclude, one per line.",
       "excludePaths",
       "path/to/file.md\npath/to/folder/"
     );
     this.createTextAreaSetting(
       "Exclude Tags",
-      "List of tags to exclude, one per line",
+      "List of tags to exclude, one per line.",
       "excludeTags",
       "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/"
     );
@@ -86,22 +86,22 @@ export class TwohopSettingTab extends PluginSettingTab {
     );
     this.createTextSetting(
       "Initial Box Count",
-      "Set the initial number of boxes to be displayed",
+      "Set the initial number of boxes to be displayed.",
       "initialBoxCount"
     );
     this.createTextSetting(
       "Initial Section Count",
-      "Set the initial number of sections to be displayed",
+      "Set the initial number of sections to be displayed.",
       "initialSectionCount"
     );
     this.createToggleSetting(
       "Enable Duplicate Removal",
-      "Enable the removal of duplicate links",
+      "Enable the removal of duplicate links.",
       "enableDuplicateRemoval"
     );
     this.createToggleSetting(
       "Auto Load 2hop Links",
-      "Automatically load 2hop links when opening a note",
+      "Automatically load 2hop links when opening a note.",
       "autoLoadTwoHopLinks"
     );
     this.createToggleSetting(
