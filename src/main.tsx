@@ -64,13 +64,8 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   onunload(): void {
-    this.cleanupPlugin();
-    console.log("unloading plugin");
-  }
-
-  cleanupPlugin() {
     this.disableLinksInMarkdown();
-    this.closeTwoHopLinksView();
+    console.log("unloading plugin");
   }
 
   async refreshTwohopLinks() {
@@ -103,7 +98,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
   async updateTwoHopLinksView() {
     if (this.isTwoHopLinksViewOpen()) {
-      this.closeTwoHopLinksView();
+      this.app.workspace.detachLeavesOfType("TwoHopLinksView");
     }
     if (this.settings.showTwoHopLinksInSeparatePane) {
       this.openTwoHopLinksView();
@@ -132,10 +127,6 @@ export default class TwohopLinksPlugin extends Plugin {
       : this.app.workspace.getLeftLeaf(false);
     leaf.setViewState({ type: "TwoHopLinksView" });
     this.app.workspace.revealLeaf(leaf);
-  }
-
-  closeTwoHopLinksView() {
-    this.app.workspace.detachLeavesOfType("TwoHopLinksView");
   }
 
   private getContainerElements(markdownView: MarkdownView): Element[] {
