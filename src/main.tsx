@@ -292,23 +292,21 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   addPaddingBottom(): void {
-    const styleEl = document.createElement("style");
-    styleEl.id = "twohop-custom-padding";
-    styleEl.innerText = `
+    if (!document.getElementById("twohop-custom-padding")) {
+      const styleEl = document.createElement("style");
+      styleEl.id = "twohop-custom-padding";
+      styleEl.innerText = `
       .markdown-preview-section,
       .cm-content {
         padding-bottom: 20px !important;
       }
     `;
-    document.head.appendChild(styleEl);
+      document.head.appendChild(styleEl);
+    }
   }
 
   removePaddingBottom(): void {
-    let existingStyleEl;
-    while (
-      (existingStyleEl = document.getElementById("twohop-custom-padding"))
-    ) {
-      existingStyleEl.parentNode.removeChild(existingStyleEl);
-    }
+    const existingStyleEl = document.getElementById("twohop-custom-padding");
+    existingStyleEl.parentNode.removeChild(existingStyleEl);
   }
 }
