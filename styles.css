@@ -116,16 +116,6 @@
   color: var(--title-header-new);
 }
 
-/* Remove bottom padding in preview mode */
-.markdown-preview-section {
-  padding-bottom: 20px !important;
-}
-
-/* Remove bottom padding in editor mode */
-div.cm-content {
-  padding-bottom: 30px !important;
-}
-
 .markdown-embed-content .twohop-links-container {
   display: none;
 }

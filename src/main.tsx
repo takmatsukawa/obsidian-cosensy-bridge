@@ -103,6 +103,7 @@ export default class TwohopLinksPlugin extends Plugin {
     if (this.settings.showTwoHopLinksInSeparatePane) {
       this.openTwoHopLinksView();
       this.disableLinksInMarkdown();
+      this.removePaddingBottom();
     } else {
       this.enableLinksInMarkdown();
     }
@@ -179,6 +180,7 @@ export default class TwohopLinksPlugin extends Plugin {
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
     }
+    this.addPaddingBottom();
     const markdownView: MarkdownView =
       this.app.workspace.getActiveViewOfType(MarkdownView);
     const activeFile = markdownView?.file;
@@ -290,6 +292,27 @@ export default class TwohopLinksPlugin extends Plugin {
           element.remove();
         }
       }
+    }
+  }
+
+  addPaddingBottom(): void {
+    const styleEl = document.createElement("style");
+    styleEl.id = "twohop-custom-padding";
+    styleEl.innerText = `
+      .markdown-preview-section,
+      .cm-content {
+        padding-bottom: 20px !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  removePaddingBottom(): void {
+    let existingStyleEl;
+    while (
+      (existingStyleEl = document.getElementById("twohop-custom-padding"))
+    ) {
+      existingStyleEl.parentNode.removeChild(existingStyleEl);
     }
   }
 }
