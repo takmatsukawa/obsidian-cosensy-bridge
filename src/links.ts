@@ -23,12 +23,15 @@ export async function getForwardLinks(
 
   if (
     activeFileCache != null &&
-    (activeFileCache.links != null || activeFileCache.embeds != null)
+    (activeFileCache.links != null ||
+      activeFileCache.embeds != null ||
+      activeFileCache.frontmatterLinks != null)
   ) {
     const seen = new Set<string>();
     const linkEntities = [
       ...(activeFileCache.links || []),
       ...(activeFileCache.embeds || []),
+      ...(activeFileCache.frontmatterLinks || []),
     ];
 
     for (const it of linkEntities) {
