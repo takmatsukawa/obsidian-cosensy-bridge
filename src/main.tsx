@@ -307,6 +307,8 @@ export default class TwohopLinksPlugin extends Plugin {
 
   removePaddingBottom(): void {
     const existingStyleEl = document.getElementById("twohop-custom-padding");
-    existingStyleEl.parentNode.removeChild(existingStyleEl);
+    if (existingStyleEl) {
+      existingStyleEl.parentNode.removeChild(existingStyleEl);
+    }
   }
 }
