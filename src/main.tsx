@@ -56,11 +56,7 @@ export default class TwohopLinksPlugin extends Plugin {
     this.app.workspace.trigger("parse-style-settings");
 
     await this.renderTwohopLinks(true);
-    if (this.app.workspace.layoutReady) {
-      this.updateTwoHopLinksView();
-    } else {
-      this.app.workspace.onLayoutReady(this.updateTwoHopLinksView.bind(this));
-    }
+    this.app.workspace.onLayoutReady(this.updateTwoHopLinksView.bind(this));
   }
 
   onunload(): void {
