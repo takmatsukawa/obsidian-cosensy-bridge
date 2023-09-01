@@ -52,19 +52,14 @@ export default class LinkView
     this.abortController.abort();
   }
 
-  async openFileWithOptions(options?: "tab" | "split-vertical" | "window") {
+  async openFileWithOptions(options?: "tab" | "split" | "window") {
     const { app, fileEntity } = this.props;
     const file = app.metadataCache.getFirstLinkpathDest(
       removeBlockReference(fileEntity.linkText),
       fileEntity.sourcePath
     );
-
     let leaf: WorkspaceLeaf;
-    if (options === "split-vertical") {
-      leaf = app.workspace.splitActiveLeaf("vertical");
-    } else {
-      leaf = app.workspace.getLeaf(options);
-    }
+    leaf = app.workspace.getLeaf(options);
 
     await leaf.openFile(file);
   }
@@ -82,7 +77,7 @@ export default class LinkView
         ? event.changedTouches[0].clientY
         : event.clientY;
 
-    const menu = new Menu(this.props.app);
+    const menu = new Menu();
 
     menu.addItem((item) =>
       item.setTitle("Open link").onClick(async () => {
@@ -98,7 +93,7 @@ export default class LinkView
 
     menu.addItem((item) =>
       item.setTitle("Open to the right").onClick(async () => {
-        await this.openFileWithOptions("split-vertical");
+        await this.openFileWithOptions("split");
       })
     );
 
@@ -140,16 +135,16 @@ export default class LinkView
     return (
       <div
         className={"twohop-links-box"}
-        onTouchStart={(event) => {
+        onTouchStart={() => {
           this.setState({ touchStart: Date.now() });
         }}
-        onTouchMove={(event) => {
+        onTouchMove={() => {
           if (Date.now() - this.state.touchStart < 200) {
             this.setState({ dragging: true });
           }
         }}
         onTouchEnd={this.onMouseUpOrTouchEnd}
-        onTouchCancel={(event) => {
+        onTouchCancel={() => {
           this.setState({ touchStart: 0, dragging: false });
         }}
         onMouseDown={(event) => {
