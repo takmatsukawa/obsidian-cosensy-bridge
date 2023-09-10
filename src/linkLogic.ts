@@ -1,4 +1,4 @@
-import { CachedMetadata, TFile } from "obsidian";
+import { App, CachedMetadata, TFile } from "obsidian";
 import {
   getForwardLinks,
   getTwohopLinks,
@@ -12,6 +12,7 @@ import { getSortedFiles, getSortFunctionForFile } from "./sort";
 import { shouldExcludePath } from "./utils";
 
 export async function gatherTwoHopLinks(
+  app: App,
   settings: any,
   activeFile: TFile | null
 ): Promise<{
@@ -29,25 +30,27 @@ export async function gatherTwoHopLinks(
 
   if (activeFile) {
     const activeFileCache: CachedMetadata =
-      this.app.metadataCache.getFileCache(activeFile);
+      app.metadataCache.getFileCache(activeFile);
     ({ resolved: forwardLinks, new: newLinks } = await getForwardLinks(
+      app,
       settings,
       activeFile,
       activeFileCache
     ));
     const seenLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
-    backwardLinks = await getBackLinks(settings, activeFile, seenLinkSet);
+    backwardLinks = await getBackLinks(app, settings, activeFile, seenLinkSet);
     backwardLinks.forEach((link) => seenLinkSet.add(link.key()));
     const twoHopLinkSet = new Set<string>();
     twoHopLinks = await getTwohopLinks(
+      app,
       settings,
       activeFile,
-      this.app.metadataCache.resolvedLinks,
+      app.metadataCache.resolvedLinks,
       seenLinkSet,
       twoHopLinkSet
     );
     tagLinksList = await getLinksListOfFilesWithTag(
-      this.app,
+      app,
       settings,
       activeFile,
       activeFileCache,
@@ -55,7 +58,7 @@ export async function gatherTwoHopLinks(
       twoHopLinkSet
     );
   } else {
-    const allMarkdownFiles = this.app.vault
+    const allMarkdownFiles = app.vault
       .getMarkdownFiles()
       .filter(
         (file: { path: string }) =>

@@ -198,7 +198,7 @@ export default class TwohopLinksPlugin extends Plugin {
         backwardLinks,
         twoHopLinks,
         tagLinksList,
-      } = await gatherTwoHopLinks(this.settings, activeFile);
+      } = await gatherTwoHopLinks(this.app, this.settings, activeFile);
 
       for (const container of this.getContainerElements(markdownView)) {
         await this.injectTwohopLinks(

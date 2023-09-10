@@ -1,4 +1,4 @@
-import { CachedMetadata, TFile } from "obsidian";
+import { App, CachedMetadata, TFile } from "obsidian";
 import { FileEntity } from "./model/FileEntity";
 import {
   filePathToLinkText,
@@ -14,6 +14,7 @@ import {
 import { TagLinks } from "./model/TagLinks";
 
 export async function getForwardLinks(
+  app: App,
   settings: any,
   activeFile: TFile,
   activeFileCache: CachedMetadata
@@ -38,7 +39,7 @@ export async function getForwardLinks(
       const key = removeBlockReference(it.link);
       if (!seen.has(key)) {
         seen.add(key);
-        const targetFile = this.app.metadataCache.getFirstLinkpathDest(
+        const targetFile = app.metadataCache.getFirstLinkpathDest(
           key,
           activeFile.path
         );
@@ -53,10 +54,14 @@ export async function getForwardLinks(
         if (targetFile) {
           resolvedLinks.push(new FileEntity(targetFile.path, key));
         } else {
-          const backlinksCount = await getBacklinksCount(key, activeFile.path);
+          const backlinksCount = await getBacklinksCount(
+            app,
+            key,
+            activeFile.path
+          );
           if (1 <= backlinksCount && settings.createFilesForMultiLinked) {
-            await this.app.vault.create(
-              `${this.app.workspace.getActiveFile().parent.path}/${key}.md`,
+            await app.vault.create(
+              `${app.workspace.getActiveFile().parent.path}/${key}.md`,
               ""
             );
             resolvedLinks.push(new FileEntity(activeFile.path, key));
@@ -67,7 +72,7 @@ export async function getForwardLinks(
       }
     }
   } else if (activeFile.extension === "canvas") {
-    const canvasContent = await this.app.vault.read(activeFile);
+    const canvasContent = await app.vault.read(activeFile);
     let canvasData;
     try {
       canvasData = JSON.parse(canvasContent);
@@ -86,7 +91,7 @@ export async function getForwardLinks(
         const key = node.file;
         if (!seen.has(key)) {
           seen.add(key);
-          const targetFile = this.app.vault.getAbstractFileByPath(key);
+          const targetFile = app.vault.getAbstractFileByPath(key);
           if (
             targetFile &&
             !shouldExcludePath(targetFile.path, settings.excludePaths)
@@ -101,6 +106,7 @@ export async function getForwardLinks(
   }
 
   const sortedResolvedLinks = await getSortedFileEntities(
+    app,
     resolvedLinks,
     (entity) => entity.sourcePath,
     settings.sortOrder
@@ -112,10 +118,11 @@ export async function getForwardLinks(
 }
 
 export async function getBacklinksCount(
+  app: App,
   file: string,
   excludeFile?: string
 ): Promise<number> {
-  const unresolvedLinks: Record<string, Record<string, number>> = this.app
+  const unresolvedLinks: Record<string, Record<string, number>> = app
     .metadataCache.unresolvedLinks;
   let backlinkCount = 0;
 
@@ -134,12 +141,13 @@ export async function getBacklinksCount(
 }
 
 export async function getBackLinks(
+  app: App,
   settings: any,
   activeFile: TFile,
   forwardLinkSet: Set<string>
 ): Promise<FileEntity[]> {
   const name = activeFile.path;
-  const resolvedLinks: Record<string, Record<string, number>> = this.app
+  const resolvedLinks: Record<string, Record<string, number>> = app
     .metadataCache.resolvedLinks;
   const backLinkEntities: FileEntity[] = [];
   for (const src of Object.keys(resolvedLinks)) {
@@ -157,13 +165,13 @@ export async function getBackLinks(
     }
   }
 
-  const allFiles: TFile[] = this.app.vault.getFiles();
+  const allFiles: TFile[] = app.vault.getFiles();
   const canvasFiles: TFile[] = allFiles.filter(
     (file) => file.extension === "canvas"
   );
 
   for (const canvasFile of canvasFiles) {
-    const canvasContent = await this.app.vault.read(canvasFile);
+    const canvasContent = await app.vault.read(canvasFile);
     let canvasData;
     try {
       canvasData = JSON.parse(canvasContent);
@@ -187,6 +195,7 @@ export async function getBackLinks(
   }
 
   return await getSortedFileEntities(
+    app,
     backLinkEntities,
     (entity) => entity.sourcePath,
     settings.sortOrder
@@ -194,6 +203,7 @@ export async function getBackLinks(
 }
 
 export async function getTwohopLinks(
+  app: App,
   settings: any,
   activeFile: TFile,
   links: Record<string, Record<string, number>>,
@@ -201,7 +211,7 @@ export async function getTwohopLinks(
   twoHopLinkSet: Set<string>
 ): Promise<TwohopLink[]> {
   const twoHopLinks: Record<string, FileEntity[]> = {};
-  const twohopLinkList = await aggregate2hopLinks(activeFile, links);
+  const twohopLinkList = await aggregate2hopLinks(app, activeFile, links);
 
   if (twohopLinkList == null) {
     return [];
@@ -234,7 +244,7 @@ export async function getTwohopLinks(
 
   let linkKeys: string[] = [];
   if (activeFile.extension === "canvas") {
-    const canvasContent = await this.app.vault.read(activeFile);
+    const canvasContent = await app.vault.read(activeFile);
     let canvasData;
     try {
       canvasData = JSON.parse(canvasContent);
@@ -261,9 +271,10 @@ export async function getTwohopLinks(
         .map(async (path) => {
           if (twoHopLinks[path]) {
             const sortedFileEntities = await getSortedFileEntities(
+              app,
               twoHopLinks[path],
               (entity) => {
-                const file = this.app.metadataCache.getFirstLinkpathDest(
+                const file = app.metadataCache.getFirstLinkpathDest(
                   entity.linkText,
                   entity.sourcePath
                 );
@@ -284,9 +295,7 @@ export async function getTwohopLinks(
 
   const twoHopLinkStatsPromises = twoHopLinkEntities.map(
     async (twoHopLinkEntity) => {
-      const stat = await this.app.vault.adapter.stat(
-        twoHopLinkEntity.link.linkText
-      );
+      const stat = await app.vault.adapter.stat(twoHopLinkEntity.link.linkText);
       return { twoHopLinkEntity, stat };
     }
   );
@@ -310,7 +319,7 @@ export async function getTwohopLinks(
 }
 
 export async function getLinksListOfFilesWithTag(
-  app: any,
+  app: App,
   settings: any,
   activeFile: TFile,
   activeFileCache: CachedMetadata,
@@ -408,13 +417,14 @@ function getFrontmatterValues(
 }
 
 export async function createTagLinkEntities(
-  app: any,
+  app: App,
   settings: any,
   tagMap: Record<string, FileEntity[]>
 ): Promise<TagLinks[]> {
   const tagLinksEntitiesPromises = Object.entries(tagMap).map(
     async ([tag, entities]) => {
       const sortedEntities = await getSortedFileEntities(
+        app,
         entities,
         (entity) => entity.sourcePath,
         settings.sortOrder
@@ -487,6 +497,7 @@ export function getTagsFromCache(
 }
 
 export async function aggregate2hopLinks(
+  app: App,
   activeFile: TFile,
   links: Record<string, Record<string, number>>
 ): Promise<Record<string, string[]>> {
@@ -499,7 +510,7 @@ export async function aggregate2hopLinks(
   }
 
   if (activeFile.extension === "canvas") {
-    const canvasContent = await this.app.vault.read(activeFile);
+    const canvasContent = await app.vault.read(activeFile);
     let canvasData;
     try {
       canvasData = JSON.parse(canvasContent);
@@ -541,12 +552,13 @@ export async function aggregate2hopLinks(
 }
 
 export async function getSortedFileEntities(
+  app: App,
   entities: FileEntity[],
   sourcePathFn: (entity: FileEntity) => string,
   sortOrder: string
 ): Promise<FileEntity[]> {
   const statsPromises = entities.map(async (entity) => {
-    const stat = await this.app.vault.adapter.stat(sourcePathFn(entity));
+    const stat = await app.vault.adapter.stat(sourcePathFn(entity));
     return { entity, stat };
   });
 
