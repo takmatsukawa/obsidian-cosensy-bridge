@@ -2,18 +2,20 @@ import { TFile, WorkspaceLeaf, ItemView } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import TwohopLinksPlugin from "../main";
-import { gatherTwoHopLinks } from "src/linkLogic";
+import { Links } from "../links";
 
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
   private lastActiveLeaf: WorkspaceLeaf | undefined;
   private previousLinks: string[] = [];
   private previousTags: string[] = [];
+  links: Links;
 
-  constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin) {
+  constructor(leaf: WorkspaceLeaf, plugin: TwohopLinksPlugin, links: Links) {
     super(leaf);
     this.plugin = plugin;
     this.containerEl.addClass("TwoHopLinks");
+    this.links = links;
   }
 
   getViewType(): string {
@@ -65,7 +67,7 @@ export class SeparatePaneView extends ItemView {
           backwardLinks,
           twoHopLinks,
           tagLinksList,
-        } = await gatherTwoHopLinks(this.plugin.settings, activeFile);
+        } = await this.links.gatherTwoHopLinks(activeFile);
 
         ReactDOM.unmountComponentAtNode(this.containerEl);
         await this.plugin.injectTwohopLinks(

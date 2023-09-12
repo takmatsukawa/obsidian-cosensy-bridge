@@ -13,7 +13,7 @@ import {
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import { readPreview } from "./preview";
 import { loadSettings } from "./settings/index";
-import { gatherTwoHopLinks } from "./linkLogic";
+import { Links } from "./links";
 
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";
@@ -21,6 +21,7 @@ export const HOVER_LINK_ID = "2hop-links";
 export default class TwohopLinksPlugin extends Plugin {
   settings: TwohopPluginSettings;
   showLinksInMarkdown: boolean;
+  links: Links;
 
   private previousLinks: string[] = [];
   private previousTags: string[] = [];
@@ -30,6 +31,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
     this.settings = await loadSettings(this);
     this.showLinksInMarkdown = true;
+    this.links = new Links(this.app, this.settings);
 
     this.initPlugin();
   }
@@ -38,7 +40,7 @@ export default class TwohopLinksPlugin extends Plugin {
     this.addSettingTab(new TwohopSettingTab(this.app, this));
     this.registerView(
       "TwoHopLinksView",
-      (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this)
+      (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this, this.links)
     );
     this.registerEvent(
       this.app.metadataCache.on("changed", async (file: TFile) => {
@@ -198,7 +200,7 @@ export default class TwohopLinksPlugin extends Plugin {
         backwardLinks,
         twoHopLinks,
         tagLinksList,
-      } = await gatherTwoHopLinks(this.app, this.settings, activeFile);
+      } = await this.links.gatherTwoHopLinks(activeFile);
 
       for (const container of this.getContainerElements(markdownView)) {
         await this.injectTwohopLinks(
