@@ -250,5 +250,10 @@ settings:
         format: hex
         default-light: '#ffffff'
         default-dark: '#ffffff'
-
+    -
+        id: property-info
+        title: About Properties
+        description: "Each property header is assigned a css class in the form twohop-links-{key}-header, so you can use css snippets to style each property."
+        type: info-text
+        markdown: true
 */
