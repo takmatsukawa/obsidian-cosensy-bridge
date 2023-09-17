@@ -385,6 +385,60 @@ export class Links {
       .filter((it) => it.fileEntities.length > 0);
   }
 
+  async aggregate2hopLinks(
+    activeFile: TFile,
+    links: Record<string, Record<string, number>>
+  ): Promise<Record<string, string[]>> {
+    const result: Record<string, string[]> = {};
+
+    let activeFileLinks = new Set<string>();
+
+    if (links && activeFile && activeFile.path && links[activeFile.path]) {
+      activeFileLinks = new Set(Object.keys(links[activeFile.path]));
+    }
+
+    if (activeFile.extension === "canvas") {
+      const canvasContent = await this.app.vault.read(activeFile);
+      let canvasData;
+      try {
+        canvasData = JSON.parse(canvasContent);
+        if (!Array.isArray(canvasData.nodes)) {
+          console.error("Invalid structure in canvas: nodes is not an array");
+          canvasData = { nodes: [] };
+        }
+      } catch (error) {
+        console.error("Invalid JSON in canvas:", error);
+        canvasData = { nodes: [] };
+      }
+
+      for (const node of canvasData.nodes) {
+        if (node.type === "file") {
+          activeFileLinks.add(node.file);
+        }
+      }
+    }
+
+    if (links) {
+      for (const src of Object.keys(links)) {
+        if (src == activeFile.path) {
+          continue;
+        }
+        const link = links[src];
+        if (link) {
+          for (const dest of Object.keys(link)) {
+            if (activeFileLinks.has(dest)) {
+              if (!result[dest]) {
+                result[dest] = [];
+              }
+              result[dest].push(src);
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   async getLinksListOfFilesWithTag(
     activeFile: TFile,
     activeFileCache: CachedMetadata,
@@ -418,7 +472,7 @@ export class Links {
       );
 
     for (const markdownFile of markdownFiles) {
-      const cachedMetadata = app.metadataCache.getFileCache(markdownFile);
+      const cachedMetadata = this.app.metadataCache.getFileCache(markdownFile);
       if (!cachedMetadata) continue;
       const fileTags = this.getTagsFromCache(
         cachedMetadata,
@@ -564,60 +618,6 @@ export class Links {
       }
       return true;
     });
-  }
-
-  async aggregate2hopLinks(
-    activeFile: TFile,
-    links: Record<string, Record<string, number>>
-  ): Promise<Record<string, string[]>> {
-    const result: Record<string, string[]> = {};
-
-    let activeFileLinks = new Set<string>();
-
-    if (links && activeFile && activeFile.path && links[activeFile.path]) {
-      activeFileLinks = new Set(Object.keys(links[activeFile.path]));
-    }
-
-    if (activeFile.extension === "canvas") {
-      const canvasContent = await this.app.vault.read(activeFile);
-      let canvasData;
-      try {
-        canvasData = JSON.parse(canvasContent);
-        if (!Array.isArray(canvasData.nodes)) {
-          console.error("Invalid structure in canvas: nodes is not an array");
-          canvasData = { nodes: [] };
-        }
-      } catch (error) {
-        console.error("Invalid JSON in canvas:", error);
-        canvasData = { nodes: [] };
-      }
-
-      for (const node of canvasData.nodes) {
-        if (node.type === "file") {
-          activeFileLinks.add(node.file);
-        }
-      }
-    }
-
-    if (links) {
-      for (const src of Object.keys(links)) {
-        if (src == activeFile.path) {
-          continue;
-        }
-        const link = links[src];
-        if (link) {
-          for (const dest of Object.keys(link)) {
-            if (activeFileLinks.has(dest)) {
-              if (!result[dest]) {
-                result[dest] = [];
-              }
-              result[dest].push(src);
-            }
-          }
-        }
-      }
-    }
-    return result;
   }
 
   async getSortedFileEntities(
