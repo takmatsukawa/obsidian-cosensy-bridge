@@ -13,7 +13,7 @@ import {
   getTagHierarchySortFunction,
   getTwoHopSortFunction,
 } from "./sort";
-import { TagLinks } from "./model/TagLinks";
+import { PropertiesLinks } from "./model/PropertiesLinks";
 
 export class Links {
   app: App;
@@ -29,13 +29,15 @@ export class Links {
     newLinks: FileEntity[];
     backwardLinks: FileEntity[];
     twoHopLinks: TwohopLink[];
-    tagLinksList: TagLinks[];
+    tagLinksList: PropertiesLinks[];
+    frontmatterKeyLinksList: PropertiesLinks[];
   }> {
     let forwardLinks: FileEntity[] = [];
     let newLinks: FileEntity[] = [];
     let backwardLinks: FileEntity[] = [];
     let twoHopLinks: TwohopLink[] = [];
-    let tagLinksList: TagLinks[] = [];
+    let tagLinksList: PropertiesLinks[] = [];
+    let frontmatterKeyLinksList: PropertiesLinks[] = [];
 
     if (activeFile) {
       const activeFileCache: CachedMetadata =
@@ -54,12 +56,21 @@ export class Links {
         seenLinkSet,
         twoHopLinkSet
       );
-      tagLinksList = await this.getLinksListOfFilesWithTag(
+
+      tagLinksList = await this.getLinksListOfFilesWithTags(
         activeFile,
         activeFileCache,
         seenLinkSet,
         twoHopLinkSet
       );
+
+      frontmatterKeyLinksList =
+        await this.getLinksListOfFilesWithFrontmatterKeys(
+          activeFile,
+          activeFileCache,
+          seenLinkSet,
+          twoHopLinkSet
+        );
     } else {
       const allMarkdownFiles = this.app.vault
         .getMarkdownFiles()
@@ -72,6 +83,7 @@ export class Links {
         allMarkdownFiles,
         getSortFunctionForFile(this.settings.sortOrder)
       );
+
       forwardLinks = sortedFiles.map((file) => new FileEntity("", file.path));
     }
 
@@ -81,6 +93,7 @@ export class Links {
       backwardLinks,
       twoHopLinks,
       tagLinksList,
+      frontmatterKeyLinksList,
     };
   }
 
@@ -439,27 +452,19 @@ export class Links {
     return result;
   }
 
-  async getLinksListOfFilesWithTag(
+  async getLinksListOfFilesWithTags(
     activeFile: TFile,
     activeFileCache: CachedMetadata,
     forwardLinkSet: Set<string>,
     twoHopLinkSet: Set<string>
-  ): Promise<TagLinks[]> {
+  ): Promise<PropertiesLinks[]> {
     const activeFileTags = this.getTagsFromCache(
       activeFileCache,
       this.settings.excludeTags
     );
-    const activeFileFrontmatterValues = this.getFrontmatterValues(
-      activeFileCache,
-      this.settings.frontmatterKeys
-    );
-    const activeFileCombined = [
-      ...activeFileTags,
-      ...activeFileFrontmatterValues,
-    ];
-    if (activeFileCombined.length === 0) return [];
+    if (activeFileTags.length === 0) return [];
 
-    const activeFileTagSet = new Set(activeFileCombined);
+    const activeFileTagSet = new Set(activeFileTags);
     const tagMap: Record<string, FileEntity[]> = {};
     const seen: Record<string, boolean> = {};
 
@@ -474,23 +479,17 @@ export class Links {
     for (const markdownFile of markdownFiles) {
       const cachedMetadata = this.app.metadataCache.getFileCache(markdownFile);
       if (!cachedMetadata) continue;
+
       const fileTags = this.getTagsFromCache(
         cachedMetadata,
         this.settings.excludePaths
       );
-      const fileFrontmatterValues = this.getFrontmatterValues(
-        cachedMetadata,
-        this.settings.frontmatterKeys
-      );
-      const combinedTagsAndValues = [
-        ...fileTags,
-        ...fileFrontmatterValues,
-      ].sort((a: string | any[], b: string | any[]) => b.length - a.length);
 
-      for (const tag of combinedTagsAndValues) {
+      for (const tag of fileTags) {
         if (!activeFileTagSet.has(tag)) continue;
 
         tagMap[tag] = tagMap[tag] ?? [];
+
         if (
           this.settings.enableDuplicateRemoval &&
           (seen[markdownFile.path] ||
@@ -500,52 +499,118 @@ export class Links {
           continue;
 
         const linkText = filePathToLinkText(markdownFile.path);
-        tagMap[tag].push(new FileEntity(activeFile.path, linkText));
+        const newFileEntity = new FileEntity(activeFile.path, linkText);
+
+        if (
+          !tagMap[tag].some(
+            (existingEntity) =>
+              existingEntity.sourcePath === newFileEntity.sourcePath &&
+              existingEntity.linkText === newFileEntity.linkText
+          )
+        ) {
+          tagMap[tag].push(newFileEntity);
+        }
+
         seen[markdownFile.path] = true;
       }
     }
 
     const tagLinksEntities = await this.createTagLinkEntities(
       this.settings,
-      tagMap
+      tagMap,
+      "tags"
     );
 
     const sortFunction = getTagHierarchySortFunction(this.settings.sortOrder);
     return tagLinksEntities.sort(sortFunction);
   }
 
-  getFrontmatterValues(
-    cache: CachedMetadata | null | undefined,
-    keys: string[]
-  ): string[] {
-    if (!cache || !cache.frontmatter || !keys || keys.length === 0) return [];
-    return keys
-      .reduce((acc, key) => {
-        const value = cache.frontmatter[key];
-        if (Array.isArray(value)) {
-          value.forEach((v) => {
-            if (typeof v === "string") {
-              const hierarchy = v.split("/");
-              for (let i = 0; i < hierarchy.length; i++) {
-                acc.push(hierarchy.slice(0, i + 1).join("/"));
-              }
-            }
-          });
-        } else if (typeof value === "string") {
-          const hierarchy = value.split("/");
-          for (let i = 0; i < hierarchy.length; i++) {
-            acc.push(hierarchy.slice(0, i + 1).join("/"));
+  async getLinksListOfFilesWithFrontmatterKeys(
+    activeFile: TFile,
+    activeFileCache: CachedMetadata,
+    forwardLinkSet: Set<string>,
+    twoHopLinkSet: Set<string>
+  ): Promise<PropertiesLinks[]> {
+    const activeFileFrontmatter = activeFileCache.frontmatter;
+    if (!activeFileFrontmatter) return [];
+
+    const frontmatterKeyMap: Record<string, Record<string, FileEntity[]>> = {};
+    const seen: Record<string, boolean> = {};
+
+    const markdownFiles = this.app.vault
+      .getMarkdownFiles()
+      .filter(
+        (markdownFile: TFile) =>
+          markdownFile !== activeFile &&
+          !shouldExcludePath(markdownFile.path, this.settings.excludePaths)
+      );
+
+    for (const markdownFile of markdownFiles) {
+      const cachedMetadata = this.app.metadataCache.getFileCache(markdownFile);
+      if (!cachedMetadata) continue;
+
+      const fileFrontmatter = cachedMetadata.frontmatter;
+      if (!fileFrontmatter) continue;
+
+      for (const [key, value] of Object.entries(fileFrontmatter)) {
+        if (!this.settings.frontmatterKeys.includes(key)) continue;
+        if (typeof value !== "string") continue;
+
+        if (activeFileFrontmatter[key]) {
+          const activeValueHierarchy = activeFileFrontmatter[key].split("/");
+          for (let i = 0; i < activeValueHierarchy.length; i++) {
+            const hierarchicalActiveValue = activeValueHierarchy
+              .slice(0, i + 1)
+              .join("/");
+
+            const valueHierarchy = value.split("/");
+            const hierarchicalValue = valueHierarchy.slice(0, i + 1).join("/");
+
+            if (hierarchicalActiveValue !== hierarchicalValue) continue;
+
+            frontmatterKeyMap[key] = frontmatterKeyMap[key] ?? {};
+            frontmatterKeyMap[key][hierarchicalValue] =
+              frontmatterKeyMap[key][hierarchicalValue] ?? [];
+
+            if (
+              this.settings.enableDuplicateRemoval &&
+              (seen[markdownFile.path] ||
+                forwardLinkSet.has(filePathToLinkText(markdownFile.path)) ||
+                twoHopLinkSet.has(filePathToLinkText(markdownFile.path)))
+            )
+              continue;
+
+            const linkText = filePathToLinkText(markdownFile.path);
+            frontmatterKeyMap[key][hierarchicalValue].push(
+              new FileEntity(activeFile.path, linkText)
+            );
+            seen[markdownFile.path] = true;
           }
         }
-        return acc;
-      }, [])
-      .filter(Boolean);
+      }
+    }
+
+    const frontmatterKeyLinksEntities: PropertiesLinks[] = [];
+
+    for (const [key, valueMap] of Object.entries(frontmatterKeyMap)) {
+      const tagLinksEntities = await this.createTagLinkEntities(
+        this.settings,
+        valueMap,
+        key
+      );
+
+      frontmatterKeyLinksEntities.push(...tagLinksEntities);
+    }
+
+    const sortFunction = getTagHierarchySortFunction(this.settings.sortOrder);
+    return frontmatterKeyLinksEntities.sort(sortFunction);
   }
 
   async createTagLinkEntities(
     settings: any,
-    tagMap: Record<string, FileEntity[]>
-  ): Promise<TagLinks[]> {
+    tagMap: Record<string, FileEntity[]>,
+    key: string = ""
+  ): Promise<PropertiesLinks[]> {
     const tagLinksEntitiesPromises = Object.entries(tagMap).map(
       async ([tag, entities]) => {
         const sortedEntities = await this.getSortedFileEntities(
@@ -556,12 +621,11 @@ export class Links {
         if (sortedEntities.length === 0) {
           return null;
         }
-        return new TagLinks(tag, sortedEntities);
+        return new PropertiesLinks(tag, key, sortedEntities);
       }
     );
 
     const tagLinksEntities = await Promise.all(tagLinksEntitiesPromises);
-
     return tagLinksEntities.filter((it) => it != null);
   }
 

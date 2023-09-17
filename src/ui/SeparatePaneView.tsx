@@ -67,6 +67,7 @@ export class SeparatePaneView extends ItemView {
           backwardLinks,
           twoHopLinks,
           tagLinksList,
+          frontmatterKeyLinksList,
         } = await this.links.gatherTwoHopLinks(activeFile);
 
         ReactDOM.unmountComponentAtNode(this.containerEl);
@@ -76,6 +77,7 @@ export class SeparatePaneView extends ItemView {
           backwardLinks,
           twoHopLinks,
           tagLinksList,
+          frontmatterKeyLinksList,
           this.containerEl
         );
 

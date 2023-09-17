@@ -1,11 +1,11 @@
 import React, { createRef } from "react";
 import { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
-import { TagLinks } from "../model/TagLinks";
+import { PropertiesLinks } from "../model/PropertiesLinks";
 import { App, setIcon } from "obsidian";
 
-interface TagLinksListViewProps {
-  tagLinksList: TagLinks[];
+interface PropertiesLinksListViewProps {
+  propertiesLinksList: PropertiesLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
@@ -15,7 +15,7 @@ interface TagLinksListViewProps {
 }
 
 interface LinkComponentProps {
-  tagLink: TagLinks;
+  tagLink: PropertiesLinks;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
   app: App;
@@ -70,16 +70,24 @@ const LinkComponent = React.memo(
 
     render(): JSX.Element {
       return (
-        <div className="twohop-links-section" key={this.props.tagLink.tag}>
-          <div className={"twohop-links-tag-header twohop-links-box"}>
-            {this.props.tagLink.tag}
+        <div className="twohop-links-section" key={this.props.tagLink.property}>
+          <div
+            className={`${
+              this.props.tagLink.key
+                ? `twohop-links-${this.props.tagLink.key}-header`
+                : ""
+            } twohop-links-properties-header twohop-links-box`}
+          >
+            {this.props.tagLink.key
+              ? `${this.props.tagLink.key}: ${this.props.tagLink.property}`
+              : this.props.tagLink.property}
           </div>
           {this.props.tagLink.fileEntities
             .slice(0, this.state.displayedEntitiesCount)
             .map((it, index) => (
               <LinkView
                 fileEntity={it}
-                key={this.props.tagLink.tag + it.key() + index}
+                key={this.props.tagLink.property + it.key() + index}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
                 app={this.props.app}
@@ -99,12 +107,12 @@ const LinkComponent = React.memo(
   }
 );
 
-const TagLinksListView = React.memo(
-  class extends React.Component<TagLinksListViewProps> {
+const PropertiesLinksListView = React.memo(
+  class extends React.Component<PropertiesLinksListViewProps> {
     render(): JSX.Element {
       return (
         <div>
-          {this.props.tagLinksList
+          {this.props.propertiesLinksList
             .slice(0, this.props.displayedSectionCount)
             .map((tagLink, index) => (
               <LinkComponent
@@ -127,4 +135,4 @@ const TagLinksListView = React.memo(
   }
 );
 
-export default TagLinksListView;
+export default PropertiesLinksListView;

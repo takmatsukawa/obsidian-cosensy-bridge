@@ -15,8 +15,8 @@
   --title-header-new: #ffffff;
   --bg-header-connected: #5e8af6;
   --title-header-connected: #ffffff;
-  --bg-header-tag: #46af5d;
-  --title-header-tag: #ffffff;
+  --bg-header-properties: #46af5d;
+  --title-header-properties: #ffffff;
 }
 
 .theme-dark {
@@ -30,8 +30,8 @@
   --title-header-new: #ffffff;
   --bg-header-connected: #80c9fe;
   --title-header-connected: #202277;
-  --bg-header-tag: #46af5d;
-  --title-header-tag: #ffffff;
+  --bg-header-properties: #46af5d;
+  --title-header-properties: #ffffff;
 }
 
 /* the container */
@@ -104,10 +104,10 @@
   color: var(--title-header-twohop);
 }
 
-/* tags */
-.twohop-links-tag-header {
-  background-color: var(--bg-header-tag);
-  color: var(--title-header-tag);
+/* properties */
+.twohop-links-properties-header {
+  background-color: var(--bg-header-properties);
+  color: var(--title-header-properties);
 }
 
 /* new links */
@@ -237,15 +237,15 @@ settings:
         default-light: '#ffffff'
         default-dark: '#ffffff'
     -
-        id: bg-header-tag
-        title: Header box color (Tag)
+        id: bg-header-properties
+        title: Header box color (Properties)
         type: variable-themed-color
         format: hex
         default-light: '#46af5d'
         default-dark: '#46af5d'
     -
-        id: title-header-tag
-        title: Header title color (Tag)
+        id: title-header-properties
+        title: Header title color (Properties)
         type: variable-themed-color
         format: hex
         default-light: '#ffffff'

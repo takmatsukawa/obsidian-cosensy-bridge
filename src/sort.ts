@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { TagLinks } from "./model/TagLinks";
+import { PropertiesLinks } from "./model/PropertiesLinks";
 
 export function getSortFunction(sortOrder: string) {
   switch (sortOrder) {
@@ -114,9 +114,9 @@ export async function getSortedFiles(
 
 export function getTagHierarchySortFunction(sortOrder: string) {
   const sortFunction = getSortFunction(sortOrder);
-  return (a: TagLinks, b: TagLinks) => {
-    const aTagHierarchy = a.tag.split("/");
-    const bTagHierarchy = b.tag.split("/");
+  return (a: PropertiesLinks, b: PropertiesLinks) => {
+    const aTagHierarchy = a.property.split("/");
+    const bTagHierarchy = b.property.split("/");
     for (
       let i = 0;
       i < Math.min(aTagHierarchy.length, bTagHierarchy.length);
@@ -129,6 +129,6 @@ export function getTagHierarchySortFunction(sortOrder: string) {
     if (aTagHierarchy.length !== bTagHierarchy.length) {
       return aTagHierarchy.length > bTagHierarchy.length ? -1 : 1;
     }
-    return sortFunction(a.tag, b.tag);
+    return sortFunction(a.property, b.property);
   };
 }

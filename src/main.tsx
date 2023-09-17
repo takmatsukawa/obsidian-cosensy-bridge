@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { FileEntity } from "./model/FileEntity";
 import { TwohopLink } from "./model/TwohopLink";
 import TwohopLinksRootView from "./ui/TwohopLinksRootView";
-import { TagLinks } from "./model/TagLinks";
+import { PropertiesLinks } from "./model/PropertiesLinks";
 import { removeBlockReference } from "./utils";
 import {
   TwohopPluginSettings,
@@ -200,6 +200,7 @@ export default class TwohopLinksPlugin extends Plugin {
         backwardLinks,
         twoHopLinks,
         tagLinksList,
+        frontmatterKeyLinksList,
       } = await this.links.gatherTwoHopLinks(activeFile);
 
       for (const container of this.getContainerElements(markdownView)) {
@@ -209,6 +210,7 @@ export default class TwohopLinksPlugin extends Plugin {
           backwardLinks,
           twoHopLinks,
           tagLinksList,
+          frontmatterKeyLinksList,
           container
         );
       }
@@ -223,7 +225,8 @@ export default class TwohopLinksPlugin extends Plugin {
     newLinks: FileEntity[],
     backwardConnectedLinks: FileEntity[],
     twoHopLinks: TwohopLink[],
-    tagLinksList: TagLinks[],
+    tagLinksList: PropertiesLinks[],
+    frontmatterKeyLinksList: PropertiesLinks[],
     container: Element
   ) {
     const showForwardConnectedLinks = this.settings.showForwardConnectedLinks;
@@ -235,6 +238,7 @@ export default class TwohopLinksPlugin extends Plugin {
         backwardConnectedLinks={backwardConnectedLinks}
         twoHopLinks={twoHopLinks}
         tagLinksList={tagLinksList}
+        frontmatterKeyLinksList={frontmatterKeyLinksList}
         onClick={this.openFile.bind(this)}
         getPreview={readPreview.bind(this)}
         app={this.app}
