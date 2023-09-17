@@ -510,8 +510,6 @@ export class Links {
         ) {
           tagMap[tag].push(newFileEntity);
         }
-
-        seen[markdownFile.path] = true;
       }
     }
 
