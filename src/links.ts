@@ -558,7 +558,7 @@ export class Links {
 
         if (activeFileFrontmatter[key]) {
           const activeValueHierarchy = activeFileFrontmatter[key].split("/");
-          for (let i = 0; i < activeValueHierarchy.length; i++) {
+          for (let i = activeValueHierarchy.length - 1; i >= 0; i--) {
             const hierarchicalActiveValue = activeValueHierarchy
               .slice(0, i + 1)
               .join("/");
