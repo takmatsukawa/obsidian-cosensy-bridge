@@ -6,6 +6,10 @@ export interface TwohopPluginSettings {
   autoLoadTwoHopLinks: boolean;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
+  showTwohopLinks: boolean;
+  showNewLinks: boolean;
+  showTagsLinks: boolean;
+  showPropertiesLinks: boolean;
   showImage: boolean;
   excludePaths: string[];
   initialBoxCount: number;
@@ -64,6 +68,26 @@ export class TwohopSettingTab extends PluginSettingTab {
       "Show Back Links",
       "",
       "showBackwardConnectedLinks"
+    );
+    this.createToggleSetting(
+      "Show 2Hop Links",
+      "",
+      "showTwohopLinks"
+    );
+    this.createToggleSetting(
+      "Show New Links",
+      "",
+      "showNewLinks"
+    );
+    this.createToggleSetting(
+      "Show Tags Links",
+      "",
+      "showTagsLinks"
+    );
+    this.createToggleSetting(
+      "Show Properties Links",
+      "",
+      "showPropertiesLinks"
     );
     this.createToggleSetting("Show Image in the 2hop Links", "", "showImage");
     this.createTextAreaSetting(

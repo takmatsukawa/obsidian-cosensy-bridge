@@ -20,6 +20,10 @@ interface TwohopLinksRootViewProps {
   app: App;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
+  showTwohopLinks: boolean;
+  showNewLinks: boolean;
+  showTagsLinks: boolean;
+  showPropertiesLinks: boolean;
   autoLoadTwoHopLinks: boolean;
   initialBoxCount: number;
   initialSectionCount: number;
@@ -142,6 +146,10 @@ export default class TwohopLinksRootView extends React.Component<
     const {
       showForwardConnectedLinks,
       showBackwardConnectedLinks,
+      showTwohopLinks,
+      showNewLinks,
+      showTagsLinks,
+      showPropertiesLinks,
       autoLoadTwoHopLinks,
     } = this.props;
     const { isLoaded } = this.state;
@@ -196,15 +204,17 @@ export default class TwohopLinksRootView extends React.Component<
             app={this.props.app}
           />
         )}
-        <TwohopLinksView
-          twoHopLinks={this.props.twoHopLinks}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          app={this.props.app}
-          displayedSectionCount={this.state.displayedSectionCount.twoHopLinks}
-          initialDisplayedEntitiesCount={this.props.initialBoxCount}
-          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
-        />
+        {showTwohopLinks && (
+          <TwohopLinksView
+            twoHopLinks={this.props.twoHopLinks}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            app={this.props.app}
+            displayedSectionCount={this.state.displayedSectionCount.twoHopLinks}
+            initialDisplayedEntitiesCount={this.props.initialBoxCount}
+            resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
+          />
+        )}
         {this.state.displayedSectionCount.twoHopLinks <
           this.props.twoHopLinks.length && (
           <button
@@ -215,23 +225,29 @@ export default class TwohopLinksRootView extends React.Component<
             Load more
           </button>
         )}
-        <NewLinksView
-          fileEntities={this.props.newLinks}
-          displayedBoxCount={this.state.displayedBoxCount.newLinks}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          onLoadMore={() => this.loadMoreBox("newLinks")}
-          app={this.props.app}
-        />
-        <PropertiesLinksListView
-          propertiesLinksList={this.props.tagLinksList}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          app={this.props.app}
-          displayedSectionCount={this.state.displayedSectionCount.tagLinksList}
-          initialDisplayedEntitiesCount={this.props.initialBoxCount}
-          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
-        />
+        {showNewLinks && (
+          <NewLinksView
+            fileEntities={this.props.newLinks}
+            displayedBoxCount={this.state.displayedBoxCount.newLinks}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            onLoadMore={() => this.loadMoreBox("newLinks")}
+            app={this.props.app}
+          />
+        )}
+        {showTagsLinks && (
+          <PropertiesLinksListView
+            propertiesLinksList={this.props.tagLinksList}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            app={this.props.app}
+            displayedSectionCount={
+              this.state.displayedSectionCount.tagLinksList
+            }
+            initialDisplayedEntitiesCount={this.props.initialBoxCount}
+            resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
+          />
+        )}
         {this.state.displayedSectionCount.tagLinksList <
           this.props.tagLinksList.length && (
           <button
@@ -242,17 +258,19 @@ export default class TwohopLinksRootView extends React.Component<
             Load more
           </button>
         )}
-        <PropertiesLinksListView
-          propertiesLinksList={this.props.frontmatterKeyLinksList}
-          onClick={this.props.onClick}
-          getPreview={this.props.getPreview}
-          app={this.props.app}
-          displayedSectionCount={
-            this.state.displayedSectionCount.frontmatterKeyLinksList
-          }
-          initialDisplayedEntitiesCount={this.props.initialBoxCount}
-          resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
-        />
+        {showPropertiesLinks && (
+          <PropertiesLinksListView
+            propertiesLinksList={this.props.frontmatterKeyLinksList}
+            onClick={this.props.onClick}
+            getPreview={this.props.getPreview}
+            app={this.props.app}
+            displayedSectionCount={
+              this.state.displayedSectionCount.frontmatterKeyLinksList
+            }
+            initialDisplayedEntitiesCount={this.props.initialBoxCount}
+            resetDisplayedEntitiesCount={this.props !== this.state.prevProps}
+          />
+        )}
         {this.state.displayedSectionCount.frontmatterKeyLinksList <
           this.props.frontmatterKeyLinksList.length && (
           <button

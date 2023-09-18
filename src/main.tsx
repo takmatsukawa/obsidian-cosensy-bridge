@@ -231,6 +231,10 @@ export default class TwohopLinksPlugin extends Plugin {
   ) {
     const showForwardConnectedLinks = this.settings.showForwardConnectedLinks;
     const showBackwardConnectedLinks = this.settings.showBackwardConnectedLinks;
+    const showTwohopLinks = this.settings.showTwohopLinks;
+    const showNewLinks = this.settings.showNewLinks;
+    const showTagsLinks = this.settings.showTagsLinks;
+    const showPropertiesLinks = this.settings.showPropertiesLinks;
     ReactDOM.render(
       <TwohopLinksRootView
         forwardConnectedLinks={forwardConnectedLinks}
@@ -244,6 +248,10 @@ export default class TwohopLinksPlugin extends Plugin {
         app={this.app}
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}
+        showTwohopLinks={showTwohopLinks}
+        showNewLinks={showNewLinks}
+        showTagsLinks={showTagsLinks}
+        showPropertiesLinks={showPropertiesLinks}
         autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
         initialBoxCount={this.settings.initialBoxCount}
         initialSectionCount={this.settings.initialSectionCount}
