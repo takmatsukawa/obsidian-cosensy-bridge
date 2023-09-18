@@ -554,7 +554,10 @@ export class Links {
         if (!this.settings.frontmatterKeys.includes(key)) continue;
         if (typeof value !== "string") continue;
 
-        if (activeFileFrontmatter[key]) {
+        if (
+          activeFileFrontmatter[key] &&
+          typeof activeFileFrontmatter[key] === "string"
+        ) {
           const activeValueHierarchy = activeFileFrontmatter[key].split("/");
           for (let i = activeValueHierarchy.length - 1; i >= 0; i--) {
             const hierarchicalActiveValue = activeValueHierarchy
@@ -623,7 +626,9 @@ export class Links {
       }
     );
 
-    const propertiesLinksEntities = await Promise.all(propertiesLinksEntitiesPromises);
+    const propertiesLinksEntities = await Promise.all(
+      propertiesLinksEntitiesPromises
+    );
     return propertiesLinksEntities.filter((it) => it != null);
   }
 
