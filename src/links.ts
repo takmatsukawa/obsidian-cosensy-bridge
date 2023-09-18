@@ -513,7 +513,7 @@ export class Links {
       }
     }
 
-    const tagLinksEntities = await this.createTagLinkEntities(
+    const tagLinksEntities = await this.createPropertiesLinkEntities(
       this.settings,
       tagMap,
       "tags"
@@ -591,26 +591,26 @@ export class Links {
     const frontmatterKeyLinksEntities: PropertiesLinks[] = [];
 
     for (const [key, valueMap] of Object.entries(frontmatterKeyMap)) {
-      const tagLinksEntities = await this.createTagLinkEntities(
+      const propertiesLinksEntities = await this.createPropertiesLinkEntities(
         this.settings,
         valueMap,
         key
       );
 
-      frontmatterKeyLinksEntities.push(...tagLinksEntities);
+      frontmatterKeyLinksEntities.push(...propertiesLinksEntities);
     }
 
     const sortFunction = getTagHierarchySortFunction(this.settings.sortOrder);
     return frontmatterKeyLinksEntities.sort(sortFunction);
   }
 
-  async createTagLinkEntities(
+  async createPropertiesLinkEntities(
     settings: any,
-    tagMap: Record<string, FileEntity[]>,
+    propertiesMap: Record<string, FileEntity[]>,
     key: string = ""
   ): Promise<PropertiesLinks[]> {
-    const tagLinksEntitiesPromises = Object.entries(tagMap).map(
-      async ([tag, entities]) => {
+    const propertiesLinksEntitiesPromises = Object.entries(propertiesMap).map(
+      async ([property, entities]) => {
         const sortedEntities = await this.getSortedFileEntities(
           entities,
           (entity) => entity.sourcePath,
@@ -619,12 +619,12 @@ export class Links {
         if (sortedEntities.length === 0) {
           return null;
         }
-        return new PropertiesLinks(tag, key, sortedEntities);
+        return new PropertiesLinks(property, key, sortedEntities);
       }
     );
 
-    const tagLinksEntities = await Promise.all(tagLinksEntitiesPromises);
-    return tagLinksEntities.filter((it) => it != null);
+    const propertiesLinksEntities = await Promise.all(propertiesLinksEntitiesPromises);
+    return propertiesLinksEntities.filter((it) => it != null);
   }
 
   getTagsFromCache(
