@@ -1,4 +1,4 @@
-import { MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
+import { MarkdownView, Plugin, TFile, WorkspaceLeaf, parseFrontMatterTags } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import { FileEntity } from "./model/FileEntity";
@@ -164,10 +164,9 @@ export default class TwohopLinksPlugin extends Plugin {
     let tags = cache && cache.tags ? cache.tags.map((tag) => tag.tag) : [];
 
     if (cache && cache.frontmatter && cache.frontmatter.tags) {
-      if (typeof cache.frontmatter.tags === "string") {
-        tags.push(cache.frontmatter.tags);
-      } else if (Array.isArray(cache.frontmatter.tags)) {
-        tags = tags.concat(cache.frontmatter.tags);
+      const frontMatterTags = parseFrontMatterTags(cache.frontmatter);
+      if (frontMatterTags) {
+        tags = tags.concat(frontMatterTags);
       }
     }
 
