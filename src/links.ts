@@ -352,7 +352,7 @@ export class Links {
               const sortedFileEntities = await this.getSortedFileEntities(
                 twoHopLinks[path],
                 (entity) => {
-                  const file = app.metadataCache.getFirstLinkpathDest(
+                  const file = this.app.metadataCache.getFirstLinkpathDest(
                     entity.linkText,
                     entity.sourcePath
                   );
@@ -552,40 +552,64 @@ export class Links {
 
       for (const [key, value] of Object.entries(fileFrontmatter)) {
         if (!this.settings.frontmatterKeys.includes(key)) continue;
-        if (typeof value !== "string") continue;
 
-        if (
-          activeFileFrontmatter[key] &&
-          typeof activeFileFrontmatter[key] === "string"
-        ) {
-          const activeValueHierarchy = activeFileFrontmatter[key].split("/");
+        let values: string[] = [];
+        let activeValues: string[] = [];
+
+        if (typeof value === "string") {
+          values.push(value);
+        } else if (Array.isArray(value)) {
+          values.push(...value);
+        } else {
+          continue;
+        }
+
+        if (activeFileFrontmatter[key]) {
+          if (typeof activeFileFrontmatter[key] === "string") {
+            activeValues.push(activeFileFrontmatter[key]);
+          } else if (Array.isArray(activeFileFrontmatter[key])) {
+            activeValues.push(...activeFileFrontmatter[key]);
+          } else {
+            continue;
+          }
+        } else {
+          continue;
+        }
+
+        for (const activeValue of activeValues) {
+          const activeValueHierarchy = activeValue.split("/");
           for (let i = activeValueHierarchy.length - 1; i >= 0; i--) {
             const hierarchicalActiveValue = activeValueHierarchy
               .slice(0, i + 1)
               .join("/");
 
-            const valueHierarchy = value.split("/");
-            const hierarchicalValue = valueHierarchy.slice(0, i + 1).join("/");
+            for (const value of values) {
+              const valueHierarchy = value.split("/");
+              const hierarchicalValue = valueHierarchy
+                .slice(0, i + 1)
+                .join("/");
 
-            if (hierarchicalActiveValue !== hierarchicalValue) continue;
+              if (hierarchicalActiveValue !== hierarchicalValue) continue;
 
-            frontmatterKeyMap[key] = frontmatterKeyMap[key] ?? {};
-            frontmatterKeyMap[key][hierarchicalValue] =
-              frontmatterKeyMap[key][hierarchicalValue] ?? [];
+              frontmatterKeyMap[key] = frontmatterKeyMap[key] ?? {};
+              frontmatterKeyMap[key][hierarchicalValue] =
+                frontmatterKeyMap[key][hierarchicalValue] ?? [];
 
-            if (
-              this.settings.enableDuplicateRemoval &&
-              (seen[markdownFile.path] ||
-                forwardLinkSet.has(filePathToLinkText(markdownFile.path)) ||
-                twoHopLinkSet.has(filePathToLinkText(markdownFile.path)))
-            )
-              continue;
+              if (
+                this.settings.enableDuplicateRemoval &&
+                (seen[markdownFile.path] ||
+                  forwardLinkSet.has(filePathToLinkText(markdownFile.path)) ||
+                  twoHopLinkSet.has(filePathToLinkText(markdownFile.path)))
+              ) {
+                continue;
+              }
 
-            const linkText = filePathToLinkText(markdownFile.path);
-            frontmatterKeyMap[key][hierarchicalValue].push(
-              new FileEntity(activeFile.path, linkText)
-            );
-            seen[markdownFile.path] = true;
+              const linkText = filePathToLinkText(markdownFile.path);
+              frontmatterKeyMap[key][hierarchicalValue].push(
+                new FileEntity(activeFile.path, linkText)
+              );
+              seen[markdownFile.path] = true;
+            }
           }
         }
       }
