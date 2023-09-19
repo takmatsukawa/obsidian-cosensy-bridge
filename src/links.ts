@@ -245,7 +245,7 @@ export class Links {
       }
     }
 
-    const allFiles: TFile[] = app.vault.getFiles();
+    const allFiles: TFile[] = this.app.vault.getFiles();
     const canvasFiles: TFile[] = allFiles.filter(
       (file) => file.extension === "canvas"
     );
@@ -584,6 +584,9 @@ export class Links {
               .join("/");
 
             for (const value of values) {
+              if (typeof value !== "string") {
+                continue;
+              }
               const valueHierarchy = value.split("/");
               const hierarchicalValue = valueHierarchy
                 .slice(0, i + 1)
