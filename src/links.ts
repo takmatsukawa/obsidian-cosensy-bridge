@@ -160,9 +160,11 @@ export class Links {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
-        if (!Array.isArray(canvasData.nodes)) {
-          console.error("Invalid structure in canvas: nodes is not an array");
-          canvasData = { nodes: [] };
+        if (canvasData.nodes) {
+          if (!Array.isArray(canvasData.nodes)) {
+            console.error("Invalid structure in canvas: nodes is not an array");
+            canvasData = { nodes: [] };
+          }
         }
       } catch (error) {
         console.error("Invalid JSON in canvas:", error);
@@ -170,19 +172,21 @@ export class Links {
       }
 
       const seen = new Set<string>();
-      for (const node of canvasData.nodes) {
-        if (node.type === "file") {
-          const key = node.file;
-          if (!seen.has(key)) {
-            seen.add(key);
-            const targetFile = app.vault.getAbstractFileByPath(key);
-            if (
-              targetFile &&
-              !shouldExcludePath(targetFile.path, this.settings.excludePaths)
-            ) {
-              resolvedLinks.push(new FileEntity(targetFile.path, key));
-            } else {
-              newLinks.push(new FileEntity(activeFile.path, key));
+      if (canvasData.nodes) {
+        for (const node of canvasData.nodes) {
+          if (node.type === "file") {
+            const key = node.file;
+            if (!seen.has(key)) {
+              seen.add(key);
+              const targetFile = this.app.vault.getAbstractFileByPath(key);
+              if (
+                targetFile &&
+                !shouldExcludePath(targetFile.path, this.settings.excludePaths)
+              ) {
+                resolvedLinks.push(new FileEntity(targetFile.path, key));
+              } else {
+                newLinks.push(new FileEntity(activeFile.path, key));
+              }
             }
           }
         }
@@ -255,20 +259,24 @@ export class Links {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
-        if (!Array.isArray(canvasData.nodes)) {
-          console.error("Invalid structure in canvas: nodes is not an array");
-          canvasData = { nodes: [] };
+        if (canvasData.nodes) {
+          if (!Array.isArray(canvasData.nodes)) {
+            console.error("Invalid structure in canvas: nodes is not an array");
+            canvasData = { nodes: [] };
+          }
         }
       } catch (error) {
         console.error("Invalid JSON in canvas:", error);
         canvasData = { nodes: [] };
       }
 
-      for (const node of canvasData.nodes) {
-        if (node.type === "file" && node.file === activeFile.path) {
-          const linkText = filePathToLinkText(canvasFile.path);
-          if (!forwardLinkSet.has(linkText)) {
-            backLinkEntities.push(new FileEntity(canvasFile.path, linkText));
+      if (canvasData.nodes) {
+        for (const node of canvasData.nodes) {
+          if (node.type === "file" && node.file === activeFile.path) {
+            const linkText = filePathToLinkText(canvasFile.path);
+            if (!forwardLinkSet.has(linkText)) {
+              backLinkEntities.push(new FileEntity(canvasFile.path, linkText));
+            }
           }
         }
       }
@@ -415,18 +423,22 @@ export class Links {
       let canvasData;
       try {
         canvasData = JSON.parse(canvasContent);
-        if (!Array.isArray(canvasData.nodes)) {
-          console.error("Invalid structure in canvas: nodes is not an array");
-          canvasData = { nodes: [] };
+        if (canvasData.nodes) {
+          if (!Array.isArray(canvasData.nodes)) {
+            console.error("Invalid structure in canvas: nodes is not an array");
+            canvasData = { nodes: [] };
+          }
         }
       } catch (error) {
         console.error("Invalid JSON in canvas:", error);
         canvasData = { nodes: [] };
       }
 
-      for (const node of canvasData.nodes) {
-        if (node.type === "file") {
-          activeFileLinks.add(node.file);
+      if (canvasData.nodes) {
+        for (const node of canvasData.nodes) {
+          if (node.type === "file") {
+            activeFileLinks.add(node.file);
+          }
         }
       }
     }
