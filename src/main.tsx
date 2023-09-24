@@ -1,4 +1,10 @@
-import { MarkdownView, Plugin, TFile, WorkspaceLeaf, parseFrontMatterTags } from "obsidian";
+import {
+  MarkdownView,
+  Plugin,
+  TFile,
+  WorkspaceLeaf,
+  parseFrontMatterTags,
+} from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
 import { FileEntity } from "./model/FileEntity";
@@ -58,7 +64,6 @@ export default class TwohopLinksPlugin extends Plugin {
     this.app.workspace.trigger("parse-style-settings");
 
     await this.renderTwohopLinks(true);
-    this.app.workspace.onLayoutReady(this.updateTwoHopLinksView.bind(this));
   }
 
   onunload(): void {
