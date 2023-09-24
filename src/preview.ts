@@ -4,7 +4,7 @@ import { removeBlockReference } from "./utils";
 export async function readPreview(fileEntity: FileEntity) {
   const linkText = removeBlockReference(fileEntity.linkText);
 
-  if (fileEntity.linkText.match(/\.(png|bmp|jpg)$/i)) {
+  if (fileEntity.linkText.match(/\.(png|bmp|jpg|jpeg)$/i)) {
     const file = this.app.metadataCache.getFirstLinkpathDest(
       linkText,
       fileEntity.sourcePath
@@ -43,7 +43,7 @@ export async function readPreview(fileEntity: FileEntity) {
   const content = await this.app.vault.cachedRead(file);
 
   const combinedMatch = content.match(
-    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:png|bmp|jpg))\)|!\[\[([^\]]+.(?:png|bmp|jpg))\]\]/
+    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:png|bmp|jpg|jpeg))\)|!\[\[([^\]]+.(?:png|bmp|jpg|jpeg))\]\]/
   );
   if (combinedMatch) {
     const iframeUrl = combinedMatch[1];
