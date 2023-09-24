@@ -112,15 +112,6 @@ export default class TwohopLinksPlugin extends Plugin {
     }
   }
 
-  async updateOpenTwoHopLinksView() {
-    for (let leaf of this.app.workspace.getLeavesOfType("TwoHopLinksView")) {
-      let view = leaf.view;
-      if (view instanceof SeparatePaneView) {
-        await view.onOpen();
-      }
-    }
-  }
-
   isTwoHopLinksViewOpen(): boolean {
     return this.app.workspace.getLeavesOfType("TwoHopLinksView").length > 0;
   }
