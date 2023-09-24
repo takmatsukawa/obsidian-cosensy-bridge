@@ -79,7 +79,7 @@ export async function readPreview(fileEntity: FileEntity) {
   }
 
   const updatedContent = content.replace(/^(.*\n)?---[\s\S]*?---\n?/m, "");
-  const lines = updatedContent.split(/\n/);
+  const lines = shortenExternalLinkInPreview(updatedContent).split(/\n/);
   return lines
     .filter((it: string) => {
       return it.match(/\S/) && !it.match(/^#/) && !it.match(/^https?:\/\//);
@@ -99,4 +99,10 @@ export function getThumbnailUrlFromIframeUrl(iframeUrl: string): string | null {
   }
 
   return null;
+}
+
+export function shortenExternalLinkInPreview(content: string): string {
+  // ex. [ABC](https://www.example.com/) -> [ABC](...)
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  return content.replace(regex, "[$1](...)");
 }
