@@ -102,7 +102,6 @@ export function getThumbnailUrlFromIframeUrl(iframeUrl: string): string | null {
 }
 
 export function shortenExternalLinkInPreview(content: string): string {
-  // ex. [ABC](https://www.example.com/) -> [ABC](...)
   const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
   return content.replace(regex, "[$1](...)");
 }
