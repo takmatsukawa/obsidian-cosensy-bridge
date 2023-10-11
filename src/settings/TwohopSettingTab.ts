@@ -135,7 +135,7 @@ export class TwohopSettingTab extends PluginSettingTab {
       "createFilesForMultiLinked"
     );
     this.createTextSettingStr(
-      "Set frontmatte property key as title",
+      "Set frontmatter property key as title",
       "Set the property key of the frontmatter to be used as the title to be displayed.",
       "frontmatterPropertyKeyAsTitle"
     );
