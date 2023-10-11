@@ -56,7 +56,6 @@ export default class LinkView
         title: title
       });
     }
-    console.log(title) // for development
   }
 
   componentWillUnmount() {
