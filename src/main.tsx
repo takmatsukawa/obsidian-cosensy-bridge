@@ -18,6 +18,7 @@ import {
 } from "./settings/TwohopSettingTab";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import { readPreview } from "./preview";
+import { getTitle } from "./getTitle";
 import { loadSettings } from "./settings/index";
 import { Links } from "./links";
 
@@ -99,7 +100,7 @@ export default class TwohopLinksPlugin extends Plugin {
     );
   }
 
-  async updateTwoHopLinksView() {
+  async updateTwoHopLinksView() {   
     if (this.isTwoHopLinksViewOpen()) {
       this.app.workspace.detachLeavesOfType("TwoHopLinksView");
     }
@@ -170,6 +171,12 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   async renderTwohopLinks(isForceUpdate: boolean): Promise<void> {
+    // for development start
+    console.log("--- start ---");
+    let title = await getTitle.call(this, new FileEntity("folder1/無題のファイル 1.md", "test file 3"));
+    console.log(`title: ${title}`);
+    console.log("--- end ---");
+    // for development end
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
     }
