@@ -247,6 +247,7 @@ export default class TwohopLinksPlugin extends Plugin {
         frontmatterKeyLinksList={frontmatterKeyLinksList}
         onClick={this.openFile.bind(this)}
         getPreview={readPreview.bind(this)}
+        getTitle={getTitle.bind(this)}
         app={this.app}
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}

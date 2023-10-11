@@ -8,6 +8,7 @@ interface TwohopLinksViewProps {
   twoHopLinks: TwohopLink[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   app: App;
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
@@ -18,6 +19,7 @@ interface LinkComponentProps {
   link: TwohopLink;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   app: App;
   initialDisplayedEntitiesCount: number;
   resetDisplayedEntitiesCount: boolean;
@@ -93,6 +95,7 @@ class LinkComponent extends React.Component<
               key={this.props.link.link.linkText + it.key()}
               onClick={this.props.onClick}
               getPreview={this.props.getPreview}
+              getTitle={this.props.getTitle}
               app={this.props.app}
             />
           ))}

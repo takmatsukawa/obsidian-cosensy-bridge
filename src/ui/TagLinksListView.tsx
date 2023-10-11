@@ -8,6 +8,7 @@ interface PropertiesLinksListViewProps {
   propertiesLinksList: PropertiesLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   app: App;
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
@@ -18,6 +19,7 @@ interface LinkComponentProps {
   tagLink: PropertiesLinks;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   app: App;
   initialDisplayedEntitiesCount: number;
   resetDisplayedEntitiesCount: boolean;
@@ -90,6 +92,7 @@ const LinkComponent = React.memo(
                 key={this.props.tagLink.property + it.key() + index}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
+                getTitle={this.props.getTitle}
                 app={this.props.app}
               />
             ))}
@@ -120,6 +123,7 @@ const PropertiesLinksListView = React.memo(
                 tagLink={tagLink}
                 onClick={this.props.onClick}
                 getPreview={this.props.getPreview}
+                getTitle={this.props.getTitle}
                 app={this.props.app}
                 initialDisplayedEntitiesCount={
                   this.props.initialDisplayedEntitiesCount

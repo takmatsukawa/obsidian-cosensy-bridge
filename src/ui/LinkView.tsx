@@ -8,6 +8,7 @@ interface LinkViewProps {
   fileEntity: FileEntity;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
+  getTitle: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
   app: App;
 }
 

@@ -17,6 +17,7 @@ interface TwohopLinksRootViewProps {
   frontmatterKeyLinksList: PropertiesLinks[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   app: App;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
@@ -184,6 +185,7 @@ export default class TwohopLinksRootView extends React.Component<
             }
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             onLoadMore={() => this.loadMoreBox("forwardConnectedLinks")}
             title={"Links"}
             className={"twohop-links-forward-links"}
@@ -198,6 +200,7 @@ export default class TwohopLinksRootView extends React.Component<
             }
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             onLoadMore={() => this.loadMoreBox("backwardConnectedLinks")}
             title={"Back Links"}
             className={"twohop-links-back-links"}
@@ -209,6 +212,7 @@ export default class TwohopLinksRootView extends React.Component<
             twoHopLinks={this.props.twoHopLinks}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             app={this.props.app}
             displayedSectionCount={this.state.displayedSectionCount.twoHopLinks}
             initialDisplayedEntitiesCount={this.props.initialBoxCount}
@@ -231,6 +235,7 @@ export default class TwohopLinksRootView extends React.Component<
             displayedBoxCount={this.state.displayedBoxCount.newLinks}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             onLoadMore={() => this.loadMoreBox("newLinks")}
             app={this.props.app}
           />
@@ -240,6 +245,7 @@ export default class TwohopLinksRootView extends React.Component<
             propertiesLinksList={this.props.tagLinksList}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             app={this.props.app}
             displayedSectionCount={
               this.state.displayedSectionCount.tagLinksList
@@ -263,6 +269,7 @@ export default class TwohopLinksRootView extends React.Component<
             propertiesLinksList={this.props.frontmatterKeyLinksList}
             onClick={this.props.onClick}
             getPreview={this.props.getPreview}
+            getTitle={this.props.getTitle}
             app={this.props.app}
             displayedSectionCount={
               this.state.displayedSectionCount.frontmatterKeyLinksList
