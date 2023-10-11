@@ -171,12 +171,6 @@ export default class TwohopLinksPlugin extends Plugin {
   }
 
   async renderTwohopLinks(isForceUpdate: boolean): Promise<void> {
-    // for development start
-    console.log("--- start ---");
-    let title = await getTitle.call(this, new FileEntity("folder1/無題のファイル 1.md", "test file 3"));
-    console.log(`title: ${title}`);
-    console.log("--- end ---");
-    // for development end
     if (this.settings.showTwoHopLinksInSeparatePane) {
       return;
     }

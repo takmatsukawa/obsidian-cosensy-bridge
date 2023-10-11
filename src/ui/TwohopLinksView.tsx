@@ -5,6 +5,7 @@ import { TwohopLink } from "../model/TwohopLink";
 import { App, setIcon } from "obsidian";
 
 interface TwohopLinksViewProps {
+  
   twoHopLinks: TwohopLink[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
@@ -27,6 +28,7 @@ interface LinkComponentProps {
 
 interface LinkComponentState {
   displayedEntitiesCount: number;
+  title: string;
 }
 
 class LinkComponent extends React.Component<
@@ -39,13 +41,20 @@ class LinkComponent extends React.Component<
     super(props);
     this.state = {
       displayedEntitiesCount: props.initialDisplayedEntitiesCount,
+      title: null
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.loadMoreRef.current) {
       setIcon(this.loadMoreRef.current, "more-horizontal");
     }
+
+    const title = await this.props.getTitle(this.props.link.link)
+
+    this.setState({
+      title: title
+    });
   }
 
   componentDidUpdate(prevProps: LinkComponentProps) {
@@ -85,7 +94,7 @@ class LinkComponent extends React.Component<
             event.button == 0 && this.props.onClick(this.props.link.link)
           }
         >
-          {this.props.link.link.linkText.replace(/\.md$/, "")}
+          {this.state.title}
         </div>
         {this.props.link.fileEntities
           .slice(0, this.state.displayedEntitiesCount)
@@ -126,6 +135,7 @@ class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
               link={link}
               onClick={this.props.onClick}
               getPreview={this.props.getPreview}
+              getTitle={this.props.getTitle}
               app={this.props.app}
               initialDisplayedEntitiesCount={
                 this.props.initialDisplayedEntitiesCount

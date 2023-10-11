@@ -9,7 +9,6 @@ export async function getTitle(fileEntity: FileEntity) {
     console.log(linkText); // for development
 
     if (!this.settings.frontmatterPropertyKeyAsTitle) return linkText;
-
     const file = this.app.metadataCache.getFirstLinkpathDest(
     linkText,
     fileEntity.sourcePath
@@ -21,7 +20,7 @@ export async function getTitle(fileEntity: FileEntity) {
 
     const metadata = this.app.metadataCache.getFileCache(file)
 
-    if(!metadata.frontmatter?[this.settings.frontmatterPropertyKeyAsTitle]) return linkText;
+    if(!metadata.frontmatter || !metadata.frontmatter[this.settings.frontmatterPropertyKeyAsTitle]) return linkText;
 
     const title = metadata.frontmatter[this.settings.frontmatterPropertyKeyAsTitle];
     return title;
