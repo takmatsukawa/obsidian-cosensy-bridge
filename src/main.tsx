@@ -18,6 +18,7 @@ import {
 } from "./settings/TwohopSettingTab";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import { readPreview } from "./preview";
+import { getTitle } from "./getTitle";
 import { loadSettings } from "./settings/index";
 import { Links } from "./links";
 
@@ -99,7 +100,7 @@ export default class TwohopLinksPlugin extends Plugin {
     );
   }
 
-  async updateTwoHopLinksView() {
+  async updateTwoHopLinksView() {   
     if (this.isTwoHopLinksViewOpen()) {
       this.app.workspace.detachLeavesOfType("TwoHopLinksView");
     }
@@ -240,6 +241,7 @@ export default class TwohopLinksPlugin extends Plugin {
         frontmatterKeyLinksList={frontmatterKeyLinksList}
         onClick={this.openFile.bind(this)}
         getPreview={readPreview.bind(this)}
+        getTitle={getTitle.bind(this)}
         app={this.app}
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}

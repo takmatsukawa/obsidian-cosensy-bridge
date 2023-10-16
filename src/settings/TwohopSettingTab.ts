@@ -20,6 +20,7 @@ export interface TwohopPluginSettings {
   excludeTags: string[];
   panePositionIsRight: boolean;
   createFilesForMultiLinked: boolean;
+  frontmatterPropertyKeyAsTitle: string;
   frontmatterKeys: string[];
   [key: string]: boolean | string | string[] | number | undefined;
 }
@@ -133,6 +134,11 @@ export class TwohopSettingTab extends PluginSettingTab {
       "Create new files for links that are connected to more than one other file.",
       "createFilesForMultiLinked"
     );
+    this.createTextSettingStr(
+      "Set frontmatter property key as title",
+      "Set the property key of the frontmatter to be used as the title to be displayed.",
+      "frontmatterPropertyKeyAsTitle"
+    );
   }
 
   createToggleSetting(
@@ -216,6 +222,24 @@ export class TwohopSettingTab extends PluginSettingTab {
           this.plugin.settings[key] = Number(
             (event.target as HTMLInputElement).value
           );
+          await saveSettings(this.plugin);
+          await this.plugin.updateTwoHopLinksView();
+        });
+      });
+  }
+
+  createTextSettingStr(
+    name: string,
+    desc: string,
+    key: keyof TwohopPluginSettings
+  ) {
+    new Setting(this.containerEl)
+      .setName(name)
+      .setDesc(desc)
+      .addText((text) => {
+        text.setValue(this.plugin.settings[key] as string);
+        text.inputEl.addEventListener("blur", async (event) => {
+          this.plugin.settings[key] = (event.target as HTMLInputElement).value;
           await saveSettings(this.plugin);
           await this.plugin.updateTwoHopLinksView();
         });

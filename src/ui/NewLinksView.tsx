@@ -8,6 +8,7 @@ interface NewLinksViewProps {
   displayedBoxCount: number;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   onLoadMore: () => void;
   app: App;
 }
@@ -55,6 +56,7 @@ export default class NewLinksView extends React.Component<NewLinksViewProps> {
                   key={it.key()}
                   onClick={this.props.onClick}
                   getPreview={this.props.getPreview}
+                  getTitle={this.props.getTitle}
                   app={this.props.app}
                 />
               );

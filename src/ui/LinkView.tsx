@@ -8,11 +8,13 @@ interface LinkViewProps {
   fileEntity: FileEntity;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
+  getTitle: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
   app: App;
 }
 
 interface LinkViewState {
   preview: string;
+  title: string;
   mouseDown: boolean;
   dragging: boolean;
   touchStart: number;
@@ -30,6 +32,7 @@ export default class LinkView
     super(props);
     this.state = {
       preview: null,
+      title: null,
       mouseDown: false,
       dragging: false,
       touchStart: 0,
@@ -43,8 +46,15 @@ export default class LinkView
       this.props.fileEntity,
       this.abortController.signal
     );
+    const title = await this.props.getTitle(
+      this.props.fileEntity,
+      this.abortController.signal
+    )
     if (!this.abortController.signal.aborted) {
-      this.setState({ preview });
+      this.setState({
+        preview: preview,
+        title: title
+      });
     }
   }
 
@@ -173,7 +183,7 @@ export default class LinkView
         }}
       >
         <div className="twohop-links-box-title">
-          {removeBlockReference(this.props.fileEntity.linkText)}
+          {this.state.title}
         </div>
         <div className={"twohop-links-box-preview"}>
           {this.state.preview &&

@@ -8,6 +8,7 @@ interface ConnectedLinksViewProps {
   displayedBoxCount: number;
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
+  getTitle: (fileEntity: FileEntity) => Promise<string>;
   onLoadMore: () => void;
   title: string;
   className: string;
@@ -56,6 +57,7 @@ export default class ConnectedLinksView extends React.Component<ConnectedLinksVi
                   key={it.key()}
                   onClick={this.props.onClick}
                   getPreview={this.props.getPreview}
+                  getTitle={this.props.getTitle}
                   app={this.props.app}
                 />
               );
