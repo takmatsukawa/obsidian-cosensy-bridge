@@ -100,7 +100,7 @@ export default class TwohopLinksPlugin extends Plugin {
     );
   }
 
-  async updateTwoHopLinksView() {   
+  async updateTwoHopLinksView() {
     if (this.isTwoHopLinksViewOpen()) {
       this.app.workspace.detachLeavesOfType("TwoHopLinksView");
     }
