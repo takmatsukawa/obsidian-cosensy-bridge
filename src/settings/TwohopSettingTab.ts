@@ -109,12 +109,12 @@ export class TwohopSettingTab extends PluginSettingTab {
       "frontmatterKeys",
       "key1\nkey2\nkey3"
     );
-    this.createTextSetting(
+    this.createTextSettingNum(
       "Initial Box Count",
       "Set the initial number of boxes to be displayed.",
       "initialBoxCount"
     );
-    this.createTextSetting(
+    this.createTextSettingNum(
       "Initial Section Count",
       "Set the initial number of sections to be displayed.",
       "initialSectionCount"
@@ -208,7 +208,7 @@ export class TwohopSettingTab extends PluginSettingTab {
       });
   }
 
-  createTextSetting(
+  createTextSettingNum(
     name: string,
     desc: string,
     key: keyof TwohopPluginSettings
