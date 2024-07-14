@@ -12,25 +12,21 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "17.0.2",
-    "obsidian": "obsidianmd/obsidian-api#master",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "tslib": "2.2.0"
-  },
   "devDependencies": {
     "@babel/preset-react": "7.12.13",
     "@types/node": "^14.14.37",
+    "@types/react": "^17.0.80",
+    "@types/react-dom": "^17.0.25",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "builtin-modules": "3.3.0",
-    "eslint": "^7.25.0",
-    "obsidian": "^0.12.0",
-    "prettier": "^2.3.0",
-    "tslib": "^2.2.0",
     "esbuild": "0.14.47",
+    "eslint": "^7.25.0",
+    "obsidian": "^1.5.7-1",
+    "prettier": "^2.3.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   }
 }
