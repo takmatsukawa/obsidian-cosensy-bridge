@@ -3,7 +3,6 @@ import TwohopLinksPlugin from "../main";
 import { saveSettings } from ".";
 
 export interface TwohopPluginSettings {
-  autoLoadTwoHopLinks: boolean;
   showForwardConnectedLinks: boolean;
   showBackwardConnectedLinks: boolean;
   showTwohopLinks: boolean;
@@ -121,11 +120,6 @@ export class TwohopSettingTab extends PluginSettingTab {
       "Enable Duplicate Removal",
       "Enable the removal of duplicate links.",
       "enableDuplicateRemoval"
-    );
-    this.createToggleSetting(
-      "Auto Load Links",
-      "Automatically load links when opening a note.",
-      "autoLoadTwoHopLinks"
     );
     this.createToggleSetting(
       "Create Files For Multiple Linked",

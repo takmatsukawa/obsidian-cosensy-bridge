@@ -249,7 +249,6 @@ export default class TwohopLinksPlugin extends Plugin {
         showNewLinks={showNewLinks}
         showTagsLinks={showTagsLinks}
         showPropertiesLinks={showPropertiesLinks}
-        autoLoadTwoHopLinks={this.settings.autoLoadTwoHopLinks}
         initialBoxCount={this.settings.initialBoxCount}
         initialSectionCount={this.settings.initialSectionCount}
       />,
