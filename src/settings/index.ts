@@ -2,7 +2,6 @@ import { TwohopPluginSettings } from "./TwohopSettingTab";
 import TwohopLinksPlugin from "../main";
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
-  autoLoadTwoHopLinks: true,
   showForwardConnectedLinks: true,
   showBackwardConnectedLinks: true,
   showTwohopLinks: true,

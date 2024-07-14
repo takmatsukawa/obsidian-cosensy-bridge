@@ -25,7 +25,6 @@ interface TwohopLinksRootViewProps {
   showNewLinks: boolean;
   showTagsLinks: boolean;
   showPropertiesLinks: boolean;
-  autoLoadTwoHopLinks: boolean;
   initialBoxCount: number;
   initialSectionCount: number;
 }
@@ -42,7 +41,6 @@ interface TwohopLinksRootViewState {
   displayedBoxCount: Record<Category, number>;
   displayedSectionCount: Record<Category, number>;
   prevProps: TwohopLinksRootViewProps | null;
-  isLoaded: boolean;
 }
 
 export default class TwohopLinksRootView extends React.Component<
@@ -78,7 +76,6 @@ export default class TwohopLinksRootView extends React.Component<
         frontmatterKeyLinksList: props.initialSectionCount,
       },
       prevProps: null,
-      isLoaded: props.autoLoadTwoHopLinks,
     };
   }
 
@@ -106,7 +103,7 @@ export default class TwohopLinksRootView extends React.Component<
   };
 
   componentDidMount() {
-    for (let ref of Object.values(this.loadMoreRefs)) {
+    for (const ref of Object.values(this.loadMoreRefs)) {
       if (ref.current) {
         setIcon(ref.current, "more-horizontal");
       }
@@ -133,10 +130,9 @@ export default class TwohopLinksRootView extends React.Component<
           frontmatterKeyLinksList: this.props.initialSectionCount,
         },
         prevProps: this.props,
-        isLoaded: this.props.autoLoadTwoHopLinks,
       });
     }
-    for (let ref of Object.values(this.loadMoreRefs)) {
+    for (const ref of Object.values(this.loadMoreRefs)) {
       if (ref.current) {
         setIcon(ref.current, "more-horizontal");
       }
@@ -151,20 +147,7 @@ export default class TwohopLinksRootView extends React.Component<
       showNewLinks,
       showTagsLinks,
       showPropertiesLinks,
-      autoLoadTwoHopLinks,
     } = this.props;
-    const { isLoaded } = this.state;
-
-    if (!autoLoadTwoHopLinks && !isLoaded) {
-      return (
-        <button
-          className="load-more-button"
-          onClick={() => this.setState({ isLoaded: true })}
-        >
-          Show 2hop links
-        </button>
-      );
-    }
 
     return (
       <div>
