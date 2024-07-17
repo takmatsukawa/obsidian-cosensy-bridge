@@ -7,7 +7,8 @@
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prettier": "prettier --write **/*.{tsx,md,ts}"
+    "prettier": "prettier --write **/*.{tsx,md,ts}",
+    "clean": "del * '!main.js' '!styles.css' '!manifest.json'"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "builtin-modules": "3.3.0",
+    "del-cli": "^5.1.0",
     "esbuild": "0.14.47",
     "eslint": "^7.25.0",
     "obsidian": "^1.5.7-1",
