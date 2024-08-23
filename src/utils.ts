@@ -1,11 +1,15 @@
 // is there a better way to get link text?
 export function filePathToLinkText(path: string): string {
-  return path.replace(/\.md$/, "").replace(/.*\//, "");
+  return removeMdExtension(path).replace(/.*\//, "");
 }
 
 // Remove block reference. e.g. `[[somefile#^7e8e5f]]`
 export function removeBlockReference(src: string): string {
   return src.replace(/#.*$/, "");
+}
+
+export function removeMdExtension(src: string): string {
+  return src.replace(/\.md$/, "");
 }
 
 export function shouldExcludePath(
