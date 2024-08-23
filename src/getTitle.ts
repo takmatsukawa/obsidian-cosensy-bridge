@@ -1,10 +1,11 @@
 import { FileEntity } from "./model/FileEntity";
-import { removeBlockReference } from "./utils";
+import { removeBlockReference, removeMdExtension } from "./utils";
 
 export async function getTitle(fileEntity: FileEntity) {
-  const linkText = removeBlockReference(fileEntity.linkText);
+  const linkText = removeMdExtension(removeBlockReference(fileEntity.linkText));
 
   if (!this.settings.frontmatterPropertyKeyAsTitle) return linkText;
+
   const file = this.app.metadataCache.getFirstLinkpathDest(
     linkText,
     fileEntity.sourcePath
